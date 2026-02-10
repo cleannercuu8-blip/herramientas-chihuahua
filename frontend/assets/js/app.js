@@ -33,7 +33,7 @@
       statsGrid.innerHTML = `
         <div class="stat-card">
           <div class="stat-number" style="color: var(--azul-institucional);">${stats.total}</div>
-          <div class="stat-label">Total Organizaciones</div>
+          <div class="stat-label">Total Dependencias/Entidades</div>
         </div>
         <div class="stat-card">
           <div class="stat-number" style="color: var(--verde-cumplimiento);">${stats.verde}</div>
@@ -60,7 +60,7 @@
       const container = document.getElementById('tabla-semaforo');
 
       if (organizaciones.length === 0) {
-        container.innerHTML = '<p class="text-center">No hay organizaciones registradas</p>';
+        container.innerHTML = '<p class="text-center p-20">No hay Dependencias/Entidades registradas</p>';
         return;
       }
 
@@ -69,7 +69,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Organización</th>
+                <th>Dependencia/Entidad</th>
                 <th>Tipo</th>
                 <th>Semáforo</th>
                 <th>Observaciones</th>
@@ -112,7 +112,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Organización</th>
+                <th>Dependencia/Entidad</th>
                 <th>Tipo Herramienta</th>
                 <th>Archivo</th>
                 <th>Última Actualización</th>
@@ -193,7 +193,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Organización</th>
+                <th>Dependencia/Entidad</th>
                 <th>Tipo</th>
                 <th>Archivo</th>
                 <th>Fecha Emisión</th>
@@ -364,7 +364,7 @@
       const resultado = await window.OrganizacionesModule.crear(organizacion);
 
       if (resultado.success) {
-        window.AppUtils.mostrarAlerta('Organización creada exitosamente', 'success');
+        window.AppUtils.mostrarAlerta('Se ha registrado la Dependencia/Entidad exitosamente', 'success');
         cerrarModal('modal-nueva-organizacion');
         e.target.reset();
         cargarOrganizaciones();
@@ -401,7 +401,7 @@
       const resultado = await window.OrganizacionesModule.actualizar(id, organizacion);
 
       if (resultado.success) {
-        window.AppUtils.mostrarAlerta('Organización actualizada correctamente', 'success');
+        window.AppUtils.mostrarAlerta('Dependencia/Entidad actualizada correctamente', 'success');
         cerrarModal('modal-editar-organizacion');
         cargarOrganizaciones();
       } else {
@@ -419,7 +419,7 @@
     });
   }
 
-  // Ver detalle de organización
+  // Ver detalle de Dependencia/Entidad
   window.verDetalleOrganizacion = async function (id) {
     const resultado = await window.OrganizacionesModule.obtenerPorId(id);
     if (resultado.success) {

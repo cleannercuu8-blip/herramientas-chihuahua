@@ -19,7 +19,7 @@
     <!-- Navegación -->
     <div class="nav">
       <button class="nav-btn active" onclick="mostrarVista('dashboard')">📊 Dashboard</button>
-      <button class="nav-btn" onclick="mostrarVista('organizaciones')">🏢 Organizaciones</button>
+      <button class="nav-btn" onclick="mostrarVista('organizaciones')">🏢 Dependencia/Entidad</button>
       <button class="nav-btn" onclick="mostrarVista('herramientas')">📁 Herramientas</button>
       <button class="nav-btn" onclick="mostrarVista('reportes')">📈 Reportes</button>
       <button class="nav-btn logout" onclick="window.AppUtils.cerrarSesion()">🚪 Cerrar Sesión</button>
@@ -57,26 +57,47 @@
       </div>
     </div>
 
-    <!-- Vista Organizaciones -->
+    <!-- Vista Dependencias/Entidades -->
     <div id="vista-organizaciones" class="hidden">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Organizaciones</h3>
-          <button class="btn btn-primary" onclick="mostrarModalNuevaOrganizacion()">
-            ➕ Nueva Organización
-          </button>
+          <h3 class="card-title">Dependencias y Entidades</h3>
+          <div id="admin-actions-organizaciones" style="display: none;">
+            <button class="btn btn-primary" onclick="mostrarModal('modal-nueva-organizacion')">
+              ➕ Nueva Dependencia/Entidad
+            </button>
+          </div>
         </div>
 
         <div class="form-group">
           <select class="form-select" id="filtro-tipo-org" onchange="cargarOrganizaciones()">
-            <option value="">Todas las organizaciones</option>
+            <option value="">Todas</option>
             <option value="DEPENDENCIA">Dependencias</option>
             <option value="ENTIDAD_PARAESTATAL">Entidades Paraestatales</option>
           </select>
         </div>
 
         <div id="tabla-organizaciones">
-          <div class="spinner"></div>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Titular</th>
+                  <th>Semáforo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="organizaciones-tabla-body">
+                <tr>
+                  <td colspan="5" class="text-center">
+                    <div class="spinner"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -136,11 +157,11 @@
     </div>
   </div>
 
-  <!-- Modal Nueva Organización -->
+  <!-- Modal Nueva Dependencia/Entidad -->
   <div id="modal-nueva-organizacion" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="card-title">Nueva Organización</h3>
+        <h3 class="card-title">Nueva Dependencia/Entidad</h3>
         <button class="modal-close" onclick="cerrarModal('modal-nueva-organizacion')">&times;</button>
       </div>
       <form id="form-nueva-organizacion">
@@ -182,7 +203,7 @@
       </div>
       <form id="form-nueva-herramienta">
         <div class="form-group">
-          <label class="form-label">Organización</label>
+          <label class="form-label">Dependencia/Entidad</label>
           <select class="form-select" name="organizacion_id" id="select-organizacion" required>
             <option value="">Cargando...</option>
           </select>
@@ -233,10 +254,54 @@
   </div>
 
   <!-- Modal Detalle Organización -->
+  <!-- Modal Editar Dependencia/Entidad -->
+  <div id="modal-editar-organizacion" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title">Editar Dependencia/Entidad</h3>
+        <button class="modal-close" onclick="cerrarModal('modal-editar-organizacion')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-editar-organizacion">
+          <input type="hidden" name="id" id="edit-org-id">
+          <div class="form-group">
+            <label class="form-label">Nombre de la Dependencia/Entidad</label>
+            <input type="text" class="form-input" name="nombre" id="edit-org-nombre" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select class="form-input" name="tipo" id="edit-org-tipo" required>
+              <option value="DEPENDENCIA">Dependencia</option>
+              <option value="ENTIDAD_PARAESTATAL">Entidad Paraestatal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Siglas</label>
+            <input type="text" class="form-input" name="siglas" id="edit-org-siglas">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Titular</label>
+            <input type="text" class="form-input" name="titular" id="edit-org-titular">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Decreto de Creación (URL)</label>
+            <input type="url" class="form-input" name="decreto_creacion" id="edit-org-decreto"
+              placeholder="https://...">
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar Cambios</button>
+            <button type="button" class="btn btn-secondary" style="flex: 1;"
+              onclick="cerrarModal('modal-editar-organizacion')">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div id="modal-detalle-organizacion" class="modal">
     <div class="modal-content" style="max-width: 800px;">
       <div class="modal-header">
-        <h3 class="card-title" id="detalle-org-nombre">Detalle de la Organización</h3>
+        <h3 class="card-title" id="detalle-org-nombre">Detalle de la Dependencia/Entidad</h3>
         <button class="modal-close" onclick="cerrarModal('modal-detalle-organizacion')">&times;</button>
       </div>
       <div class="modal-body">
