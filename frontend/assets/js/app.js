@@ -365,10 +365,8 @@
               </div>
               <div><strong>Estado:</strong> <span class="badge badge-verde">✓ Registrado</span></div>
               <div><strong>Fecha:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
-              ${herramienta.fecha_publicacion_poe ? `<div><strong>POE:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_publicacion_poe)}</div>` : ''}
               <div style="display: flex; gap: 5px; margin-top: 10px;">
-                <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 1; text-align: center;" target="_blank">Descargar 📥</a>
-                ${herramienta.link_publicacion_poe ? `<a href="${herramienta.link_publicacion_poe}" class="btn btn-secondary btn-sm" target="_blank" title="Ver POE">POE 🔗</a>` : ''}
+                <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 1; text-align: center;" target="_blank">Ver Documento 🔗</a>
               </div>
             </div>
           `;

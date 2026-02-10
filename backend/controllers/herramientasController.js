@@ -85,9 +85,10 @@ class HerramientasController {
                 });
             }
 
-            if (!req.file) {
+            // Si no hay archivo, el link es obligatorio
+            if (!req.file && !link_publicacion_poe) {
                 return res.status(400).json({
-                    error: 'Debe subir un archivo'
+                    error: 'Debe subir un archivo o proporcionar un link de consulta'
                 });
             }
 
@@ -111,10 +112,10 @@ class HerramientasController {
             const nuevaHerramienta = await Herramienta.crear({
                 organizacion_id,
                 tipo_herramienta,
-                nombre_archivo: req.file.originalname,
-                ruta_archivo: req.file.path,
+                nombre_archivo: req.file ? req.file.originalname : 'Documento en línea',
+                ruta_archivo: req.file ? req.file.path : link_publicacion_poe,
                 fecha_emision,
-                fecha_publicacion_poe: fecha_publicacion_poe || null,
+                fecha_publicacion_poe: fecha_publicacion_poe || fecha_emision, // Sincronizar fechas por defecto
                 link_publicacion_poe: link_publicacion_poe || null,
                 version: version || '1.0',
                 usuario_registro_id: req.usuario.id
@@ -167,13 +168,17 @@ class HerramientasController {
             let ruta_archivo = herramienta.ruta_archivo;
 
             if (req.file) {
-                // Eliminar archivo anterior
-                if (fs.existsSync(herramienta.ruta_archivo)) {
+                // Eliminar archivo anterior si era físico
+                if (herramienta.ruta_archivo && !herramienta.ruta_archivo.startsWith('http') && fs.existsSync(herramienta.ruta_archivo)) {
                     fs.unlinkSync(herramienta.ruta_archivo);
                 }
 
                 nombre_archivo = req.file.originalname;
                 ruta_archivo = req.file.path;
+            } else if (link_publicacion_poe && (!herramienta.ruta_archivo || herramienta.ruta_archivo.startsWith('http'))) {
+                // Si solo se actualiza el link y no hay archivo físico
+                ruta_archivo = link_publicacion_poe;
+                nombre_archivo = 'Documento en línea';
             }
 
             const resultado = await Herramienta.actualizar(id, {
@@ -181,7 +186,7 @@ class HerramientasController {
                 nombre_archivo,
                 ruta_archivo,
                 fecha_emision: fecha_emision || herramienta.fecha_emision,
-                fecha_publicacion_poe: fecha_publicacion_poe !== undefined ? fecha_publicacion_poe : herramienta.fecha_publicacion_poe,
+                fecha_publicacion_poe: fecha_publicacion_poe !== undefined ? fecha_publicacion_poe : (fecha_emision || herramienta.fecha_publicacion_poe),
                 link_publicacion_poe: link_publicacion_poe !== undefined ? link_publicacion_poe : herramienta.link_publicacion_poe,
                 estatus_poe: req.body.estatus_poe !== undefined ? req.body.estatus_poe : herramienta.estatus_poe,
                 comentarios: req.body.comentarios !== undefined ? req.body.comentarios : herramienta.comentarios,
