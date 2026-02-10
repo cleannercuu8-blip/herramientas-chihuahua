@@ -2,15 +2,13 @@
 const OrganizacionesModule = {
     // Obtener todas las organizaciones
     async obtenerTodas(tipo = null, limite = null, offset = null) {
+        const params = new URLSearchParams();
+        if (tipo) params.append('tipo', tipo);
+        if (limite) params.append('limite', limite);
+        if (offset) params.append('offset', offset);
+
         try {
-            let endpoint = '/organizaciones?';
-            const params = [];
-            if (tipo) params.push(`tipo=${tipo}`);
-            if (limite) params.push(`limite=${limite}`);
-            if (offset) params.push(`offset=${offset}`);
-
-            endpoint += params.join('&');
-
+            const endpoint = `/organizaciones?${params.toString()}`;
             const data = await window.AppUtils.fetchAPI(endpoint);
             return { success: true, data: data.organizaciones };
         } catch (error) {

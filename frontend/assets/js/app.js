@@ -8,13 +8,37 @@
   }
 
   // Inicializar aplicación
-  document.addEventListener('DOMContentLoaded', () => {
-    cargarReporteGeneral();
-    configurarEventos();
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!window.AppUtils.verificarAutenticacion()) return;
 
+    // Notificar si el servidor tarda en responder (Render cold start)
+    const healthCheckTimeout = setTimeout(() => {
+      window.AppUtils.mostrarAlerta('El servidor está despertando, por favor espere...', 'info');
+    }, 3000);
+
+    try {
+      // Ping de salud al servidor
+      await fetch(`${window.AppUtils.API_URL}/health`).catch(() => { });
+      clearTimeout(healthCheckTimeout);
+
+      await initApp();
+      setupEventListeners();
+    } catch (error) {
+      console.error('Error al inicializar la aplicación:', error);
+    }
+  });
+
+  // Función para inicializar la aplicación (anteriormente dentro de DOMContentLoaded)
+  async function initApp() {
+    await cargarReporteGeneral();
     // Al cargar, inicializar estado de navegación
     AppState.currentView = 'dashboard';
-  });
+  }
+
+  // Función para configurar eventos (anteriormente dentro de DOMContentLoaded)
+  function setupEventListeners() {
+    configurarEventos();
+  }
 
   // Cargar Reporte General
   async function cargarReporteGeneral() {
@@ -25,34 +49,38 @@
     ]);
   }
 
-  // Cargar estadísticas
+  // Cargar estadísticas del dashboard
   async function cargarEstadisticas() {
-    const resultado = await window.OrganizacionesModule.obtenerEstadisticas();
-
-    if (resultado.success) {
-      const stats = resultado.data;
+    try {
+      const resultado = await window.OrganizacionesModule.obtenerEstadisticas();
       const statsGrid = document.getElementById('stats-grid');
 
-      html += `
-        <div class="stat-card">
-          <div class="stat-number" style="color: var(--azul-institucional);">${stats.total || 0}</div>
-          <div class="stat-label">Total Dependencias/Entidades</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" style="color: var(--verde-cumplimiento);">${stats.verde || 0}</div>
-          <div class="stat-label">En Cumplimiento</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" style="color: var(--amarillo-advertencia);">${stats.amarillo || 0}</div>
-          <div class="stat-label">Con Advertencias</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" style="color: var(--rojo-incumplimiento);">${stats.rojo || 0}</div>
-          <div class="stat-label">Incumplimiento</div>
-        </div>
-      `;
-    } else {
-      document.getElementById('stats-grid').innerHTML = '<p class="text-error">Error al cargar estadísticas</p>';
+      if (resultado.success) {
+        const stats = resultado.data;
+        statsGrid.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-number" style="color: var(--azul-institucional);">${stats.total || 0}</div>
+            <div class="stat-label">Total Dependencias/Entidades</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" style="color: var(--verde-cumplimiento);">${stats.verde || 0}</div>
+            <div class="stat-label">En Cumplimiento</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" style="color: var(--amarillo-advertencia);">${stats.amarillo || 0}</div>
+            <div class="stat-label">Con Advertencias</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" style="color: var(--rojo-incumplimiento);">${stats.rojo || 0}</div>
+            <div class="stat-label">Incumplimiento</div>
+          </div>
+        `;
+      } else {
+        throw new Error(resultado.error);
+      }
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+      document.getElementById('stats-grid').innerHTML = '<p class="text-error">Error al cargar estadísticas. Por favor, reintente.</p>';
     }
   }
 

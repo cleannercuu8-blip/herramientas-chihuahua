@@ -13,8 +13,13 @@ app.use(express.urlencoded({ extended: true }));
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// Rutas de API
-const authRoutes = require('./routes/auth');
+// Health check para Render
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date() });
+});
+
+// Rutas
+app.use('/api/auth', require('./routes/auth'));
 const organizacionesRoutes = require('./routes/organizaciones');
 const herramientasRoutes = require('./routes/herramientas');
 const reportesRoutes = require('./routes/reportes');
