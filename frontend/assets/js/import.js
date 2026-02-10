@@ -23,6 +23,13 @@
         const list = document.getElementById('import-columns-list');
         list.innerHTML = columns.map(c => `<li>${c}</li>`).join('');
 
+        // Link de plantilla dinámico
+        const btnPlantilla = document.getElementById('btn-descargar-plantilla');
+        if (btnPlantilla) {
+            btnPlantilla.href = `assets/templates/plantilla_${tipo}.xlsx`;
+            btnPlantilla.download = `plantilla_${tipo}.xlsx`;
+        }
+
         window.mostrarModal('modal-importar-excel');
     };
 

@@ -12,7 +12,12 @@
         document.getElementById('perfil-email').textContent = usuario.email;
 
         const badge = document.getElementById('perfil-rol-badge');
-        badge.textContent = usuario.rol;
+        const rolesMap = {
+            'ADMINISTRADOR': 'Administrador',
+            'CAPTURISTA': 'Capturista',
+            'CONSULTOR': 'Consultor'
+        };
+        badge.textContent = rolesMap[usuario.rol] || usuario.rol;
         badge.className = 'badge ' + (usuario.rol === 'ADMINISTRADOR' ? 'badge-verde' : 'badge-amarillo');
 
         window.mostrarModal('modal-perfil');

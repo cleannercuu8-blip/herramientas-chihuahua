@@ -506,8 +506,27 @@ body {
 
 .tool-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
+}
+
+#detalle-herramientas-dependencia {
+  scrollbar-width: thin;
+  scrollbar-color: var(--azul-institucional) var(--gris-claro);
+}
+
+#detalle-herramientas-dependencia::-webkit-scrollbar {
+  width: 8px;
+}
+
+#detalle-herramientas-dependencia::-webkit-scrollbar-track {
+  background: var(--gris-claro);
+  border-radius: 10px;
+}
+
+#detalle-herramientas-dependencia::-webkit-scrollbar-thumb {
+  background-color: var(--azul-institucional);
+  border-radius: 10px;
 }
 
 .tool-item-card {

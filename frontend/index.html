@@ -139,7 +139,7 @@
         </div>
 
         <!-- Columna Derecha: Detalle de Herramientas -->
-        <div class="card" style="flex: 2; min-width: 400px;">
+        <div class="card" style="flex: 4; min-width: 400px; display: flex; flex-direction: column;">
           <div class="card-header" style="justify-content: space-between;">
             <h3 class="card-title" id="titulo-dependencia-seleccionada">Herramientas</h3>
             <div id="admin-actions-herramientas" style="display: none;">
@@ -153,14 +153,15 @@
               </div>
             </div>
           </div>
-        </div>
-        <div id="detalle-herramientas-dependencia" class="p-20">
-          <div class="empty-state">
-            <p>Seleccione una dependencia de la lista para ver su información y herramientas.</p>
+          <div id="detalle-herramientas-dependencia" class="p-20" style="flex: 1; overflow-y: auto;">
+            <div class="empty-state">
+              <p>Seleccione una dependencia de la lista para ver su información y herramientas.</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
 
   <!-- Vista Reportes -->
@@ -227,6 +228,12 @@
         <p id="import-instructions" class="mb-15 text-muted">
           Sube un archivo .xlsx con los encabezados correspondientes.
         </p>
+        <div class="mb-15">
+          <a id="btn-descargar-plantilla" href="#" class="btn btn-secondary w-100"
+            style="text-decoration: none; text-align: center; display: block;">
+            📄 Descargar Plantilla Excel
+          </a>
+        </div>
         <form id="form-importar-excel" onsubmit="window.handleImportarExcel(event)">
           <input type="hidden" id="import-type">
           <div class="form-group">
