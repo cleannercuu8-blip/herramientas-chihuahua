@@ -45,7 +45,8 @@ async function inicializarBaseDatos() {
             console.log('   Contraseña: admin123');
             console.log('   ⚠️  IMPORTANTE: Cambia esta contraseña después del primer login\n');
         } catch (error) {
-            if (error.message.includes('UNIQUE')) {
+            // Postgres error code 23505 is unique_violation
+            if (error.code === '23505' || error.message.includes('UNIQUE') || error.message.includes('duplicate key')) {
                 console.log('ℹ️  Usuario administrador ya existe\n');
             } else {
                 throw error;
