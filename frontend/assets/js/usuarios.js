@@ -141,6 +141,7 @@
         document.getElementById('form-usuario-admin').reset();
         document.getElementById('admin-user-id').value = '';
         document.getElementById('admin-user-pwd').required = true;
+        document.getElementById('container-pwd-admin').style.display = 'block';
         window.mostrarModal('modal-usuario-admin');
     };
 
@@ -153,6 +154,7 @@
         document.getElementById('admin-user-activo').value = u.activo;
         document.getElementById('admin-user-pwd').required = false;
         document.getElementById('admin-user-pwd').value = '';
+        document.getElementById('container-pwd-admin').style.display = 'none';
         window.mostrarModal('modal-usuario-admin');
     };
 
