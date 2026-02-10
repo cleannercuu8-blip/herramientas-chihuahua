@@ -33,7 +33,8 @@
     await cargarReporteGeneral();
 
     // Configurar visibilidad de mantenimiento para administradores
-    const usuario = window.AuthModule.getUsuario();
+    const getUsuario = window.AuthModule.getUsuario || (() => window.AppUtils.AppState.usuario);
+    const usuario = getUsuario();
     if (usuario && usuario.rol === 'ADMINISTRADOR') {
       const maintenanceSection = document.getElementById('admin-maintenance-section');
       if (maintenanceSection) maintenanceSection.style.display = 'block';
@@ -501,10 +502,11 @@
       case 'reportes':
         cargarHistorial();
         // Asegurar que mantenimiento sea visible para admins si cambian de vista
-        const usuario = window.AuthModule.getUsuario();
+        const getUsuarioVista = window.AuthModule.getUsuario || (() => window.AppUtils.AppState.usuario);
+        const usuarioVista = getUsuarioVista();
         const maintenanceSection = document.getElementById('admin-maintenance-section');
         if (maintenanceSection) {
-          maintenanceSection.style.display = (usuario && usuario.rol === 'ADMINISTRADOR') ? 'block' : 'none';
+          maintenanceSection.style.display = (usuarioVista && usuarioVista.rol === 'ADMINISTRADOR') ? 'block' : 'none';
         }
         break;
     }

@@ -40,6 +40,11 @@ const AuthModule = {
         } catch (error) {
             return { success: false, error: error.message };
         }
+    },
+
+    // Obtener usuario actual del AppUtils
+    getUsuario() {
+        return window.AppUtils.AppState.usuario;
     }
 };
 
