@@ -422,7 +422,7 @@
     try {
       const resultado = await window.HerramientasModule.obtenerPorId(id);
       if (resultado.success) {
-        const h = resultado.data;
+        const h = resultado.data.herramienta; // CORRECCIÓN: Acceder al objeto 'herramienta'
         document.getElementById('edit-herramienta-id').value = h.id;
         document.getElementById('edit-herramienta-org-id').value = h.organizacion_id;
         document.getElementById('edit-herramienta-tipo').value = h.tipo_herramienta;
@@ -445,7 +445,8 @@
         // Mostrar/Ocultar botón de eliminar herramienta segun rol
         const btnEliminarTool = document.querySelector('#modal-editar-herramienta .btn-danger');
         if (btnEliminarTool) {
-          btnEliminarTool.style.display = window.AppUtils.AppState.rol === 'ADMINISTRADOR' ? 'block' : 'none';
+          const userRol = (window.AppUtils.AppState.rol || '').toUpperCase();
+          btnEliminarTool.style.display = userRol === 'ADMINISTRADOR' ? 'block' : 'none';
         }
 
         window.mostrarModal('modal-editar-herramienta');
