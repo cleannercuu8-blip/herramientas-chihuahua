@@ -221,13 +221,20 @@
             <td>${window.AppUtils.getNombreTipoHerramienta(h.tipo_herramienta)}</td>
             <td>${h.nombre_archivo}</td>
             <td>${window.AppUtils.formatearFechaCorta(h.fecha_emision)}</td>
-            <td>${h.estatus_poe || (h.fecha_publicacion_poe ? 'PUBLICADO' : '✗')}</td>
             <td>
-              <a href="${window.HerramientasModule.getUrlDescarga(h.id)}" 
-                 class="btn btn-success" 
-                 target="_blank">
-                Descargar
-              </a>
+              <span class="badge" style="background-color: ${h.estatus_poe && h.estatus_poe.includes('PUBLICADO') ? 'var(--verde-cumplimiento)' : 'var(--gris-suave)'}; color: white;">
+                ${h.estatus_poe || (h.fecha_publicacion_poe ? 'PUBLICADO' : 'PENDIENTE')}
+              </span>
+            </td>
+            <td>
+              <div style="display: flex; gap: 5px;">
+                <a href="${window.HerramientasModule.getUrlDescarga(h.id)}" 
+                   class="btn btn-success btn-sm" 
+                   target="_blank">
+                   📥
+                </a>
+                ${h.link_publicacion_poe ? `<a href="${h.link_publicacion_poe}" class="btn btn-secondary btn-sm" target="_blank" title="Ver POE">🔗</a>` : ''}
+              </div>
             </td>
           </tr>
         `;
@@ -408,7 +415,64 @@
     const resultado = await window.OrganizacionesModule.obtenerPorId(id);
     if (resultado.success) {
       const org = resultado.data;
-      alert(`Organización: ${org.nombre}\nTipo: ${org.tipo}\nSemáforo: ${org.semaforo}\n\nHerramientas: ${org.herramientas.length}`);
+
+      // Llenar datos básicos
+      document.getElementById('detalle-org-nombre').textContent = org.nombre;
+      document.getElementById('detalle-org-tipo').textContent = window.AppUtils.getNombreTipoOrganizacion(org.tipo);
+      document.getElementById('detalle-org-titular').textContent = org.titular || 'No registrado';
+      document.getElementById('detalle-org-siglas').textContent = org.siglas || 'N/A';
+
+      const badgeSemaforo = document.getElementById('detalle-org-semaforo');
+      badgeSemaforo.innerHTML = window.AppUtils.getBadgeSemaforo(org.semaforo);
+
+      // Decreto de creación
+      const decretoLink = document.getElementById('detalle-org-decreto');
+      const containerDecreto = document.getElementById('container-decreto');
+      if (org.decreto_creacion && org.decreto_creacion.startsWith('http')) {
+        decretoLink.href = org.decreto_creacion;
+        containerDecreto.style.display = 'block';
+      } else {
+        containerDecreto.style.display = 'none';
+      }
+
+      // Lista de herramientas
+      const herramientasList = document.getElementById('detalle-org-herramientas-lista');
+      if (org.herramientas.length === 0) {
+        herramientasList.innerHTML = '<p class="p-20 text-center">No hay herramientas registradas</p>';
+      } else {
+        let html = `
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+        org.herramientas.forEach(h => {
+          html += `
+                        <tr>
+                            <td>${window.AppUtils.getNombreTipoHerramienta(h.tipo_herramienta)}</td>
+                            <td>${window.AppUtils.formatearFechaCorta(h.fecha_emision)}</td>
+                            <td style="display: flex; gap: 5px;">
+                                <a href="${window.HerramientasModule.getUrlDescarga(h.id)}" class="btn btn-success btn-sm" target="_blank" title="Descargar">📥</a>
+                                ${h.link_publicacion_poe ? `<a href="${h.link_publicacion_poe}" class="btn btn-secondary btn-sm" target="_blank" title="Ver POE">🔗</a>` : ''}
+                            </td>
+                        </tr>
+                    `;
+        });
+
+        html += '</tbody></table></div>';
+        herramientasList.innerHTML = html;
+      }
+
+      window.mostrarModal('modal-detalle-organizacion');
+    } else {
+      window.AppUtils.mostrarAlerta(resultado.error, 'error');
     }
   };
 

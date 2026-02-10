@@ -99,7 +99,9 @@ class OrganizacionesController {
             const nuevaOrganizacion = await Organizacion.crear({
                 nombre,
                 tipo,
-                siglas: siglas || null
+                siglas: siglas || null,
+                titular: req.body.titular || null,
+                decreto_creacion: req.body.decreto_creacion || null
             });
 
             res.status(201).json({
@@ -119,7 +121,7 @@ class OrganizacionesController {
     static async actualizar(req, res) {
         try {
             const { id } = req.params;
-            const { nombre, tipo, siglas, activo } = req.body;
+            const { nombre, tipo, siglas, activo, titular, decreto_creacion } = req.body;
 
             const organizacion = await Organizacion.obtenerPorId(id);
 
@@ -131,6 +133,8 @@ class OrganizacionesController {
                 nombre: nombre || organizacion.nombre,
                 tipo: tipo || organizacion.tipo,
                 siglas: siglas !== undefined ? siglas : organizacion.siglas,
+                titular: titular !== undefined ? titular : organizacion.titular,
+                decreto_creacion: decreto_creacion !== undefined ? decreto_creacion : organizacion.decreto_creacion,
                 activo: activo !== undefined ? activo : organizacion.activo
             });
 

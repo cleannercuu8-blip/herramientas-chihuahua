@@ -179,6 +179,8 @@ class HerramientasController {
                 fecha_emision: fecha_emision || herramienta.fecha_emision,
                 fecha_publicacion_poe: fecha_publicacion_poe !== undefined ? fecha_publicacion_poe : herramienta.fecha_publicacion_poe,
                 link_publicacion_poe: link_publicacion_poe !== undefined ? link_publicacion_poe : herramienta.link_publicacion_poe,
+                estatus_poe: req.body.estatus_poe !== undefined ? req.body.estatus_poe : herramienta.estatus_poe,
+                comentarios: req.body.comentarios !== undefined ? req.body.comentarios : herramienta.comentarios,
                 version: version || herramienta.version
             });
 
@@ -243,6 +245,11 @@ class HerramientasController {
 
             if (!herramienta) {
                 return res.status(404).json({ error: 'Herramienta no encontrada' });
+            }
+
+            // Si es un link externo (comienza con http), redireccionar
+            if (herramienta.ruta_archivo && (herramienta.ruta_archivo.startsWith('http://') || herramienta.ruta_archivo.startsWith('https://'))) {
+                return res.redirect(herramienta.ruta_archivo);
             }
 
             if (!fs.existsSync(herramienta.ruta_archivo)) {

@@ -232,6 +232,51 @@
     </div>
   </div>
 
+  <!-- Modal Detalle Organización -->
+  <div id="modal-detalle-organizacion" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 class="card-title" id="detalle-org-nombre">Detalle de la Organización</h3>
+        <button class="modal-close" onclick="cerrarModal('modal-detalle-organizacion')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stats-grid mb-20">
+          <div class="stat-card">
+            <div class="stat-label">Tipo</div>
+            <div id="detalle-org-tipo" class="stat-number" style="font-size: 1.2rem; color: var(--azul-institucional);">
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Semáforo</div>
+            <div id="detalle-org-semaforo" class="stat-number" style="font-size: 1.2rem;"></div>
+          </div>
+        </div>
+
+        <div class="card mb-20">
+          <div class="card-header">
+            <h4 class="card-title">Información General</h4>
+          </div>
+          <div class="p-20">
+            <p><strong>Titular:</strong> <span id="detalle-org-titular"></span></p>
+            <p><strong>Siglas:</strong> <span id="detalle-org-siglas"></span></p>
+            <p id="container-decreto"><strong>Decreto de Creación:</strong> <a id="detalle-org-decreto" href="#"
+                target="_blank" class="btn btn-secondary btn-sm" style="display: inline-block; margin-left: 10px;">Ver
+                Documento 🔗</a></p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Herramientas Registradas</h4>
+          </div>
+          <div id="detalle-org-herramientas-lista">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/auth.js"></script>
