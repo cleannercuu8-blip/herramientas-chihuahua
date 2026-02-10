@@ -364,7 +364,7 @@
                 <div class="tool-card-title">${AppUtils.getNombreTipoHerramienta(tipo)}</div>
               </div>
               <div><strong>Estado:</strong> <span class="badge badge-verde">✓ Registrado</span></div>
-              <div><strong>Fecha:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
+              <div><strong>Fecha de publicación:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
               <div style="display: flex; gap: 5px; margin-top: 10px;">
                 <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 2; text-align: center;" target="_blank">Ver Documento 🔗</a>
                 ${isAdmin ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
@@ -423,10 +423,26 @@
         document.getElementById('edit-herramienta-org-id').value = h.organizacion_id;
         document.getElementById('edit-herramienta-tipo').value = h.tipo_herramienta;
         document.getElementById('edit-herramienta-link').value = h.link_publicacion_poe || '';
-        document.getElementById('edit-herramienta-fecha').value = h.fecha_emision ? String(h.fecha_emision).substring(0, 10) : '';
+
+        // Formatear fecha para el input date (YYYY-MM-DD)
+        if (h.fecha_emision) {
+          const dateObj = new Date(h.fecha_emision);
+          if (!isNaN(dateObj.getTime())) {
+            document.getElementById('edit-herramienta-fecha').value = dateObj.toISOString().split('T')[0];
+          }
+        } else {
+          document.getElementById('edit-herramienta-fecha').value = '';
+        }
+
         document.getElementById('edit-herramienta-estatus').value = h.estatus_poe || '';
         document.getElementById('edit-herramienta-comentarios').value = h.comentarios || '';
         document.getElementById('edit-herramienta-version').value = h.version || '1.0';
+
+        // Mostrar/Ocultar botón de eliminar herramienta segun rol
+        const btnEliminarTool = document.querySelector('#modal-editar-herramienta .btn-danger');
+        if (btnEliminarTool) {
+          btnEliminarTool.style.display = window.AppUtils.AppState.rol === 'ADMINISTRADOR' ? 'block' : 'none';
+        }
 
         window.mostrarModal('modal-editar-herramienta');
       } else {
@@ -463,6 +479,42 @@
     } catch (error) {
       console.error(error);
       window.AppUtils.mostrarAlerta('Error de red al actualizar herramienta', 'error');
+    } finally {
+      window.AppUtils.mostrarSpinner(false);
+    }
+  };
+
+  // Borrar herramienta definitivamente
+  window.borrarHerramientaDefinitivamente = async function () {
+    const id = document.getElementById('edit-herramienta-id').value;
+    const orgId = document.getElementById('edit-herramienta-org-id').value;
+    const tipo = document.getElementById('edit-herramienta-tipo').value;
+
+    if (!confirm(`¿ESTÁ SEGURO? Esta acción eliminará permanentemente esta herramienta (${tipo}) e historial vinculado. Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    const confirmacionExtra = prompt(`Para confirmar la eliminación, escriba \"ELIMINAR\":`);
+    if (confirmacionExtra !== 'ELIMINAR') {
+      alert('Confirmación incorrecta.');
+      return;
+    }
+
+    window.AppUtils.mostrarSpinner(true);
+    try {
+      const resultado = await window.HerramientasModule.eliminar(id);
+      if (resultado.success) {
+        window.AppUtils.mostrarAlerta('Herramienta eliminada exitosamente', 'success');
+        window.cerrarModal('modal-editar-herramienta');
+        // Recargar vista actual
+        await window.verHerramientasPorDependencia(orgId);
+        await cargarReporteGeneral();
+      } else {
+        window.AppUtils.mostrarAlerta(resultado.error, 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      window.AppUtils.mostrarAlerta('Error al eliminar herramienta', 'error');
     } finally {
       window.AppUtils.mostrarSpinner(false);
     }
