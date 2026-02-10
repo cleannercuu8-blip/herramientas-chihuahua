@@ -366,7 +366,8 @@
               <div><strong>Estado:</strong> <span class="badge badge-verde">✓ Registrado</span></div>
               <div><strong>Fecha:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
               <div style="display: flex; gap: 5px; margin-top: 10px;">
-                <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 1; text-align: center;" target="_blank">Ver Documento 🔗</a>
+                <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 2; text-align: center;" target="_blank">Ver Documento 🔗</a>
+                ${isAdmin ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
               </div>
             </div>
           `;
@@ -408,6 +409,62 @@
     const select = document.getElementById('select-organizacion');
     if (select) {
       select.value = idDependenciaSeleccionada;
+    }
+  };
+
+  // Abrir modal de editar herramienta
+  window.mostrarModalEditarHerramienta = async function (id) {
+    window.AppUtils.mostrarSpinner(true);
+    try {
+      const resultado = await window.HerramientasModule.obtenerPorId(id);
+      if (resultado.success) {
+        const h = resultado.data;
+        document.getElementById('edit-herramienta-id').value = h.id;
+        document.getElementById('edit-herramienta-org-id').value = h.organizacion_id;
+        document.getElementById('edit-herramienta-tipo').value = h.tipo_herramienta;
+        document.getElementById('edit-herramienta-link').value = h.link_publicacion_poe || '';
+        document.getElementById('edit-herramienta-fecha').value = h.fecha_emision ? h.fecha_emision.substring(0, 10) : '';
+        document.getElementById('edit-herramienta-estatus').value = h.estatus_poe || '';
+        document.getElementById('edit-herramienta-comentarios').value = h.comentarios || '';
+        document.getElementById('edit-herramienta-version').value = h.version || '1.0';
+
+        window.mostrarModal('modal-editar-herramienta');
+      } else {
+        window.AppUtils.mostrarAlerta(resultado.error, 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      window.AppUtils.mostrarAlerta('Error al cargar datos de la herramienta', 'error');
+    } finally {
+      window.AppUtils.mostrarSpinner(false);
+    }
+  };
+
+  // Guardar cambios de herramienta
+  window.guardarCambiosHerramienta = async function (event) {
+    event.preventDefault();
+    const form = event.target;
+    const id = document.getElementById('edit-herramienta-id').value;
+    const orgId = document.getElementById('edit-herramienta-org-id').value;
+    const formData = new FormData(form);
+
+    window.AppUtils.mostrarSpinner(true);
+    try {
+      const resultado = await window.HerramientasModule.actualizar(id, formData);
+      if (resultado.success) {
+        window.AppUtils.mostrarAlerta('Herramienta actualizada exitosamente', 'success');
+        window.cerrarModal('modal-editar-herramienta');
+        // Recargar vista actual
+        await window.verHerramientasPorDependencia(orgId);
+        await cargarReporteGeneral();
+      } else {
+        window.AppUtils.mostrarAlerta(resultado.error, 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      window.AppUtils.mostrarAlerta('Error de red al actualizar herramienta', 'error');
+    } finally {
+      window.AppUtils.mostrarSpinner(false);
     }
   };
 

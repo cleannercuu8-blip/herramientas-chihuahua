@@ -7,7 +7,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'chihuahua-herramientas-secret-2024
  * Verifica que el token JWT sea válido
  */
 const verificarToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
+    let token = req.headers['authorization']?.split(' ')[1];
+
+    // También permitir pasar el token como parámetro de consulta para descargas
+    if (!token && req.query.token) {
+        token = req.query.token;
+    }
 
     if (!token) {
         return res.status(401).json({

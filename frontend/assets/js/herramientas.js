@@ -81,7 +81,7 @@ const HerramientasModule = {
 
     // Descargar archivo
     getUrlDescarga(id) {
-        return `${window.AppUtils.API_URL}/herramientas/${id}/descargar`;
+        return `${window.AppUtils.API_URL}/herramientas/${id}/descargar?token=${window.AppUtils.AppState.token}`;
     }
 };
 
