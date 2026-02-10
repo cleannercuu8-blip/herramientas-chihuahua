@@ -30,7 +30,7 @@
 
   // Función para inicializar la aplicación
   async function initApp() {
-    await cargarOrganizaciones();
+    window.mostrarVista('organizaciones');
 
     // Configurar visibilidad de mantenimiento para administradores
     const getUsuario = window.AuthModule.getUsuario || (() => window.AppUtils.AppState.usuario);
