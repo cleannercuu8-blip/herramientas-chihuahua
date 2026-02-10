@@ -30,7 +30,7 @@
 
   // Función para inicializar la aplicación
   async function initApp() {
-    await cargarReporteGeneral();
+    await cargarOrganizaciones();
 
     // Configurar visibilidad de mantenimiento para administradores
     const getUsuario = window.AuthModule.getUsuario || (() => window.AppUtils.AppState.usuario);
@@ -41,7 +41,7 @@
     }
 
     // Al cargar, inicializar estado de navegación
-    AppState.currentView = 'dashboard';
+    AppState.currentView = 'organizaciones';
   }
 
   // Función para configurar eventos (anteriormente dentro de DOMContentLoaded)
