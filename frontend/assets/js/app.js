@@ -423,7 +423,7 @@
         document.getElementById('edit-herramienta-org-id').value = h.organizacion_id;
         document.getElementById('edit-herramienta-tipo').value = h.tipo_herramienta;
         document.getElementById('edit-herramienta-link').value = h.link_publicacion_poe || '';
-        document.getElementById('edit-herramienta-fecha').value = h.fecha_emision ? h.fecha_emision.substring(0, 10) : '';
+        document.getElementById('edit-herramienta-fecha').value = h.fecha_emision ? String(h.fecha_emision).substring(0, 10) : '';
         document.getElementById('edit-herramienta-estatus').value = h.estatus_poe || '';
         document.getElementById('edit-herramienta-comentarios').value = h.comentarios || '';
         document.getElementById('edit-herramienta-version').value = h.version || '1.0';

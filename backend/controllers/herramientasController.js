@@ -175,22 +175,28 @@ class HerramientasController {
 
                 nombre_archivo = req.file.originalname;
                 ruta_archivo = req.file.path;
-            } else if (link_publicacion_poe && (!herramienta.ruta_archivo || herramienta.ruta_archivo.startsWith('http'))) {
-                // Si solo se actualiza el link y no hay archivo físico
+            } else if (link_publicacion_poe && link_publicacion_poe !== herramienta.link_publicacion_poe) {
+                // Si el link cambió y no hay archivo físico nuevo
                 ruta_archivo = link_publicacion_poe;
-                nombre_archivo = 'Documento en línea';
+                // Solo cambiar el nombre si antes no era un documento en línea o si queremos resetearlo
+                if (!herramienta.ruta_archivo || herramienta.ruta_archivo.startsWith('http')) {
+                    nombre_archivo = 'Documento en línea';
+                }
             }
 
+            // Función auxiliar para elegir valor (no sobreescribir con vacíos si hay anterior)
+            const pick = (nuevo, viejo) => (nuevo !== undefined && nuevo !== '') ? nuevo : viejo;
+
             const resultado = await Herramienta.actualizar(id, {
-                tipo_herramienta: tipo_herramienta || herramienta.tipo_herramienta,
+                tipo_herramienta: pick(tipo_herramienta, herramienta.tipo_herramienta),
                 nombre_archivo,
                 ruta_archivo,
-                fecha_emision: fecha_emision || herramienta.fecha_emision,
-                fecha_publicacion_poe: fecha_publicacion_poe !== undefined ? fecha_publicacion_poe : (fecha_emision || herramienta.fecha_publicacion_poe),
-                link_publicacion_poe: link_publicacion_poe !== undefined ? link_publicacion_poe : herramienta.link_publicacion_poe,
-                estatus_poe: req.body.estatus_poe !== undefined ? req.body.estatus_poe : herramienta.estatus_poe,
-                comentarios: req.body.comentarios !== undefined ? req.body.comentarios : herramienta.comentarios,
-                version: version || herramienta.version
+                fecha_emision: pick(fecha_emision, herramienta.fecha_emision),
+                fecha_publicacion_poe: pick(fecha_publicacion_poe, (fecha_emision || herramienta.fecha_publicacion_poe)),
+                link_publicacion_poe: pick(link_publicacion_poe, herramienta.link_publicacion_poe),
+                estatus_poe: pick(req.body.estatus_poe, herramienta.estatus_poe),
+                comentarios: pick(req.body.comentarios, herramienta.comentarios),
+                version: pick(version, herramienta.version)
             });
 
             // Registrar en historial
