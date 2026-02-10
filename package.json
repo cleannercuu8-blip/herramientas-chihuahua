@@ -4,7 +4,7 @@
   "description": "Sistema de Registro de Herramientas Organizacionales - Gobierno de Chihuahua",
   "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "node backend/scripts/initDatabase.js && node backend/server.js",
     "dev": "nodemon backend/server.js",
     "init-db": "node backend/scripts/initDatabase.js"
   },
