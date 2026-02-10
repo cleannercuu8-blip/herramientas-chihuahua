@@ -122,22 +122,24 @@ function mostrarAlerta(mensaje, tipo = 'success') {
     }, 5000);
 }
 
-// Formatear fecha
+// Formatear fecha (Usar UTC para evitar saltos de día por zona horaria)
 function formatearFecha(fecha) {
     if (!fecha) return '-';
+    // Ignorar tiempo y zona horaria, tratar como fecha pura
     const date = new Date(fecha);
     return date.toLocaleDateString('es-MX', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
+        timeZone: 'UTC'
     });
 }
 
-// Formatear fecha corta
+// Formatear fecha corta (Usar UTC)
 function formatearFechaCorta(fecha) {
     if (!fecha) return '-';
     const date = new Date(fecha);
-    return date.toLocaleDateString('es-MX');
+    return date.toLocaleDateString('es-MX', { timeZone: 'UTC' });
 }
 
 // Obtener badge de semáforo

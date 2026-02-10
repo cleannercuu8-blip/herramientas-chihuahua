@@ -445,7 +445,7 @@
         // Mostrar/Ocultar botón de eliminar herramienta segun rol
         const btnEliminarTool = document.querySelector('#modal-editar-herramienta .btn-danger');
         if (btnEliminarTool) {
-          const userRol = (window.AppUtils.AppState.rol || '').toUpperCase();
+          const userRol = (window.AppUtils.AppState.usuario?.rol || '').toUpperCase();
           btnEliminarTool.style.display = userRol === 'ADMINISTRADOR' ? 'block' : 'none';
         }
 
