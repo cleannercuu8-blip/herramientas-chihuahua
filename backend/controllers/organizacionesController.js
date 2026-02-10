@@ -21,17 +21,14 @@ class OrganizacionesController {
                 organizaciones = await Organizacion.obtenerTodas();
             }
 
-            // Calcular estatus de semáforo para cada organización
-            const organizacionesConSemaforo = await Promise.all(
-                organizaciones.map(async (org) => {
-                    const semaforo = await SemaforoService.calcularEstatus(org.id, org.tipo);
-                    return {
-                        ...org,
-                        semaforo: semaforo.estatus,
-                        detalles_semaforo: semaforo.detalles
-                    };
-                })
-            );
+            // Servir desde la caché
+            const organizacionesConSemaforo = organizaciones.map(org => ({
+                ...org,
+                semaforo: org.semaforo || 'ROJO',
+                detalles_semaforo: typeof org.detalles_semaforo === 'string'
+                    ? JSON.parse(org.detalles_semaforo)
+                    : org.detalles_semaforo
+            }));
 
             res.json({ organizaciones: organizacionesConSemaforo });
 
@@ -57,15 +54,14 @@ class OrganizacionesController {
             // Obtener herramientas de la organización
             const herramientas = await Herramienta.obtenerPorOrganizacion(id);
 
-            // Calcular semáforo
-            const semaforo = await SemaforoService.calcularEstatus(id, organizacion.tipo);
-
             res.json({
                 organizacion: {
                     ...organizacion,
                     herramientas,
-                    semaforo: semaforo.estatus,
-                    detalles_semaforo: semaforo.detalles
+                    semaforo: organizacion.semaforo || 'ROJO',
+                    detalles_semaforo: typeof organizacion.detalles_semaforo === 'string'
+                        ? JSON.parse(organizacion.detalles_semaforo)
+                        : organizacion.detalles_semaforo
                 }
             });
 
@@ -191,11 +187,13 @@ class OrganizacionesController {
             };
 
             for (const org of organizaciones) {
-                const semaforo = await SemaforoService.calcularEstatus(org.id, org.tipo);
+                const estatus = (org.semaforo || 'ROJO').toLowerCase();
 
-                estadisticas[semaforo.estatus.toLowerCase()]++;
-                estadisticas.porTipo[org.tipo].total++;
-                estadisticas.porTipo[org.tipo][semaforo.estatus.toLowerCase()]++;
+                if (estadisticas[estatus] !== undefined) {
+                    estadisticas[estatus]++;
+                    estadisticas.porTipo[org.tipo].total++;
+                    estadisticas.porTipo[org.tipo][estatus]++;
+                }
             }
 
             res.json({ estadisticas });

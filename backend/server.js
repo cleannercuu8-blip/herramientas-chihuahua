@@ -105,7 +105,9 @@ app.post('/api/admin/migrate-schema', async (req, res) => {
         await db.query(`
             ALTER TABLE organizaciones 
             ADD COLUMN IF NOT EXISTS titular TEXT,
-            ADD COLUMN IF NOT EXISTS decreto_creacion TEXT
+            ADD COLUMN IF NOT EXISTS decreto_creacion TEXT,
+            ADD COLUMN IF NOT EXISTS semaforo TEXT DEFAULT 'ROJO',
+            ADD COLUMN IF NOT EXISTS detalles_semaforo JSONB
         `);
 
         await db.query(`
@@ -114,7 +116,17 @@ app.post('/api/admin/migrate-schema', async (req, res) => {
             ADD COLUMN IF NOT EXISTS comentarios TEXT
         `);
 
-        res.json({ success: true, message: 'Esquema actualizado correctamente' });
+        // Poblar caché inicial
+        const Organizacion = require('./models/Organizacion');
+        const SemaforoService = require('./utils/semaforo');
+        const organizaciones = await Organizacion.obtenerTodas();
+
+        console.log(`📊 Poblando caché para ${organizaciones.length} dependencias...`);
+        for (const org of organizaciones) {
+            await SemaforoService.actualizarCacheSemaforo(org.id);
+        }
+
+        res.json({ success: true, message: 'Esquema actualizado y caché poblada correctamente' });
     } catch (error) {
         console.error('❌ Error en la migración:', error);
         res.status(500).json({ success: false, error: error.message });

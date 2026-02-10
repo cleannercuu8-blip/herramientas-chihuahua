@@ -10,6 +10,8 @@ class Organizacion {
         siglas TEXT,
         titular TEXT,
         decreto_creacion TEXT,
+        semaforo TEXT DEFAULT 'ROJO',
+        detalles_semaforo JSONB,
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         activo INTEGER DEFAULT 1
       )
@@ -21,7 +23,7 @@ class Organizacion {
         const sql = `
       INSERT INTO organizaciones (nombre, tipo, siglas, titular, decreto_creacion)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, nombre, tipo, siglas, titular, decreto_creacion, fecha_creacion, activo
+      RETURNING id, nombre, tipo, siglas, titular, decreto_creacion, semaforo, detalles_semaforo, fecha_creacion, activo
     `;
         const { rows } = await db.query(sql, [organizacion.nombre, organizacion.tipo, organizacion.siglas, organizacion.titular, organizacion.decreto_creacion]);
         return rows[0];
@@ -53,6 +55,15 @@ class Organizacion {
     `;
         const result = await db.query(sql, [datos.nombre, datos.tipo, datos.siglas, datos.titular, datos.decreto_creacion, datos.activo, id]);
         return { changes: result.rowCount };
+    }
+
+    static async actualizarSemaforoCache(id, semaforo, detalles) {
+        const sql = `
+      UPDATE organizaciones 
+      SET semaforo = $1, detalles_semaforo = $2
+      WHERE id = $3
+    `;
+        return db.query(sql, [semaforo, JSON.stringify(detalles), id]);
     }
 
     static async eliminar(id) {

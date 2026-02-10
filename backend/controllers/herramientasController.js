@@ -1,5 +1,6 @@
 const Herramienta = require('../models/Herramienta');
 const Historial = require('../models/Historial');
+const SemaforoService = require('../utils/semaforo');
 const path = require('path');
 const fs = require('fs');
 
@@ -127,6 +128,9 @@ class HerramientasController {
                 descripcion: `Creación de ${tipo_herramienta} - ${req.file.originalname}`
             });
 
+            // Actualizar caché de semáforo
+            await SemaforoService.actualizarCacheSemaforo(organizacion_id);
+
             res.status(201).json({
                 mensaje: 'Herramienta creada exitosamente',
                 herramienta: nuevaHerramienta
@@ -192,6 +196,9 @@ class HerramientasController {
                 descripcion: `Actualización de ${herramienta.tipo_herramienta}`
             });
 
+            // Actualizar caché de semáforo
+            await SemaforoService.actualizarCacheSemaforo(herramienta.organizacion_id);
+
             res.json({
                 mensaje: 'Herramienta actualizada exitosamente',
                 cambios: resultado.changes
@@ -225,6 +232,9 @@ class HerramientasController {
                 accion: 'ELIMINACION',
                 descripcion: `Eliminación de ${herramienta.tipo_herramienta} - ${herramienta.nombre_archivo}`
             });
+
+            // Actualizar caché de semáforo
+            await SemaforoService.actualizarCacheSemaforo(herramienta.organizacion_id);
 
             res.json({ mensaje: 'Herramienta eliminada exitosamente' });
 

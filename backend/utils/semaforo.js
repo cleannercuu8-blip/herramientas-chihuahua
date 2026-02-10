@@ -93,6 +93,26 @@ class SemaforoService {
     }
 
     /**
+     * Recalcula el semáforo y actualiza la caché en la base de datos
+     * @param {number} organizacionId 
+     */
+    static async actualizarCacheSemaforo(organizacionId) {
+        try {
+            const Organizacion = require('../models/Organizacion');
+            const org = await Organizacion.obtenerPorId(organizacionId);
+
+            if (!org) return;
+
+            const semaforo = await this.calcularEstatus(organizacionId, org.tipo);
+            await Organizacion.actualizarSemaforoCache(organizacionId, semaforo.estatus, semaforo.detalles);
+
+            return semaforo;
+        } catch (error) {
+            console.error('Error al actualizar caché de semáforo:', error);
+        }
+    }
+
+    /**
      * Obtiene las herramientas obligatorias según el tipo de organización
      */
     static obtenerHerramientasObligatorias(tipoOrganizacion) {
