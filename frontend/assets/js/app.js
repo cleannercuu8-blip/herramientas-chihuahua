@@ -137,36 +137,25 @@
     }
   }
 
-  // Cargar organizaciones
+  // Cargar organizaciones en la tabla
   window.cargarOrganizaciones = async function () {
+    const usuario = window.AuthModule.getUsuario();
+    const isAdmin = usuario && usuario.rol === 'ADMINISTRADOR';
+
+    const adminActions = document.getElementById('admin-actions-organizaciones');
+    if (adminActions) {
+      adminActions.style.display = isAdmin ? 'block' : 'none';
+    }
+
     const tipo = document.getElementById('filtro-tipo-org')?.value || null;
     const resultado = await window.OrganizacionesModule.obtenerTodas(tipo);
 
     if (resultado.success) {
-      const organizaciones = resultado.data;
-      const container = document.getElementById('tabla-organizaciones');
+      const container = document.getElementById('organizaciones-tabla-body');
+      if (!container) return;
 
-      if (organizaciones.length === 0) {
-        container.innerHTML = '<p class="text-center">No hay organizaciones registradas</p>';
-        return;
-      }
-
-      let html = `
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Titular</th>
-                <th>Semáforo</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      organizaciones.forEach(org => {
+      let html = '';
+      resultado.data.forEach(org => {
         html += `
           <tr>
             <td><strong>${org.nombre}</strong></td>
@@ -174,27 +163,28 @@
             <td>${org.titular || '-'}</td>
             <td>${window.AppUtils.getBadgeSemaforo(org.semaforo)}</td>
             <td>
-              <button class="btn btn-secondary" onclick="verDetalleOrganizacion(${org.id})">Ver Detalles</button>
+              <div style="display: flex; gap: 5px;">
+                <button class="btn btn-secondary btn-sm" onclick="verDetalleOrganizacion(${org.id})">Ver</button>
+                ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="mostrarModalEditarOrganizacion(${org.id})">Editar</button>` : ''}
+              </div>
             </td>
           </tr>
         `;
       });
-
-      html += '</tbody></table></div>';
       container.innerHTML = html;
     }
   };
 
-  // Cargar herramientas
+  // Cargar herramientas en la tabla
   window.cargarHerramientas = async function () {
     const resultado = await window.HerramientasModule.obtenerTodas();
 
     if (resultado.success) {
-      const herramientas = resultado.data;
       const container = document.getElementById('tabla-herramientas');
+      if (!container) return;
 
-      if (herramientas.length === 0) {
-        container.innerHTML = '<p class="text-center">No hay herramientas registradas</p>';
+      if (resultado.data.length === 0) {
+        container.innerHTML = '<p class="text-center p-20">No hay herramientas registradas</p>';
         return;
       }
 
@@ -214,7 +204,7 @@
             <tbody>
       `;
 
-      herramientas.forEach(h => {
+      resultado.data.forEach(h => {
         html += `
           <tr>
             <td>${h.organizacion_nombre}</td>
@@ -230,7 +220,7 @@
               <div style="display: flex; gap: 5px;">
                 <a href="${window.HerramientasModule.getUrlDescarga(h.id)}" 
                    class="btn btn-success btn-sm" 
-                   target="_blank">
+                   target="_blank" title="Descargar/Ver">
                    📥
                 </a>
                 ${h.link_publicacion_poe ? `<a href="${h.link_publicacion_poe}" class="btn btn-secondary btn-sm" target="_blank" title="Ver POE">🔗</a>` : ''}
@@ -400,6 +390,25 @@
       }
     });
 
+    // Form editar organización
+    document.getElementById('form-editar-organizacion').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const id = formData.get('id');
+      const organizacion = Object.fromEntries(formData);
+      delete organizacion.id;
+
+      const resultado = await window.OrganizacionesModule.actualizar(id, organizacion);
+
+      if (resultado.success) {
+        window.AppUtils.mostrarAlerta('Organización actualizada correctamente', 'success');
+        cerrarModal('modal-editar-organizacion');
+        cargarOrganizaciones();
+      } else {
+        window.AppUtils.mostrarAlerta(resultado.error, 'error');
+      }
+    });
+
     // Cerrar modales al hacer clic fuera
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (e) => {
@@ -471,6 +480,30 @@
       }
 
       window.mostrarModal('modal-detalle-organizacion');
+    } else {
+      window.AppUtils.mostrarAlerta(resultado.error, 'error');
+    }
+  };
+
+  // Mostrar modal para editar organización
+  window.mostrarModalEditarOrganizacion = async function (id) {
+    const usuario = window.AuthModule.getUsuario();
+    if (!usuario || usuario.rol !== 'ADMINISTRADOR') {
+      window.AppUtils.mostrarAlerta('No tienes permisos para realizar esta acción', 'error');
+      return;
+    }
+
+    const resultado = await window.OrganizacionesModule.obtenerPorId(id);
+    if (resultado.success) {
+      const org = resultado.data;
+      document.getElementById('edit-org-id').value = org.id;
+      document.getElementById('edit-org-nombre').value = org.nombre;
+      document.getElementById('edit-org-tipo').value = org.tipo;
+      document.getElementById('edit-org-siglas').value = org.siglas || '';
+      document.getElementById('edit-org-titular').value = org.titular || '';
+      document.getElementById('edit-org-decreto').value = org.decreto_creacion || '';
+
+      window.mostrarModal('modal-editar-organizacion');
     } else {
       window.AppUtils.mostrarAlerta(resultado.error, 'error');
     }
