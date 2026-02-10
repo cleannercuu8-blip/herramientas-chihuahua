@@ -61,13 +61,14 @@ async function fetchAPI(endpoint, options = {}) {
             return null;
         }
 
-        const data = await response.json();
-
         if (!response.ok) {
-            throw new Error(data.error || 'Error en la petición');
+            // Arreglo inmediato: si no es OK, leer el texto para dar un error descriptivo
+            // Esto evita que el sistema se cuelgue si el servidor devuelve HTML (error de Render/Gunicorn)
+            const text = await response.text();
+            throw new Error(`API error ${response.status}: ${text}`);
         }
 
-        return data;
+        return await response.json();
     } catch (error) {
         console.error('Error en fetchAPI:', error);
         throw error;
