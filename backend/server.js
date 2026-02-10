@@ -15,21 +15,20 @@ app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 // Health check para Render
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date() });
+    res.json({
+        status: 'OK',
+        mensaje: 'Sistema de Herramientas Organizacionales - Gobierno de Chihuahua',
+        version: '1.0.0',
+        timestamp: new Date()
+    });
 });
 
 // Rutas
 app.use('/api/auth', require('./routes/auth'));
-const organizacionesRoutes = require('./routes/organizaciones');
-const herramientasRoutes = require('./routes/herramientas');
-const reportesRoutes = require('./routes/reportes');
-const adminRoutes = require('./routes/admin');
-
-app.use('/api/auth', authRoutes);
-app.use('/api/organizaciones', organizacionesRoutes);
-app.use('/api/herramientas', herramientasRoutes);
-app.use('/api/reportes', reportesRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/organizaciones', require('./routes/organizaciones'));
+app.use('/api/herramientas', require('./routes/herramientas'));
+app.use('/api/reportes', require('./routes/reportes'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Ruta administrativa para inicializar la base de datos
 app.post('/api/admin/init-database', async (req, res) => {
