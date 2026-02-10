@@ -130,7 +130,7 @@ app.post('/api/admin/import-data', async (req, res) => {
         const Organizacion = require('./models/Organizacion');
         const Herramienta = require('./models/Herramienta');
 
-        const csvPath = 'C:\\Users\\Alfredo Ochoa\\Documents\\Herramientas y dependencias.csv';
+        const csvPath = path.join(__dirname, 'data', 'organizaciones.csv');
 
         if (!fs.existsSync(csvPath)) {
             return res.status(404).json({ success: false, error: 'El archivo CSV no se encontró en el servidor' });
