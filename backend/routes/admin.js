@@ -81,17 +81,28 @@ router.post('/init-database', async (req, res) => {
 router.post('/clear-database', async (req, res) => {
     try {
         const db = require('../config/database');
+        const Usuario = require('../models/Usuario');
+        const Organizacion = require('../models/Organizacion');
+        const Herramienta = require('../models/Herramienta');
+        const Historial = require('../models/Historial');
 
-        console.log('🧹 Limpiando base de datos...');
+        console.log('🧹 Limpiando y recreando base de datos...');
 
-        // Truncar tablas en orden de dependencia
-        await db.query('TRUNCATE TABLE historial, herramientas, organizaciones RESTART IDENTITY CASCADE');
+        // Eliminar tablas en orden inverso de dependencia
+        await db.query('DROP TABLE IF EXISTS historial CASCADE');
+        await db.query('DROP TABLE IF EXISTS herramientas CASCADE');
+        await db.query('DROP TABLE IF EXISTS organizaciones CASCADE');
 
-        console.log('✅ Base de datos limpiada exitosamente');
+        // Recrear tablas usando los modelos actuales
+        await Organizacion.crearTabla();
+        await Herramienta.crearTabla();
+        await Historial.crearTabla();
+
+        console.log('✅ Base de datos limpiada y esquema recreado exitosamente');
 
         res.json({
             success: true,
-            message: 'Se han eliminado todos los registros. El sistema está listo para un inicio limpio.'
+            message: 'Se han eliminado todos los registros y el esquema se ha actualizado correctamente. El sistema está listo para un inicio limpio.'
         });
     } catch (error) {
         console.error('❌ Error al limpiar la base de datos:', error);
