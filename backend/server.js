@@ -18,11 +18,13 @@ const authRoutes = require('./routes/auth');
 const organizacionesRoutes = require('./routes/organizaciones');
 const herramientasRoutes = require('./routes/herramientas');
 const reportesRoutes = require('./routes/reportes');
+const adminRoutes = require('./routes/admin');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/organizaciones', organizacionesRoutes);
 app.use('/api/herramientas', herramientasRoutes);
 app.use('/api/reportes', reportesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Ruta de prueba
 app.get('/api/health', (req, res) => {
