@@ -1,0 +1,34 @@
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const ImportController = require('../controllers/importController');
+const { verificarToken, verificarRol } = require('../middleware/auth');
+
+// Configuración de Multer para archivos temporales de Excel
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, 'import-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (ext === '.xlsx' || ext === '.xls') {
+            cb(null, true);
+        } else {
+            cb(new Error('Solo se permiten archivos Excel (.xlsx, .xls)'));
+        }
+    }
+});
+
+// Rutas (Solo administradores)
+router.post('/organizaciones', verificarToken, verificarRol('ADMINISTRADOR'), upload.single('archivo'), ImportController.importarOrganizaciones);
+router.post('/herramientas', verificarToken, verificarRol('ADMINISTRADOR'), upload.single('archivo'), ImportController.importarHerramientas);
+
+module.exports = router;

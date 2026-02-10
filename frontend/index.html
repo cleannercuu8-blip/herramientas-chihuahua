@@ -76,9 +76,14 @@
         <div class="card-header">
           <h3 class="card-title">Dependencias y Entidades</h3>
           <div id="admin-actions-organizaciones" style="display: none;">
-            <button class="btn btn-primary" onclick="mostrarModal('modal-nueva-organizacion')">
-              ➕ Nueva Dependencia/Entidad
-            </button>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-primary" onclick="mostrarModal('modal-nueva-organizacion')">
+                ➕ Nueva Dependencia/Entidad
+              </button>
+              <button class="btn btn-secondary" onclick="window.abrirModalImportar('organizaciones')">
+                📥 Importar Excel
+              </button>
+            </div>
           </div>
         </div>
 
@@ -138,68 +143,111 @@
           <div class="card-header" style="justify-content: space-between;">
             <h3 class="card-title" id="titulo-dependencia-seleccionada">Herramientas</h3>
             <div id="admin-actions-herramientas" style="display: none;">
-              <button class="btn btn-primary btn-sm" onclick="hacerNuevaHerramientaConOrg()">+ Nueva
-                Herramienta</button>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="mostrarModalNuevaHerramienta()">
+                  ➕ Nueva Herramienta
+                </button>
+                <button class="btn btn-secondary" onclick="window.abrirModalImportar('herramientas')">
+                  📥 Importar Excel
+                </button>
+              </div>
             </div>
           </div>
-          <div id="detalle-herramientas-dependencia" class="p-20">
-            <div class="empty-state">
-              <p>Seleccione una dependencia de la lista para ver su información y herramientas.</p>
-            </div>
+        </div>
+        <div id="detalle-herramientas-dependencia" class="p-20">
+          <div class="empty-state">
+            <p>Seleccione una dependencia de la lista para ver su información y herramientas.</p>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Vista Reportes -->
-    <div id="vista-reportes" class="hidden">
-      <div class="card">
+  <!-- Vista Reportes -->
+  <div id="vista-reportes" class="hidden">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Reportes y Exportaciones</h3>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarInventario()">
+          <div class="stat-number" style="color: var(--azul-institucional);">📋</div>
+          <div class="stat-label">Inventario Completo</div>
+          <button class="btn btn-primary mt-20">Exportar Excel</button>
+        </div>
+
+        <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarSemaforo()">
+          <div class="stat-number" style="color: var(--morado-institucional);">🚦</div>
+          <div class="stat-label">Reporte de Semáforo</div>
+          <button class="btn btn-secondary mt-20">Exportar Excel</button>
+        </div>
+
+        <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarProximasVencer()">
+          <div class="stat-number" style="color: var(--amarillo-advertencia);">⏰</div>
+          <div class="stat-label">Próximas a Vencer</div>
+          <button class="btn btn-secondary mt-20">Exportar Excel</button>
+        </div>
+      </div>
+
+      <div class="card mt-20">
         <div class="card-header">
-          <h3 class="card-title">Reportes y Exportaciones</h3>
+          <h3 class="card-title">Historial de Cambios</h3>
         </div>
-
-        <div class="stats-grid">
-          <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarInventario()">
-            <div class="stat-number" style="color: var(--azul-institucional);">📋</div>
-            <div class="stat-label">Inventario Completo</div>
-            <button class="btn btn-primary mt-20">Exportar Excel</button>
-          </div>
-
-          <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarSemaforo()">
-            <div class="stat-number" style="color: var(--morado-institucional);">🚦</div>
-            <div class="stat-label">Reporte de Semáforo</div>
-            <button class="btn btn-secondary mt-20">Exportar Excel</button>
-          </div>
-
-          <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarProximasVencer()">
-            <div class="stat-number" style="color: var(--amarillo-advertencia);">⏰</div>
-            <div class="stat-label">Próximas a Vencer</div>
-            <button class="btn btn-secondary mt-20">Exportar Excel</button>
-          </div>
+        <div id="tabla-historial">
+          <div class="spinner"></div>
         </div>
+      </div>
 
-        <div class="card mt-20">
-          <div class="card-header">
-            <h3 class="card-title">Historial de Cambios</h3>
-          </div>
-          <div id="tabla-historial">
-            <div class="spinner"></div>
-          </div>
+      <div id="admin-maintenance-section" class="card mt-20"
+        style="display: none; border: 1px solid #ffccd5; background: #fff5f5;">
+        <div class="card-header">
+          <h3 class="card-title" style="color: #d32f2f;">⚙️ Mantenimiento del Sistema</h3>
         </div>
+        <div class="p-20">
+          <p class="mb-20"><strong>Zona de Peligro:</strong> Esta acción eliminará permanentemente todas las
+            dependencias, herramientas e historial de cambios. El usuario administrador no será eliminado.</p>
+          <button class="btn" style="background-color: #d32f2f; color: white;" onclick="window.resetearBaseDeDatos()">
+            Eliminar Todo y Empezar de Cero
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
 
-        <div id="admin-maintenance-section" class="card mt-20"
-          style="display: none; border: 1px solid #ffccd5; background: #fff5f5;">
-          <div class="card-header">
-            <h3 class="card-title" style="color: #d32f2f;">⚙️ Mantenimiento del Sistema</h3>
+  <!-- Modal Importar Excel -->
+  <div id="modal-importar-excel" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title" id="import-modal-title">Importar desde Excel</h3>
+        <button class="modal-close" onclick="cerrarModal('modal-importar-excel')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="import-instructions" class="mb-15 text-muted">
+          Sube un archivo .xlsx con los encabezados correspondientes.
+        </p>
+        <form id="form-importar-excel" onsubmit="window.handleImportarExcel(event)">
+          <input type="hidden" id="import-type">
+          <div class="form-group">
+            <label class="form-label">Seleccionar Archivo Excel</label>
+            <input type="file" class="form-input" id="import-file" accept=".xlsx,.xls" required>
           </div>
-          <div class="p-20">
-            <p class="mb-20"><strong>Zona de Peligro:</strong> Esta acción eliminará permanentemente todas las
-              dependencias, herramientas e historial de cambios. El usuario administrador no será eliminado.</p>
-            <button class="btn" style="background-color: #d32f2f; color: white;" onclick="window.resetearBaseDeDatos()">
-              Eliminar Todo y Empezar de Cero
-            </button>
+          <div id="import-status" class="mb-15" style="display: none;">
+            <div class="spinner mb-10"></div>
+            <p class="text-center">Procesando archivo masivo...</p>
           </div>
-        </div>
+          <div id="import-results" class="mb-15" style="max-height: 200px; overflow-y: auto;"></div>
+
+          <button type="submit" class="btn btn-primary w-100" id="btn-import-submit">Comenzar Importación</button>
+
+          <div class="mt-15 p-10" style="background: var(--gris-claro); border-radius: 8px; font-size: 0.85rem;">
+            <strong>Formato esperado (Columnas):</strong>
+            <ul id="import-columns-list" style="margin-top: 5px; padding-left: 15px;">
+              <!-- Dinámico -->
+            </ul>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -564,6 +612,7 @@
     <script src="assets/js/herramientas.js"></script>
     <script src="assets/js/reportes.js"></script>
     <script src="assets/js/usuarios.js"></script>
+    <script src="assets/js/import.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 

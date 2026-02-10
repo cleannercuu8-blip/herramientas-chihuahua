@@ -82,6 +82,7 @@
             <td>
               <div style="display: flex; gap: 5px;">
                 <button class="btn btn-primary btn-sm" onclick="window.mostrarModalEditarUsuarioAdmin(${JSON.stringify(u).replace(/"/g, '&quot;')})">Editar</button>
+                <button class="btn btn-secondary btn-sm" onclick="window.resetearPasswordUsuarioAdmin(${JSON.stringify(u).replace(/"/g, '&quot;')})">Reiniciar Clave</button>
                 <button class="btn btn-danger btn-sm" onclick="window.eliminarUsuarioAdmin(${u.id}, '${u.nombre_completo}')">Eliminar</button>
               </div>
             </td>
@@ -92,6 +93,41 @@
         } catch (error) {
             console.error(error);
             container.innerHTML = '<tr><td colspan="5" class="text-center text-error">Error al cargar usuarios</td></tr>';
+        }
+    };
+
+    window.resetearPasswordUsuarioAdmin = async function (u) {
+        const nuevaClave = prompt(`Ingresa la nueva contraseña para ${u.nombre_completo}:`);
+        if (!nuevaClave || nuevaClave.trim() === '') return;
+
+        window.AppUtils.mostrarSpinner(true);
+        try {
+            const resp = await fetch(`${window.AppUtils.API_URL}/auth/usuarios/${u.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.AppUtils.AppState.token}`
+                },
+                body: JSON.stringify({
+                    nombre_completo: u.nombre_completo,
+                    email: u.email,
+                    rol: u.rol,
+                    password: nuevaClave,
+                    activo: u.activo
+                })
+            });
+
+            const data = await resp.json();
+            if (resp.ok) {
+                window.AppUtils.mostrarAlerta(`Contraseña de ${u.nombre_completo} actualizada`, 'success');
+            } else {
+                window.AppUtils.mostrarAlerta(data.error || 'Error al resetear contraseña', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            window.AppUtils.mostrarAlerta('Error de conexión', 'error');
+        } finally {
+            window.AppUtils.mostrarSpinner(false);
         }
     };
 

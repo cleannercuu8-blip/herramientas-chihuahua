@@ -39,7 +39,14 @@
       const avatarInitials = document.getElementById('user-avatar-initials');
 
       if (displayName) displayName.textContent = usuario.nombre_completo;
-      if (displayRole) displayRole.textContent = usuario.rol;
+      if (displayRole) {
+        const rolesMap = {
+          'ADMINISTRADOR': 'Administrador',
+          'CAPTURISTA': 'Capturista',
+          'CONSULTOR': 'Consultor'
+        };
+        displayRole.textContent = rolesMap[usuario.rol] || usuario.rol;
+      }
 
       // Iniciales para el avatar
       const iniciales = usuario.nombre_completo
