@@ -83,6 +83,33 @@ class Organizacion {
         const result = await db.query(sql, [id]);
         return { changes: result.rowCount };
     }
+
+    static async borrarDefinitivamente(id) {
+        const client = await db.connect();
+        try {
+            await client.query('BEGIN');
+
+            // 1. Borrar historial de las herramientas de esta organización
+            await client.query(`
+                DELETE FROM historial 
+                WHERE herramienta_id IN (SELECT id FROM herramientas WHERE organizacion_id = $1)
+            `, [id]);
+
+            // 2. Borrar herramientas de esta organización
+            await client.query('DELETE FROM herramientas WHERE organizacion_id = $1', [id]);
+
+            // 3. Borrar la organización
+            const result = await client.query('DELETE FROM organizaciones WHERE id = $1', [id]);
+
+            await client.query('COMMIT');
+            return { changes: result.rowCount };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
 }
 
 module.exports = Organizacion;

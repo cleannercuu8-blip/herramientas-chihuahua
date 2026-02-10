@@ -166,9 +166,9 @@ class OrganizacionesController {
                 return res.status(404).json({ error: 'Organización no encontrada' });
             }
 
-            await Organizacion.eliminar(id);
+            await Organizacion.borrarDefinitivamente(id);
 
-            res.json({ mensaje: 'Organización eliminada exitosamente' });
+            res.json({ mensaje: 'Organización y todos sus datos relacionados han sido eliminados definitivamente' });
 
         } catch (error) {
             console.error('Error al eliminar organización:', error);

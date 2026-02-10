@@ -702,9 +702,49 @@
       document.getElementById('edit-org-titular').value = org.titular || '';
       document.getElementById('edit-org-decreto').value = org.decreto_creacion || '';
 
+      // Mostrar botón de eliminar solo para admins
+      const btnEliminar = document.getElementById('btn-eliminar-organizacion');
+      if (btnEliminar) btnEliminar.style.display = 'block';
+
       window.mostrarModal('modal-editar-organizacion');
     } else {
       window.AppUtils.mostrarAlerta(resultado.error, 'error');
+    }
+  };
+
+  // Función para borrar organización definitivamente
+  window.borrarOrganizacionDefinitivamente = async function () {
+    const id = document.getElementById('edit-org-id').value;
+    const nombre = document.getElementById('edit-org-nombre').value;
+
+    if (!confirm(`¿ESTÁ SEGURO? Esta acción eliminará permanentemente la dependencia "${nombre}" y TODAS sus herramientas e historial vinculados. Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    const confirmacionExtra = prompt(`Para confirmar la eliminación de "${nombre}", escriba "ELIMINAR" (en mayúsculas):`);
+    if (confirmacionExtra !== 'ELIMINAR') {
+      alert('Confirmación incorrecta.');
+      return;
+    }
+
+    window.AppUtils.mostrarSpinner(true);
+    try {
+      const resultado = await window.OrganizacionesModule.eliminar(id);
+
+      if (resultado.success) {
+        window.AppUtils.mostrarAlerta('Dependencia eliminada por completo', 'success');
+        cerrarModal('modal-editar-organizacion');
+        // Recargar dashboard y lista
+        await cargarReporteGeneral();
+        cargarOrganizaciones();
+      } else {
+        window.AppUtils.mostrarAlerta(resultado.error, 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      window.AppUtils.mostrarAlerta('Error de conexión al servidor', 'error');
+    } finally {
+      window.AppUtils.mostrarSpinner(false);
     }
   };
 

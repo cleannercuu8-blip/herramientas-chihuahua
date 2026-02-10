@@ -318,10 +318,13 @@
             <input type="url" class="form-input" name="decreto_creacion" id="edit-org-decreto"
               placeholder="https://...">
           </div>
-          <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
             <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar Cambios</button>
             <button type="button" class="btn btn-secondary" style="flex: 1;"
               onclick="cerrarModal('modal-editar-organizacion')">Cancelar</button>
+            <button type="button" id="btn-eliminar-organizacion" class="btn btn-danger"
+              style="flex: 1; display: none; background-color: var(--rojo-semaforo);"
+              onclick="borrarOrganizacionDefinitivamente()">Eliminar Definitivamente</button>
           </div>
         </form>
       </div>
