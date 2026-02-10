@@ -166,10 +166,15 @@ app.post('/api/admin/import-data', async (req, res) => {
         const buffer = fs.readFileSync(csvPath);
         let fileContent = buffer.toString('utf8');
 
-        // Si detectamos caracteres extraños típicos de Windows-1252/Latin1 en el original, re-leemos
-        if (fileContent.includes('')) {
-            const iconv = require('iconv-lite');
-            fileContent = iconv.decode(buffer, 'win1252');
+        // Detección simple: si hay caracteres rotos típicos de Latin1/Win1252
+        if (buffer.some(b => b > 127) && !fileContent.match(/[áéíóúÁÉÍÓÚñÑ]/)) {
+            try {
+                const iconv = require('iconv-lite');
+                fileContent = iconv.decode(buffer, 'win1252');
+                console.log('ℹ️  Decodificando CSV con Windows-1252');
+            } catch (e) {
+                console.log('⚠️  iconv-lite no disponible, usando utf8 (posibles errores de acentos)');
+            }
         }
 
         const records = parse(fileContent, { columns: true, skip_empty_lines: true, trim: true });

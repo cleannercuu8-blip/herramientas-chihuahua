@@ -33,24 +33,26 @@
       const stats = resultado.data;
       const statsGrid = document.getElementById('stats-grid');
 
-      statsGrid.innerHTML = `
+      html += `
         <div class="stat-card">
-          <div class="stat-number" style="color: var(--azul-institucional);">${stats.total}</div>
+          <div class="stat-number" style="color: var(--azul-institucional);">${stats.total || 0}</div>
           <div class="stat-label">Total Dependencias/Entidades</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number" style="color: var(--verde-cumplimiento);">${stats.verde}</div>
+          <div class="stat-number" style="color: var(--verde-cumplimiento);">${stats.verde || 0}</div>
           <div class="stat-label">En Cumplimiento</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number" style="color: var(--amarillo-advertencia);">${stats.amarillo}</div>
+          <div class="stat-number" style="color: var(--amarillo-advertencia);">${stats.amarillo || 0}</div>
           <div class="stat-label">Con Advertencias</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number" style="color: var(--rojo-incumplimiento);">${stats.rojo}</div>
+          <div class="stat-number" style="color: var(--rojo-incumplimiento);">${stats.rojo || 0}</div>
           <div class="stat-label">Incumplimiento</div>
         </div>
       `;
+    } else {
+      document.getElementById('stats-grid').innerHTML = '<p class="text-error">Error al cargar estadísticas</p>';
     }
   }
 
@@ -118,7 +120,7 @@
       const container = document.getElementById('tabla-proximas-vencer');
 
       if (herramientas.length === 0) {
-        container.innerHTML = '<p class="text-center">No hay herramientas próximas a vencer</p>';
+        container.innerHTML = '<p class="text-center p-20">No hay herramientas próximas a vencer</p>';
         return;
       }
 
@@ -187,6 +189,9 @@
         `;
       });
       container.innerHTML = html;
+    } else {
+      const container = document.getElementById('organizaciones-tabla-body');
+      if (container) container.innerHTML = '<tr><td colspan="5" class="text-center text-error">Error al cargar dependencias</td></tr>';
     }
   };
 
@@ -214,6 +219,8 @@
           </div>
         `;
       }
+    } else {
+      container.innerHTML = '<p class="text-center text-error p-20">Error al cargar lista</p>';
     }
   }
 

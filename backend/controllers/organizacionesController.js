@@ -22,13 +22,21 @@ class OrganizacionesController {
             }
 
             // Servir desde la caché
-            const organizacionesConSemaforo = organizaciones.map(org => ({
-                ...org,
-                semaforo: org.semaforo || 'ROJO',
-                detalles_semaforo: typeof org.detalles_semaforo === 'string'
-                    ? JSON.parse(org.detalles_semaforo)
-                    : org.detalles_semaforo
-            }));
+            const organizacionesConSemaforo = organizaciones.map(org => {
+                let detalles = org.detalles_semaforo;
+                if (typeof detalles === 'string') {
+                    try {
+                        detalles = JSON.parse(detalles);
+                    } catch (e) {
+                        detalles = { mensaje: 'Error al procesar detalles' };
+                    }
+                }
+                return {
+                    ...org,
+                    semaforo: org.semaforo || 'ROJO',
+                    detalles_semaforo: detalles || { mensaje: 'Sin historial' }
+                };
+            });
 
             res.json({ organizaciones: organizacionesConSemaforo });
 

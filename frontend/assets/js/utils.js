@@ -141,12 +141,13 @@ function formatearFechaCorta(fecha) {
 
 // Obtener badge de semáforo
 function getBadgeSemaforo(estatus) {
+    const s = (estatus || '').toUpperCase();
     const badges = {
         'VERDE': '<span class="badge badge-verde">✓ Verde</span>',
         'AMARILLO': '<span class="badge badge-amarillo">⚠ Amarillo</span>',
         'ROJO': '<span class="badge badge-rojo">✗ Rojo</span>'
     };
-    return badges[estatus] || '<span class="badge">-</span>';
+    return badges[s] || '<span class="badge">-</span>';
 }
 
 // Obtener nombre legible de tipo de herramienta

@@ -266,22 +266,16 @@ class SemaforoService {
      */
     static async obtenerEstadisticasGenerales() {
         const db = require('../config/database');
-
-        return new Promise((resolve, reject) => {
-            const sql = `
-        SELECT 
-          o.tipo,
-          COUNT(o.id) as total
-        FROM organizaciones o
-        WHERE o.activo = 1
-        GROUP BY o.tipo
-      `;
-
-            db.all(sql, [], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-        });
+        const sql = `
+            SELECT 
+                o.tipo,
+                COUNT(o.id) as total
+            FROM organizaciones o
+            WHERE o.activo = 1
+            GROUP BY o.tipo
+        `;
+        const { rows } = await db.query(sql);
+        return rows;
     }
 }
 
