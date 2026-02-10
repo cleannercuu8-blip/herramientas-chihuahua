@@ -158,16 +158,20 @@ app.post('/api/admin/import-data', async (req, res) => {
         if (!fs.existsSync(csvPath)) {
             return res.status(404).json({
                 success: false,
-                error: 'El archivo CSV no se encontró en el servidor',
-                debug: {
-                    dir: dataDir,
-                    exists: fs.existsSync(dataDir),
-                    files: fs.existsSync(dataDir) ? fs.readdirSync(dataDir) : []
-                }
+                error: 'El archivo CSV no se encontró en el servidor'
             });
         }
 
-        const fileContent = fs.readFileSync(csvPath, 'utf8');
+        // Leer como buffer primero para intentar detectar o forzar encoding
+        const buffer = fs.readFileSync(csvPath);
+        let fileContent = buffer.toString('utf8');
+
+        // Si detectamos caracteres extraños típicos de Windows-1252/Latin1 en el original, re-leemos
+        if (fileContent.includes('')) {
+            const iconv = require('iconv-lite');
+            fileContent = iconv.decode(buffer, 'win1252');
+        }
+
         const records = parse(fileContent, { columns: true, skip_empty_lines: true, trim: true });
 
         const { rows: usuarios } = await db.query("SELECT id FROM usuarios WHERE email = 'admin@chihuahua.gob.mx'");
@@ -209,8 +213,22 @@ app.post('/api/admin/import-data', async (req, res) => {
                 const linkPoe = record['ENLACE POE'] || record['LINK DE PUBLICACIÓN EN EL POE'];
                 const comentarios = record['COMENTARIOS'];
 
+                // Mejorar parseo de fechas específicas del CSV (ej: "Octubre 2023", "10-sep-14")
                 let fechaEmision = new Date();
-                try { if (fechaStr && fechaStr !== 'N/A') fechaEmision = new Date(fechaStr); } catch (e) { }
+                if (fechaStr && fechaStr !== 'N/A') {
+                    // Intento de parsear formatos comunes o manuales
+                    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                    const lowerFecha = fechaStr.toLowerCase();
+                    const mesEncontrado = meses.findIndex(m => lowerFecha.includes(m));
+
+                    if (mesEncontrado !== -1) {
+                        const año = lowerFecha.match(/\d{4}/);
+                        if (año) fechaEmision = new Date(año[0], mesEncontrado, 1);
+                    } else {
+                        try { fechaEmision = new Date(fechaStr); } catch (e) { }
+                    }
+                }
+
                 if (isNaN(fechaEmision.getTime())) fechaEmision = new Date();
 
                 await Herramienta.crear({

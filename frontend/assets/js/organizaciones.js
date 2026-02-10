@@ -1,9 +1,16 @@
 // Módulo de organizaciones
 const OrganizacionesModule = {
     // Obtener todas las organizaciones
-    async obtenerTodas(tipo = null) {
+    async obtenerTodas(tipo = null, limite = null, offset = null) {
         try {
-            const endpoint = tipo ? `/organizaciones?tipo=${tipo}` : '/organizaciones';
+            let endpoint = '/organizaciones?';
+            const params = [];
+            if (tipo) params.push(`tipo=${tipo}`);
+            if (limite) params.push(`limite=${limite}`);
+            if (offset) params.push(`offset=${offset}`);
+
+            endpoint += params.join('&');
+
             const data = await window.AppUtils.fetchAPI(endpoint);
             return { success: true, data: data.organizaciones };
         } catch (error) {

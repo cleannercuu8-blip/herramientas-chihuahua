@@ -56,11 +56,14 @@
 
   // Cargar resumen de semáforo
   async function cargarResumenSemaforo() {
-    const resultado = await window.OrganizacionesModule.obtenerTodas();
+    const container = document.getElementById('tabla-semaforo');
+    container.innerHTML = '<div class="spinner"></div>';
+
+    // Para el dashboard, solo cargamos los primeros 10 para rapidez
+    const resultado = await window.OrganizacionesModule.obtenerTodas(null, 10, 0);
 
     if (resultado.success) {
       const organizaciones = resultado.data;
-      const container = document.getElementById('tabla-semaforo');
 
       if (organizaciones.length === 0) {
         container.innerHTML = '<p class="text-center p-20">No hay Dependencias/Entidades registradas</p>';
@@ -81,18 +84,27 @@
             <tbody>
       `;
 
-      organizaciones.slice(0, 10).forEach(org => {
+      organizaciones.forEach(org => {
         html += `
           <tr>
             <td><strong>${org.nombre}</strong></td>
             <td>${window.AppUtils.getNombreTipoOrganizacion(org.tipo)}</td>
             <td>${window.AppUtils.getBadgeSemaforo(org.semaforo)}</td>
-            <td>${org.detalles_semaforo.mensaje}</td>
+            <td>${org.detalles_semaforo?.mensaje || 'Sin detalles'}</td>
           </tr>
         `;
       });
 
       html += '</tbody></table></div>';
+
+      // Agregar indicador de que es un resumen
+      html += `
+        <div class="text-center mt-10">
+          <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">Mostrando las primeras 10 dependencias de la lista.</p>
+          <button class="btn btn-primary" onclick="mostrarVista('organizaciones', event)">Ver Todas las Dependencias</button>
+        </div>
+      `;
+
       container.innerHTML = html;
     }
   }

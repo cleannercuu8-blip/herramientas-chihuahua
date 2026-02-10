@@ -173,10 +173,23 @@ class OrganizacionesController {
      */
     static async obtenerEstadisticas(req, res) {
         try {
-            const organizaciones = await Organizacion.obtenerTodas();
+            const db = require('../config/database');
+
+            // Optimizado: Realizar el conteo directamente en la base de datos
+            const sql = `
+                SELECT 
+                    semaforo, 
+                    tipo,
+                    COUNT(*) as total
+                FROM organizaciones 
+                WHERE activo = 1 
+                GROUP BY semaforo, tipo
+            `;
+
+            const { rows } = await db.query(sql);
 
             const estadisticas = {
-                total: organizaciones.length,
+                total: 0,
                 verde: 0,
                 amarillo: 0,
                 rojo: 0,
@@ -186,15 +199,23 @@ class OrganizacionesController {
                 }
             };
 
-            for (const org of organizaciones) {
-                const estatus = (org.semaforo || 'ROJO').toLowerCase();
+            rows.forEach(row => {
+                const count = parseInt(row.total);
+                const semaforo = (row.semaforo || 'ROJO').toLowerCase();
+                const tipo = row.tipo;
 
-                if (estadisticas[estatus] !== undefined) {
-                    estadisticas[estatus]++;
-                    estadisticas.porTipo[org.tipo].total++;
-                    estadisticas.porTipo[org.tipo][estatus]++;
+                estadisticas.total += count;
+                if (estadisticas[semaforo] !== undefined) {
+                    estadisticas[semaforo] += count;
                 }
-            }
+
+                if (estadisticas.porTipo[tipo]) {
+                    estadisticas.porTipo[tipo].total += count;
+                    if (estadisticas.porTipo[tipo][semaforo] !== undefined) {
+                        estadisticas.porTipo[tipo][semaforo] += count;
+                    }
+                }
+            });
 
             res.json({ estadisticas });
 

@@ -183,11 +183,27 @@ class SemaforoService {
         const listaAdvertencias = [];
 
         herramientas.forEach(h => {
-            const fechaActualizacion = new Date(h.fecha_actualizacion);
-            const fechaEmision = new Date(h.fecha_emision);
+            const fechaActualizacion = h.fecha_actualizacion ? new Date(h.fecha_actualizacion) : null;
+            const fechaEmision = h.fecha_emision ? new Date(h.fecha_emision) : null;
+
+            // Al cargar tools anteriores sin fechas válidas, evitar marcarlas todas como críticas si no es necesario
+            if ((!fechaActualizacion || isNaN(fechaActualizacion.getTime())) &&
+                (!fechaEmision || isNaN(fechaEmision.getTime()))) {
+                // Si no hay ninguna fecha válida, por seguridad es CRÍTICO pero lo manejamos
+                criticas++;
+                listaCriticas.push({
+                    tipo: h.tipo_herramienta,
+                    nombre: h.nombre_archivo,
+                    fecha: 'Sin fecha',
+                    mensaje: 'Documento sin fecha válida'
+                });
+                return;
+            }
 
             // Usar la fecha más reciente entre emisión y actualización
-            const fechaReferencia = fechaActualizacion > fechaEmision ? fechaActualizacion : fechaEmision;
+            const fA = fechaActualizacion && !isNaN(fechaActualizacion.getTime()) ? fechaActualizacion : new Date(0);
+            const fE = fechaEmision && !isNaN(fechaEmision.getTime()) ? fechaEmision : new Date(0);
+            const fechaReferencia = fA > fE ? fA : fE;
 
             // Si es anterior a 2022 = CRÍTICO
             if (fechaReferencia < fechaBase) {

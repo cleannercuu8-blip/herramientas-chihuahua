@@ -29,9 +29,21 @@ class Organizacion {
         return rows[0];
     }
 
-    static async obtenerTodas() {
-        const sql = 'SELECT * FROM organizaciones WHERE activo = 1 ORDER BY nombre';
-        const { rows } = await db.query(sql);
+    static async obtenerTodas(limite, offset) {
+        let sql = 'SELECT * FROM organizaciones WHERE activo = 1 ORDER BY nombre';
+        const params = [];
+
+        if (limite) {
+            sql += ' LIMIT $' + (params.length + 1);
+            params.push(limite);
+        }
+
+        if (offset) {
+            sql += ' OFFSET $' + (params.length + 1);
+            params.push(offset);
+        }
+
+        const { rows } = await db.query(sql, params);
         return rows;
     }
 
