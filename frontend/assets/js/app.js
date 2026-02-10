@@ -367,7 +367,7 @@
               <div><strong>Fecha de publicación:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
               <div style="display: flex; gap: 5px; margin-top: 10px;">
                 <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 2; text-align: center;" target="_blank">Ver Documento 🔗</a>
-                ${isAdmin ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
+                ${(isAdmin && herramienta.id) ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
               </div>
             </div>
           `;
@@ -414,6 +414,10 @@
 
   // Abrir modal de editar herramienta
   window.mostrarModalEditarHerramienta = async function (id) {
+    if (!id || id === 'undefined') {
+      console.error('ID de herramienta no válido para edición');
+      return;
+    }
     window.AppUtils.mostrarSpinner(true);
     try {
       const resultado = await window.HerramientasModule.obtenerPorId(id);

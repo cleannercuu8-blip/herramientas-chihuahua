@@ -44,6 +44,10 @@ class HerramientasController {
         try {
             const { id } = req.params;
 
+            if (isNaN(parseInt(id))) {
+                return res.status(400).json({ error: 'ID de herramienta no válido' });
+            }
+
             const herramienta = await Herramienta.obtenerPorId(id);
 
             if (!herramienta) {
@@ -149,6 +153,12 @@ class HerramientasController {
     static async actualizar(req, res) {
         try {
             const { id } = req.params;
+
+            // Validar que el ID sea numérico
+            if (isNaN(parseInt(id))) {
+                return res.status(400).json({ error: 'ID de herramienta no válido' });
+            }
+
             const {
                 tipo_herramienta,
                 fecha_emision,

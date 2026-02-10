@@ -86,6 +86,7 @@ class Herramienta {
   }
 
   static async obtenerPorId(id) {
+    if (isNaN(parseInt(id))) return null;
     const sql = `
       SELECT h.*, o.nombre as organizacion_nombre, o.tipo as organizacion_tipo,
              u.nombre_completo as usuario_registro
