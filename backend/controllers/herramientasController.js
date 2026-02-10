@@ -126,7 +126,7 @@ class HerramientasController {
                 herramienta_id: nuevaHerramienta.id,
                 usuario_id: req.usuario.id,
                 accion: 'CREACION',
-                descripcion: `Creación de ${tipo_herramienta} - ${req.file.originalname}`
+                descripcion: `Creación de ${tipo_herramienta} - ${nuevaHerramienta.nombre_archivo}`
             });
 
             // Actualizar caché de semáforo
