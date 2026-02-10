@@ -1,0 +1,483 @@
+:root {
+  /* Colores institucionales - Gobierno de Chihuahua */
+  --azul-institucional: #003DA5;
+  --azul-claro: #4A90E2;
+  --azul-cielo: #7CB9E8;
+  --morado-institucional: #6B4C9A;
+  --morado-claro: #9B7EBD;
+  
+  /* Semáforo */
+  --verde-cumplimiento: #10B981;
+  --amarillo-advertencia: #F59E0B;
+  --rojo-incumplimiento: #EF4444;
+  
+  /* Neutrales */
+  --gris-oscuro: #1F2937;
+  --gris-medio: #6B7280;
+  --gris-claro: #F3F4F6;
+  --blanco: #FFFFFF;
+  
+  /* Sombras */
+  --sombra-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --sombra-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --sombra-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --sombra-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, var(--azul-cielo) 0%, var(--morado-claro) 100%);
+  min-height: 100vh;
+  color: var(--gris-oscuro);
+}
+
+/* Contenedor principal */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--azul-institucional) 0%, var(--morado-institucional) 100%);
+  color: var(--blanco);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: var(--sombra-xl);
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+}
+
+/* Navegación */
+.nav {
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 15px 25px;
+  box-shadow: var(--sombra-md);
+  margin-bottom: 30px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-institucional) 100%);
+  color: var(--blanco);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--sombra-sm);
+}
+
+.nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-md);
+}
+
+.nav-btn.active {
+  background: linear-gradient(135deg, var(--morado-institucional) 0%, var(--morado-claro) 100%);
+}
+
+.nav-btn.logout {
+  background: linear-gradient(135deg, var(--rojo-incumplimiento) 0%, #DC2626 100%);
+  margin-left: auto;
+}
+
+/* Tarjetas */
+.card {
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: var(--sombra-lg);
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-xl);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--gris-claro);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  color: var(--azul-institucional);
+  font-weight: 700;
+}
+
+/* Botones */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--sombra-sm);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-institucional) 100%);
+  color: var(--blanco);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--morado-claro) 0%, var(--morado-institucional) 100%);
+  color: var(--blanco);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #34D399 0%, var(--verde-cumplimiento) 100%);
+  color: var(--blanco);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #F87171 0%, var(--rojo-incumplimiento) 100%);
+  color: var(--blanco);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-md);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Formularios */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--gris-oscuro);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--gris-claro);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--azul-claro);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Tabla */
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: var(--sombra-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--blanco);
+}
+
+.table thead {
+  background: linear-gradient(135deg, var(--azul-institucional) 0%, var(--morado-institucional) 100%);
+  color: var(--blanco);
+}
+
+.table th,
+.table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--gris-claro);
+}
+
+.table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background: var(--gris-claro);
+}
+
+/* Badges de semáforo */
+.badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-verde {
+  background: var(--verde-cumplimiento);
+  color: var(--blanco);
+}
+
+.badge-amarillo {
+  background: var(--amarillo-advertencia);
+  color: var(--blanco);
+}
+
+.badge-rojo {
+  background: var(--rojo-incumplimiento);
+  color: var(--blanco);
+}
+
+/* Grid de estadísticas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: var(--blanco);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: var(--sombra-lg);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-xl);
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  color: var(--gris-medio);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--blanco);
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--sombra-xl);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--gris-claro);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--gris-medio);
+  transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+  color: var(--rojo-incumplimiento);
+}
+
+/* Alertas */
+.alert {
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.alert-success {
+  background: #D1FAE5;
+  color: #065F46;
+  border-left: 4px solid var(--verde-cumplimiento);
+}
+
+.alert-error {
+  background: #FEE2E2;
+  color: #991B1B;
+  border-left: 4px solid var(--rojo-incumplimiento);
+}
+
+.alert-warning {
+  background: #FEF3C7;
+  color: #92400E;
+  border-left: 4px solid var(--amarillo-advertencia);
+}
+
+/* Loading spinner */
+.spinner {
+  border: 4px solid var(--gris-claro);
+  border-top: 4px solid var(--azul-institucional);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Utilidades */
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gap-10 {
+  gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .nav {
+    flex-direction: column;
+  }
+  
+  .nav-btn {
+    width: 100%;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .table-container {
+    font-size: 0.9rem;
+  }
+}

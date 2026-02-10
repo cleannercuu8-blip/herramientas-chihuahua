@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Sistema de Herramientas Organizacionales</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🏛️ Sistema de Herramientas Organizacionales</h1>
+      <p>Gobierno del Estado de Chihuahua</p>
+    </div>
+
+    <!-- Navegación -->
+    <div class="nav">
+      <button class="nav-btn active" onclick="mostrarVista('dashboard')">📊 Dashboard</button>
+      <button class="nav-btn" onclick="mostrarVista('organizaciones')">🏢 Organizaciones</button>
+      <button class="nav-btn" onclick="mostrarVista('herramientas')">📁 Herramientas</button>
+      <button class="nav-btn" onclick="mostrarVista('reportes')">📈 Reportes</button>
+      <button class="nav-btn logout" onclick="window.AppUtils.cerrarSesion()">🚪 Cerrar Sesión</button>
+    </div>
+
+    <!-- Contenedor de alertas -->
+    <div id="alert-container"></div>
+
+    <!-- Vista Dashboard -->
+    <div id="vista-dashboard">
+      <h2 class="card-title mb-20">Panel de Control</h2>
+      
+      <!-- Estadísticas -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Tarjetas de información -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Resumen de Semáforo</h3>
+        </div>
+        <div id="tabla-semaforo">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Herramientas Próximas a Vencer</h3>
+        </div>
+        <div id="tabla-proximas-vencer">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista Organizaciones -->
+    <div id="vista-organizaciones" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Organizaciones</h3>
+          <button class="btn btn-primary" onclick="mostrarModalNuevaOrganizacion()">
+            ➕ Nueva Organización
+          </button>
+        </div>
+        
+        <div class="form-group">
+          <select class="form-select" id="filtro-tipo-org" onchange="cargarOrganizaciones()">
+            <option value="">Todas las organizaciones</option>
+            <option value="DEPENDENCIA">Dependencias</option>
+            <option value="ENTIDAD_PARAESTATAL">Entidades Paraestatales</option>
+          </select>
+        </div>
+
+        <div id="tabla-organizaciones">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista Herramientas -->
+    <div id="vista-herramientas" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Herramientas Organizacionales</h3>
+          <button class="btn btn-primary" onclick="mostrarModalNuevaHerramienta()">
+            ➕ Nueva Herramienta
+          </button>
+        </div>
+
+        <div id="tabla-herramientas">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista Reportes -->
+    <div id="vista-reportes" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Reportes y Exportaciones</h3>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarInventario()">
+            <div class="stat-number" style="color: var(--azul-institucional);">📋</div>
+            <div class="stat-label">Inventario Completo</div>
+            <button class="btn btn-primary mt-20">Exportar Excel</button>
+          </div>
+
+          <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarSemaforo()">
+            <div class="stat-number" style="color: var(--morado-institucional);">🚦</div>
+            <div class="stat-label">Reporte de Semáforo</div>
+            <button class="btn btn-secondary mt-20">Exportar Excel</button>
+          </div>
+
+          <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarProximasVencer()">
+            <div class="stat-number" style="color: var(--amarillo-advertencia);">⏰</div>
+            <div class="stat-label">Próximas a Vencer</div>
+            <button class="btn btn-secondary mt-20">Exportar Excel</button>
+          </div>
+        </div>
+
+        <div class="card mt-20">
+          <div class="card-header">
+            <h3 class="card-title">Historial de Cambios</h3>
+          </div>
+          <div id="tabla-historial">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Organización -->
+  <div id="modal-nueva-organizacion" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title">Nueva Organización</h3>
+        <button class="modal-close" onclick="cerrarModal('modal-nueva-organizacion')">&times;</button>
+      </div>
+      <form id="form-nueva-organizacion">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-input" name="nombre" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" name="tipo" required>
+            <option value="">Seleccione...</option>
+            <option value="DEPENDENCIA">Dependencia</option>
+            <option value="ENTIDAD_PARAESTATAL">Entidad Paraestatal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Siglas (opcional)</label>
+          <input type="text" class="form-input" name="siglas">
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Herramienta -->
+  <div id="modal-nueva-herramienta" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="card-title">Nueva Herramienta</h3>
+        <button class="modal-close" onclick="cerrarModal('modal-nueva-herramienta')">&times;</button>
+      </div>
+      <form id="form-nueva-herramienta">
+        <div class="form-group">
+          <label class="form-label">Organización</label>
+          <select class="form-select" name="organizacion_id" id="select-organizacion" required>
+            <option value="">Cargando...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de Herramienta</label>
+          <select class="form-select" name="tipo_herramienta" required>
+            <option value="">Seleccione...</option>
+            <option value="ORGANIGRAMA">Organigrama</option>
+            <option value="REGLAMENTO_INTERIOR">Reglamento Interior</option>
+            <option value="ESTATUTO_ORGANICO">Estatuto Orgánico</option>
+            <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
+            <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
+            <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Archivo</label>
+          <input type="file" class="form-input" name="archivo" required accept=".pdf,.doc,.docx,.xls,.xlsx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de Emisión</label>
+          <input type="date" class="form-input" name="fecha_emision" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de Publicación en POE (opcional)</label>
+          <input type="date" class="form-input" name="fecha_publicacion_poe">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Link de Publicación en POE (opcional)</label>
+          <input type="url" class="form-input" name="link_publicacion_poe" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Versión</label>
+          <input type="text" class="form-input" name="version" value="1.0">
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/organizaciones.js"></script>
+  <script src="assets/js/herramientas.js"></script>
+  <script src="assets/js/reportes.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
