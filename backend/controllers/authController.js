@@ -148,6 +148,111 @@ class AuthController {
             res.status(500).json({ error: 'Error en el servidor' });
         }
     }
+
+    /**
+     * Listar todos los usuarios (Solo Admin)
+     */
+    static async listarUsuarios(req, res) {
+        try {
+            const usuarios = await Usuario.obtenerTodos();
+            res.json({ usuarios });
+        } catch (error) {
+            console.error('Error al listar usuarios:', error);
+            res.status(500).json({ error: 'Error en el servidor' });
+        }
+    }
+
+    /**
+     * Actualizar usuario desde administración (Solo Admin)
+     */
+    static async actualizarUsuarioAdmin(req, res) {
+        try {
+            const { id } = req.params;
+            const { nombre_completo, email, rol, activo, password } = req.body;
+
+            if (!nombre_completo || !email || !rol) {
+                return res.status(400).json({ error: 'Campos requeridos faltantes' });
+            }
+
+            const datos = { nombre_completo, email, rol, activo: parseInt(activo) };
+
+            // Si viene una nueva contraseña, hacerle hash
+            if (password && password.trim() !== '') {
+                datos.password_hash = await bcrypt.hash(password, 10);
+                await db.query(
+                    'UPDATE usuarios SET nombre_completo=$1, email=$2, rol=$3, activo=$4, password_hash=$5 WHERE id=$6',
+                    [datos.nombre_completo, datos.email, datos.rol, datos.activo, datos.password_hash, id]
+                );
+            } else {
+                await Usuario.actualizar(id, datos);
+            }
+
+            res.json({ mensaje: 'Usuario actualizado correctamente' });
+        } catch (error) {
+            console.error('Error al actualizar usuario admin:', error);
+            res.status(500).json({ error: 'Error en el servidor' });
+        }
+    }
+
+    /**
+     * Eliminar usuario (Solo Admin)
+     */
+    static async eliminarUsuarioAdmin(req, res) {
+        try {
+            const { id } = req.params;
+
+            // Evitar que el admin se elimine a sí mismo
+            if (parseInt(id) === req.usuario.id) {
+                return res.status(400).json({ error: 'No puedes eliminar tu propia cuenta de administrador' });
+            }
+
+            await Usuario.eliminar(id);
+            res.json({ mensaje: 'Usuario eliminado correctamente' });
+        } catch (error) {
+            console.error('Error al eliminar usuario admin:', error);
+            res.status(500).json({ error: 'Error en el servidor' });
+        }
+    }
+
+    /**
+     * Cambiar contraseña del usuario actual
+     */
+    static async cambiarPassword(req, res) {
+        try {
+            const { passwordActual, nuevoPassword } = req.body;
+            const usuarioId = req.usuario.id;
+
+            if (!passwordActual || !nuevoPassword) {
+                return res.status(400).json({ error: 'Contraseña actual y nueva son requeridas' });
+            }
+
+            // Buscar usuario con password_hash
+            const usuario = await Usuario.buscarPorEmail(req.usuario.email);
+
+            if (!usuario) {
+                return res.status(404).json({ error: 'Usuario no encontrado' });
+            }
+
+            // Verificar contraseña actual
+            const passwordValido = await bcrypt.compare(passwordActual, usuario.password_hash);
+
+            if (!passwordValido) {
+                return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
+            }
+
+            // Hash de la nueva contraseña
+            const nuevoPasswordHash = await bcrypt.hash(nuevoPassword, 10);
+
+            // Actualizar en la base de datos
+            await db.query('UPDATE usuarios SET password_hash = $1 WHERE id = $2', [nuevoPasswordHash, usuarioId]);
+
+            res.json({ mensaje: 'Contraseña actualizada exitosamente' });
+
+        } catch (error) {
+            console.error('Error al cambiar contraseña:', error);
+            res.status(500).json({ error: 'Error en el servidor' });
+        }
+    }
 }
 
 module.exports = AuthController;

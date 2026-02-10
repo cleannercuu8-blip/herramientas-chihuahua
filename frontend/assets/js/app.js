@@ -30,12 +30,39 @@
 
   // Función para inicializar la aplicación
   async function initApp() {
+    const usuario = window.AppUtils.AppState.usuario;
+
+    // Poblar menú de usuario
+    if (usuario) {
+      const displayName = document.getElementById('user-display-name');
+      const displayRole = document.getElementById('user-display-role');
+      const avatarInitials = document.getElementById('user-avatar-initials');
+
+      if (displayName) displayName.textContent = usuario.nombre_completo;
+      if (displayRole) displayRole.textContent = usuario.rol;
+
+      // Iniciales para el avatar
+      const iniciales = usuario.nombre_completo
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+      if (avatarInitials) avatarInitials.textContent = iniciales || '?';
+
+      // Mostrar pestaña de usuarios si es admin
+      if (usuario.rol === 'ADMINISTRADOR') {
+        const navBtnUsers = document.getElementById('nav-btn-usuarios');
+        if (navBtnUsers) navBtnUsers.style.display = 'block';
+      }
+    }
+
     window.mostrarVista('organizaciones');
 
     // Configurar visibilidad de mantenimiento para administradores
     const getUsuario = window.AuthModule.getUsuario || (() => window.AppUtils.AppState.usuario);
-    const usuario = getUsuario();
-    if (usuario && usuario.rol === 'ADMINISTRADOR') {
+    const u = getUsuario();
+    if (u && u.rol === 'ADMINISTRADOR') {
       const maintenanceSection = document.getElementById('admin-maintenance-section');
       if (maintenanceSection) maintenanceSection.style.display = 'block';
     }
@@ -610,6 +637,9 @@
         break;
       case 'herramientas':
         refrescarVistaHerramientas();
+        break;
+      case 'usuarios':
+        cargarUsuariosAdmin();
         break;
       case 'reportes':
         cargarHistorial();
