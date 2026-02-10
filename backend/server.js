@@ -130,10 +130,29 @@ app.post('/api/admin/import-data', async (req, res) => {
         const Organizacion = require('./models/Organizacion');
         const Herramienta = require('./models/Herramienta');
 
-        const csvPath = path.join(__dirname, 'data', 'Herramientas y dependencias.csv');
+        const dataDir = path.join(__dirname, 'data');
+        let csvPath = path.join(dataDir, 'datos.csv');
+
+        // Robustez: Buscar cualquier CSV si datos.csv no existe
+        if (!fs.existsSync(csvPath)) {
+            const files = fs.readdirSync(dataDir);
+            const csvFile = files.find(f => f.toLowerCase().endsWith('.csv'));
+            if (csvFile) {
+                csvPath = path.join(dataDir, csvFile);
+                console.log(`ℹ️  Usando archivo CSV encontrado: ${csvFile}`);
+            }
+        }
 
         if (!fs.existsSync(csvPath)) {
-            return res.status(404).json({ success: false, error: 'El archivo CSV no se encontró en el servidor' });
+            return res.status(404).json({
+                success: false,
+                error: 'El archivo CSV no se encontró en el servidor',
+                debug: {
+                    dir: dataDir,
+                    exists: fs.existsSync(dataDir),
+                    files: fs.existsSync(dataDir) ? fs.readdirSync(dataDir) : []
+                }
+            });
         }
 
         const fileContent = fs.readFileSync(csvPath, 'utf8');
