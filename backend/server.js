@@ -96,6 +96,116 @@ app.post('/api/admin/init-database', async (req, res) => {
     }
 });
 
+// Ruta para migrar el esquema (agregar columnas)
+app.post('/api/admin/migrate-schema', async (req, res) => {
+    try {
+        const db = require('./config/database');
+        console.log('🔧 Iniciando migración de esquema...\n');
+
+        await db.query(`
+            ALTER TABLE organizaciones 
+            ADD COLUMN IF NOT EXISTS titular TEXT,
+            ADD COLUMN IF NOT EXISTS decreto_creacion TEXT
+        `);
+
+        await db.query(`
+            ALTER TABLE herramientas 
+            ADD COLUMN IF NOT EXISTS estatus_poe TEXT,
+            ADD COLUMN IF NOT EXISTS comentarios TEXT
+        `);
+
+        res.json({ success: true, message: 'Esquema actualizado correctamente' });
+    } catch (error) {
+        console.error('❌ Error en la migración:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Ruta para importar datos desde el CSV local del servidor (solo si el archivo existe)
+app.post('/api/admin/import-data', async (req, res) => {
+    try {
+        const fs = require('fs');
+        const { parse } = require('csv-parse/sync');
+        const db = require('./config/database');
+        const Organizacion = require('./models/Organizacion');
+        const Herramienta = require('./models/Herramienta');
+
+        const csvPath = 'C:\\Users\\Alfredo Ochoa\\Documents\\Herramientas y dependencias.csv';
+
+        if (!fs.existsSync(csvPath)) {
+            return res.status(404).json({ success: false, error: 'El archivo CSV no se encontró en el servidor' });
+        }
+
+        const fileContent = fs.readFileSync(csvPath, 'utf8');
+        const records = parse(fileContent, { columns: true, skip_empty_lines: true, trim: true });
+
+        const { rows: usuarios } = await db.query("SELECT id FROM usuarios WHERE email = 'admin@chihuahua.gob.mx'");
+        if (usuarios.length === 0) throw new Error('Usuario admin no encontrado');
+        const adminId = usuarios[0].id;
+
+        let importados = 0;
+        for (const record of records) {
+            const nombreOrg = record['DEPENDENCIA / ENTIDAD'] || record['DEPENDENCIA/ENTIDAD'];
+            if (!nombreOrg) continue;
+
+            const sectorStr = record['SECTOR'] || '';
+            const tipo = sectorStr.toUpperCase().includes('PARAESTATAL') ? 'ENTIDAD_PARAESTATAL' : 'DEPENDENCIA';
+
+            const datosOrg = {
+                nombre: nombreOrg,
+                tipo: tipo,
+                siglas: '',
+                titular: record['NOMBRE TITULAR'],
+                decreto_creacion: record['DECRETO DE CREACIÓN'] || record['DECRETO DE CREACION']
+            };
+
+            const { rows: orgsExistentes } = await db.query('SELECT id FROM organizaciones WHERE nombre = $1', [nombreOrg]);
+            let orgId;
+
+            if (orgsExistentes.length > 0) {
+                orgId = orgsExistentes[0].id;
+                await Organizacion.actualizar(orgId, { ...datosOrg, activo: 1 });
+            } else {
+                const nuevaOrg = await Organizacion.crear(datosOrg);
+                orgId = nuevaOrg.id;
+            }
+
+            const organigramaLink = record['ORGANIGRAMA AUTORIZADO'];
+            if (organigramaLink && organigramaLink !== 'N/A' && organigramaLink !== '') {
+                const fechaStr = record['FECHA'] || null;
+                const estatusPoe = record['Estatus R1 en POE'] || record['ESTATUS EN EL POE'];
+                const fechaPoeStr = record['Fecha de Publicación POE'] || record['FECHA DE PUBLICACIÓN'];
+                const linkPoe = record['ENLACE POE'] || record['LINK DE PUBLICACIÓN EN EL POE'];
+                const comentarios = record['COMENTARIOS'];
+
+                let fechaEmision = new Date();
+                try { if (fechaStr && fechaStr !== 'N/A') fechaEmision = new Date(fechaStr); } catch (e) { }
+                if (isNaN(fechaEmision.getTime())) fechaEmision = new Date();
+
+                await Herramienta.crear({
+                    organizacion_id: orgId,
+                    tipo_herramienta: 'ORGANIGRAMA',
+                    nombre_archivo: 'Organigrama cargado desde Excel',
+                    ruta_archivo: organigramaLink,
+                    fecha_emision: fechaEmision,
+                    fecha_publicacion_poe: fechaPoeStr && fechaPoeStr !== 'N/A' ? new Date(fechaPoeStr) : null,
+                    link_publicacion_poe: linkPoe !== 'N/A' ? linkPoe : null,
+                    estatus_poe: estatusPoe,
+                    comentarios: comentarios !== 'N/A' ? comentarios : null,
+                    version: '1.0',
+                    usuario_registro_id: adminId
+                });
+            }
+            importados++;
+        }
+
+        res.json({ success: true, message: `Importación completada: ${importados} registros procesados` });
+    } catch (error) {
+        console.error('❌ Error en la importación:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Ruta de prueba
 app.get('/api/health', (req, res) => {
     res.json({

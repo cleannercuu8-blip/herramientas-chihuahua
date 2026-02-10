@@ -8,6 +8,8 @@ class Organizacion {
         nombre TEXT NOT NULL,
         tipo TEXT CHECK(tipo IN ('DEPENDENCIA', 'ENTIDAD_PARAESTATAL')) NOT NULL,
         siglas TEXT,
+        titular TEXT,
+        decreto_creacion TEXT,
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         activo INTEGER DEFAULT 1
       )
@@ -17,11 +19,11 @@ class Organizacion {
 
     static async crear(organizacion) {
         const sql = `
-      INSERT INTO organizaciones (nombre, tipo, siglas)
-      VALUES ($1, $2, $3)
-      RETURNING id, nombre, tipo, siglas, fecha_creacion, activo
+      INSERT INTO organizaciones (nombre, tipo, siglas, titular, decreto_creacion)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, nombre, tipo, siglas, titular, decreto_creacion, fecha_creacion, activo
     `;
-        const { rows } = await db.query(sql, [organizacion.nombre, organizacion.tipo, organizacion.siglas]);
+        const { rows } = await db.query(sql, [organizacion.nombre, organizacion.tipo, organizacion.siglas, organizacion.titular, organizacion.decreto_creacion]);
         return rows[0];
     }
 
@@ -46,10 +48,10 @@ class Organizacion {
     static async actualizar(id, datos) {
         const sql = `
       UPDATE organizaciones 
-      SET nombre = $1, tipo = $2, siglas = $3, activo = $4
-      WHERE id = $5
+      SET nombre = $1, tipo = $2, siglas = $3, titular = $4, decreto_creacion = $5, activo = $6
+      WHERE id = $7
     `;
-        const result = await db.query(sql, [datos.nombre, datos.tipo, datos.siglas, datos.activo, id]);
+        const result = await db.query(sql, [datos.nombre, datos.tipo, datos.siglas, datos.titular, datos.decreto_creacion, datos.activo, id]);
         return { changes: result.rowCount };
     }
 

@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node backend/scripts/initDatabase.js && node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "init-db": "node backend/scripts/initDatabase.js"
+    "init-db": "node backend/scripts/initDatabase.js",
+    "migrate": "node backend/scripts/migrateSchema.js",
+    "import": "node backend/scripts/importData.js"
   },
   "keywords": [
     "gobierno",
@@ -19,6 +21,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "csv-parse": "^5.5.3",
     "dotenv": "^17.2.4",
     "exceljs": "^4.3.0",
     "express": "^4.18.2",
