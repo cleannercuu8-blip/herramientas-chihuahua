@@ -74,4 +74,33 @@ router.post('/init-database', async (req, res) => {
     }
 });
 
+/**
+ * Limpia toda la información de organizaciones y herramientas
+ * Útil para empezar de cero manualmente
+ */
+router.post('/clear-database', async (req, res) => {
+    try {
+        const db = require('../config/database');
+
+        console.log('🧹 Limpiando base de datos...');
+
+        // Truncar tablas en orden de dependencia
+        await db.query('TRUNCATE TABLE historial, herramientas, organizaciones RESTART IDENTITY CASCADE');
+
+        console.log('✅ Base de datos limpiada exitosamente');
+
+        res.json({
+            success: true,
+            message: 'Se han eliminado todos los registros. El sistema está listo para un inicio limpio.'
+        });
+    } catch (error) {
+        console.error('❌ Error al limpiar la base de datos:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al limpiar la base de datos',
+            details: error.message
+        });
+    }
+});
+
 module.exports = router;

@@ -28,9 +28,17 @@
     }
   });
 
-  // Función para inicializar la aplicación (anteriormente dentro de DOMContentLoaded)
+  // Función para inicializar la aplicación
   async function initApp() {
     await cargarReporteGeneral();
+
+    // Configurar visibilidad de mantenimiento para administradores
+    const usuario = window.AuthModule.getUsuario();
+    if (usuario && usuario.rol === 'ADMINISTRADOR') {
+      const maintenanceSection = document.getElementById('admin-maintenance-section');
+      if (maintenanceSection) maintenanceSection.style.display = 'block';
+    }
+
     // Al cargar, inicializar estado de navegación
     AppState.currentView = 'dashboard';
   }
@@ -96,7 +104,12 @@
       const organizaciones = resultado.data;
 
       if (organizaciones.length === 0) {
-        container.innerHTML = '<p class="text-center p-20">No hay Dependencias/Entidades registradas</p>';
+        container.innerHTML = `
+          <div class="empty-state p-40 text-center">
+            <p class="mb-20">No hay Dependencias/Entidades registradas aún.</p>
+            <button class="btn btn-primary" onclick="window.mostrarModal('modal-nueva-organizacion')">➕ Registrar Primera Dependencia</button>
+          </div>
+        `;
         return;
       }
 
@@ -148,7 +161,11 @@
       const container = document.getElementById('tabla-proximas-vencer');
 
       if (herramientas.length === 0) {
-        container.innerHTML = '<p class="text-center p-20">No hay herramientas próximas a vencer</p>';
+        container.innerHTML = `
+          <div class="empty-state p-20 text-center">
+            <p>No hay herramientas próximas a vencer o no hay datos registrados.</p>
+          </div>
+        `;
         return;
       }
 
@@ -483,6 +500,12 @@
         break;
       case 'reportes':
         cargarHistorial();
+        // Asegurar que mantenimiento sea visible para admins si cambian de vista
+        const usuario = window.AuthModule.getUsuario();
+        const maintenanceSection = document.getElementById('admin-maintenance-section');
+        if (maintenanceSection) {
+          maintenanceSection.style.display = (usuario && usuario.rol === 'ADMINISTRADOR') ? 'block' : 'none';
+        }
         break;
     }
 
@@ -555,7 +578,7 @@
         window.AppUtils.mostrarAlerta('Herramienta creada exitosamente', 'success');
         cerrarModal('modal-nueva-herramienta');
         e.target.reset();
-        cargarHerramientas();
+        refrescarVistaHerramientas();
       } else {
         window.AppUtils.mostrarAlerta(resultado.error, 'error');
       }
@@ -618,7 +641,12 @@
       // Lista de herramientas
       const herramientasList = document.getElementById('detalle-org-herramientas-lista');
       if (org.herramientas.length === 0) {
-        herramientasList.innerHTML = '<p class="p-20 text-center">No hay herramientas registradas</p>';
+        herramientasList.innerHTML = `
+          <div class="p-20 text-center">
+            <p class="mb-10 text-muted">No hay herramientas registradas para esta dependencia.</p>
+            <button class="btn btn-primary btn-sm" onclick="window.mostrarModalNuevaHerramienta()">Registrar Herramienta</button>
+          </div>
+        `;
       } else {
         let html = `
                     <div class="table-container">
@@ -677,6 +705,40 @@
       window.mostrarModal('modal-editar-organizacion');
     } else {
       window.AppUtils.mostrarAlerta(resultado.error, 'error');
+    }
+  };
+
+  // Función para reiniciar la base de datos
+  window.resetearBaseDeDatos = async function () {
+    if (!confirm('¿ESTÁ SEGURO? Esta acción eliminará TODAS las dependencias y herramientas permanentemente.')) {
+      return;
+    }
+
+    const confirmacionExtra = prompt('Para confirmar, escriba "ELIMINAR TODO" (en mayúsculas):');
+    if (confirmacionExtra !== 'ELIMINAR TODO') {
+      alert('Confirmación incorrecta.');
+      return;
+    }
+
+    window.AppUtils.mostrarSpinner(true);
+    try {
+      const resultado = await window.AppUtils.fetchAPI('/admin/clear-database', {
+        method: 'POST'
+      });
+
+      if (resultado && resultado.success) {
+        window.AppUtils.mostrarAlerta(resultado.message, 'success');
+        // Redirigir al dashboard y recargar
+        window.mostrarVista('dashboard');
+        await initApp();
+      } else {
+        window.AppUtils.mostrarAlerta(resultado?.error || 'Error al limpiar base de datos', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      window.AppUtils.mostrarAlerta('Error de conexión al servidor', 'error');
+    } finally {
+      window.AppUtils.mostrarSpinner(false);
     }
   };
 
