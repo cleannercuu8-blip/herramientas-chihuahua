@@ -18,19 +18,19 @@
 
     <!-- Navegación -->
     <div class="nav">
-      <button class="nav-btn active" onclick="mostrarVista('dashboard')">📊 Dashboard</button>
-      <button class="nav-btn" onclick="mostrarVista('organizaciones')">🏢 Dependencia/Entidad</button>
-      <button class="nav-btn" onclick="mostrarVista('herramientas')">📁 Herramientas</button>
-      <button class="nav-btn" onclick="mostrarVista('reportes')">📈 Reportes</button>
+      <button class="nav-btn active" onclick="mostrarVista('dashboard', event)">📊 Reporte General</button>
+      <button class="nav-btn" onclick="mostrarVista('organizaciones', event)">🏢 Dependencia/Entidad</button>
+      <button class="nav-btn" onclick="mostrarVista('herramientas', event)">📁 Herramientas</button>
+      <button class="nav-btn" onclick="mostrarVista('reportes', event)">📈 Reportes</button>
       <button class="nav-btn logout" onclick="window.AppUtils.cerrarSesion()">🚪 Cerrar Sesión</button>
     </div>
 
     <!-- Contenedor de alertas -->
     <div id="alert-container"></div>
 
-    <!-- Vista Dashboard -->
+    <!-- Vista REPORTE GENERAL -->
     <div id="vista-dashboard">
-      <h2 class="card-title mb-20">Panel de Control</h2>
+      <h2 class="card-title mb-20">Reporte General del Sistema</h2>
 
       <!-- Estadísticas -->
       <div class="stats-grid" id="stats-grid">
@@ -104,16 +104,36 @@
 
     <!-- Vista Herramientas -->
     <div id="vista-herramientas" class="hidden">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Herramientas Organizacionales</h3>
-          <button class="btn btn-primary" onclick="mostrarModalNuevaHerramienta()">
-            ➕ Nueva Herramienta
-          </button>
+      <div class="layout-herramientas">
+        <!-- Columna Izquierda: Lista de Dependencias -->
+        <div class="card" style="flex: 1; min-width: 300px;">
+          <div class="card-header">
+            <h3 class="card-title">Seleccionar Dependencia</h3>
+          </div>
+          <div class="p-10">
+            <input type="text" class="form-input mb-10" id="buscar-org-herramientas" placeholder="Buscar dependencia..."
+              oninput="filtrarOrganizacionesHerramientas()">
+            <div id="lista-organizaciones-herramientas" class="list-group">
+              <!-- Cargado dinámicamente -->
+              <div class="spinner"></div>
+            </div>
+          </div>
         </div>
 
-        <div id="tabla-herramientas">
-          <div class="spinner"></div>
+        <!-- Columna Derecha: Detalle de Herramientas -->
+        <div class="card" style="flex: 2; min-width: 400px;">
+          <div class="card-header" style="justify-content: space-between;">
+            <h3 class="card-title" id="titulo-dependencia-seleccionada">Herramientas</h3>
+            <div id="admin-actions-herramientas" style="display: none;">
+              <button class="btn btn-primary btn-sm" onclick="hacerNuevaHerramientaConOrg()">+ Nueva
+                Herramienta</button>
+            </div>
+          </div>
+          <div id="detalle-herramientas-dependencia" class="p-20">
+            <div class="empty-state">
+              <p>Seleccione una dependencia de la lista para ver su información y herramientas.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

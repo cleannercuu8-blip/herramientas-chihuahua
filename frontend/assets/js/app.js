@@ -9,12 +9,15 @@
 
   // Inicializar aplicación
   document.addEventListener('DOMContentLoaded', () => {
-    cargarDashboard();
+    cargarReporteGeneral();
     configurarEventos();
+
+    // Al cargar, inicializar estado de navegación
+    AppState.currentView = 'dashboard';
   });
 
-  // Cargar dashboard
-  async function cargarDashboard() {
+  // Cargar Reporte General
+  async function cargarReporteGeneral() {
     await Promise.all([
       cargarEstadisticas(),
       cargarResumenSemaforo(),
@@ -175,64 +178,181 @@
     }
   };
 
-  // Cargar herramientas en la tabla
-  window.cargarHerramientas = async function () {
-    const resultado = await window.HerramientasModule.obtenerTodas();
+  // Variable para almacenar el estado de organizaciones en herramientas
+  let organizacionesHerramientas = [];
+  let idDependenciaSeleccionada = null;
 
+  // Refrescar vista de herramientas (Maestro-Detalle)
+  async function refrescarVistaHerramientas() {
+    const container = document.getElementById('lista-organizaciones-herramientas');
+    if (!container) return;
+
+    container.innerHTML = '<div class="spinner"></div>';
+
+    const resultado = await window.OrganizacionesModule.obtenerTodas();
     if (resultado.success) {
-      const container = document.getElementById('tabla-herramientas');
-      if (!container) return;
+      organizacionesHerramientas = resultado.data;
+      renderizarListaOrganizacionesHerramientas(organizacionesHerramientas);
 
-      if (resultado.data.length === 0) {
-        container.innerHTML = '<p class="text-center p-20">No hay herramientas registradas</p>';
-        return;
+      // Si no hay nada seleccionado, mostrar estado vacío
+      if (!idDependenciaSeleccionada) {
+        document.getElementById('detalle-herramientas-dependencia').innerHTML = `
+          <div class="empty-state">
+            <p>Seleccione una dependencia de la lista para ver su información y herramientas organizacionales.</p>
+          </div>
+        `;
       }
+    }
+  }
+
+  // Renderizar la lista de la izquierda
+  function renderizarListaOrganizacionesHerramientas(lista) {
+    const container = document.getElementById('lista-organizaciones-herramientas');
+    if (lista.length === 0) {
+      container.innerHTML = '<p class="text-center p-20">No se encontraron resultados</p>';
+      return;
+    }
+
+    let html = '';
+    lista.forEach(org => {
+      const activeClass = idDependenciaSeleccionada == org.id ? 'active' : '';
+      html += `
+        <div class="list-group-item ${activeClass}" onclick="verHerramientasPorDependencia(${org.id})">
+          <div style="flex: 1;">
+            <div style="font-weight: 600;">${org.nombre}</div>
+            <div style="font-size: 0.8rem; opacity: 0.8;">${org.siglas || AppUtils.getNombreTipoOrganizacion(org.tipo)}</div>
+          </div>
+          ${AppUtils.getBadgeSemaforo(org.semaforo)}
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  // Filtrar lista
+  window.filtrarOrganizacionesHerramientas = function () {
+    const busqueda = document.getElementById('buscar-org-herramientas').value.toLowerCase();
+    const filtradas = organizacionesHerramientas.filter(org =>
+      org.nombre.toLowerCase().includes(busqueda) ||
+      (org.siglas && org.siglas.toLowerCase().includes(busqueda))
+    );
+    renderizarListaOrganizacionesHerramientas(filtradas);
+  };
+
+  // Ver herramientas de una dependencia específica (Lado derecho)
+  window.verHerramientasPorDependencia = async function (id) {
+    idDependenciaSeleccionada = id;
+
+    // Actualizar clase active en la lista
+    document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
+    // Encontrar el elemento y activarlo (si existe en el DOM actual)
+    // El renderizado lo hará la próxima vez, pero por ahora podemos navegar
+
+    const container = document.getElementById('detalle-herramientas-dependencia');
+    container.innerHTML = '<div class="spinner"></div>';
+
+    const resultado = await window.OrganizacionesModule.obtenerPorId(id);
+    if (resultado.success) {
+      const org = resultado.data;
+
+      // Actualizar título y botón de admin
+      document.getElementById('titulo-dependencia-seleccionada').textContent = org.nombre;
+
+      const usuario = window.AuthModule.getUsuario();
+      const isAdmin = usuario && usuario.rol === 'ADMINISTRADOR';
+      const adminActions = document.getElementById('admin-actions-herramientas');
+      if (adminActions) adminActions.style.display = isAdmin ? 'block' : 'none';
 
       let html = `
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Dependencia/Entidad</th>
-                <th>Tipo</th>
-                <th>Archivo</th>
-                <th>Fecha Emisión</th>
-                <th>POE</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div class="card mb-20" style="background: var(--gris-claro); border: none; box-shadow: none;">
+          <div class="p-20">
+            <h4 style="color: var(--azul-institucional); margin-bottom: 10px;">Información General</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+              <div><strong>Titular:</strong> ${org.titular || 'No registrado'}</div>
+              <div><strong>Siglas:</strong> ${org.siglas || 'N/A'}</div>
+              <div><strong>Tipo:</strong> ${AppUtils.getNombreTipoOrganizacion(org.tipo)}</div>
+              <div><strong>Semáforo:</strong> ${AppUtils.getBadgeSemaforo(org.semaforo)}</div>
+            </div>
+            ${org.decreto_creacion ? `
+              <div style="margin-top: 15px;">
+                <strong>Decreto de Creación:</strong> 
+                <a href="${org.decreto_creacion}" target="_blank" class="btn btn-secondary btn-sm" style="display: inline-block; margin-left: 10px;">Ver Decreto 🔗</a>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <h4 style="margin-bottom: 20px; color: var(--azul-institucional);">Clasificación por Herramienta</h4>
+        <div class="tool-card-grid">
       `;
 
-      resultado.data.forEach(h => {
-        html += `
-          <tr>
-            <td>${h.organizacion_nombre}</td>
-            <td>${window.AppUtils.getNombreTipoHerramienta(h.tipo_herramienta)}</td>
-            <td>${h.nombre_archivo}</td>
-            <td>${window.AppUtils.formatearFechaCorta(h.fecha_emision)}</td>
-            <td>
-              <span class="badge" style="background-color: ${h.estatus_poe && h.estatus_poe.includes('PUBLICADO') ? 'var(--verde-cumplimiento)' : 'var(--gris-suave)'}; color: white;">
-                ${h.estatus_poe || (h.fecha_publicacion_poe ? 'PUBLICADO' : 'PENDIENTE')}
-              </span>
-            </td>
-            <td>
-              <div style="display: flex; gap: 5px;">
-                <a href="${window.HerramientasModule.getUrlDescarga(h.id)}" 
-                   class="btn btn-success btn-sm" 
-                   target="_blank" title="Descargar/Ver">
-                   📥
-                </a>
-                ${h.link_publicacion_poe ? `<a href="${h.link_publicacion_poe}" class="btn btn-secondary btn-sm" target="_blank" title="Ver POE">🔗</a>` : ''}
+      // Definir tipos de herramientas para asegurar que aparezcan aunque no tengan archivo
+      const tiposOmitidos = ['ORGANIGRAMA', 'REGLAMENTO_INTERIOR', 'ESTATUTO_ORGANICO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'];
+
+      tiposOmitidos.forEach(tipo => {
+        const herramienta = org.herramientas.find(h => h.tipo_herramienta === tipo);
+
+        if (herramienta) {
+          html += `
+            <div class="tool-item-card">
+              <div class="tool-card-header">
+                <div class="tool-card-title">${AppUtils.getNombreTipoHerramienta(tipo)}</div>
               </div>
-            </td>
-          </tr>
-        `;
+              <div><strong>Estado:</strong> <span class="badge badge-verde">✓ Registrado</span></div>
+              <div><strong>Fecha:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
+              ${herramienta.fecha_publicacion_poe ? `<div><strong>POE:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_publicacion_poe)}</div>` : ''}
+              <div style="display: flex; gap: 5px; margin-top: 10px;">
+                <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 1; text-align: center;" target="_blank">Descargar 📥</a>
+                ${herramienta.link_publicacion_poe ? `<a href="${herramienta.link_publicacion_poe}" class="btn btn-secondary btn-sm" target="_blank" title="Ver POE">POE 🔗</a>` : ''}
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="tool-item-card" style="opacity: 0.6; background: #f9f9f9;">
+              <div class="tool-card-header">
+                <div class="tool-card-title">${AppUtils.getNombreTipoHerramienta(tipo)}</div>
+              </div>
+              <div><strong>Estado:</strong> <span class="badge" style="background: #ccc; color: white;">✗ Pendiente</span></div>
+              <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">No se ha cargado documento para esta categoría.</div>
+            </div>
+          `;
+        }
       });
 
-      html += '</tbody></table></div>';
+      html += '</div>';
       container.innerHTML = html;
+
+      // Actualizar visual de la lista sin recargar
+      const items = document.querySelectorAll('.list-group-item');
+      items.forEach(el => {
+        if (el.innerHTML.includes(org.nombre)) el.classList.add('active');
+        else el.classList.remove('active');
+      });
+    } else {
+      container.innerHTML = `<p class="p-20 text-center text-error">${resultado.error}</p>`;
     }
+  };
+
+  // Función para abrir modal de nueva herramienta con la org ya seleccionada
+  window.hacerNuevaHerramientaConOrg = async function () {
+    if (!idDependenciaSeleccionada) return;
+
+    // Abrir modal normal
+    await mostrarModalNuevaHerramienta();
+
+    // Seleccionar la dependencia en el select
+    const select = document.getElementById('select-organizacion');
+    if (select) {
+      select.value = idDependenciaSeleccionada;
+    }
+  };
+
+  // Cargar herramientas en la tabla (LEGACY/BACKUP)
+  window.cargarHerramientas = async function () {
+    const resultado = await window.HerramientasModule.obtenerTodas();
+    // ... mantengo por si acaso o redirijo
+    refrescarVistaHerramientas();
   };
 
   // Cargar historial
@@ -281,7 +401,7 @@
   }
 
   // Mostrar vista
-  window.mostrarVista = function (vista) {
+  window.mostrarVista = function (vista, event) {
     // Ocultar todas las vistas
     document.querySelectorAll('[id^="vista-"]').forEach(el => {
       el.classList.add('hidden');
@@ -298,24 +418,28 @@
       vistaElement.classList.remove('hidden');
     }
 
-    // Activar botón
-    event.target.classList.add('active');
+    // Activar botón si hay evento
+    if (event && event.currentTarget) {
+      event.currentTarget.classList.add('active');
+    }
 
     // Cargar datos según la vista
     switch (vista) {
       case 'dashboard':
-        cargarDashboard();
+        cargarReporteGeneral();
         break;
       case 'organizaciones':
         cargarOrganizaciones();
         break;
       case 'herramientas':
-        cargarHerramientas();
+        refrescarVistaHerramientas();
         break;
       case 'reportes':
         cargarHistorial();
         break;
     }
+
+    AppState.currentView = vista;
   };
 
   // Mostrar modal
