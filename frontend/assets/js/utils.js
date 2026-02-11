@@ -157,8 +157,8 @@ function getBadgeSemaforo(estatus) {
 function getNombreTipoHerramienta(tipo) {
     const nombres = {
         'ORGANIGRAMA': 'Organigrama',
-        'REGLAMENTO_INTERIOR': 'Reglamento Interior',
-        'ESTATUTO_ORGANICO': 'Estatuto Orgánico',
+        'REGLAMENTO_INTERIOR': 'Reglamento Interior / Estatuto Orgánico',
+        'ESTATUTO_ORGANICO': 'Reglamento Interior / Estatuto Orgánico',
         'REGLAMENTO_ESTATUTO': 'Reglamento Interior / Estatuto Orgánico',
         'MANUAL_ORGANIZACION': 'Manual de Organización',
         'MANUAL_PROCEDIMIENTOS': 'Manual de Procedimientos',

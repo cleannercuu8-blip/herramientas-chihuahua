@@ -53,8 +53,18 @@ async function migrarEsquema() {
             `);
 
             console.log('✅ Tipos unificados y restricciones actualizadas\n');
+
+            // 4. Recalcular semáforos con la nueva lógica (incluyendo NARANJA)
+            console.log('📊 Recalculando caché de semáforos...');
+            const Organizacion = require('../models/Organizacion');
+            const SemaforoService = require('../utils/semaforo');
+            const organizaciones = await Organizacion.obtenerTodas();
+            for (const org of organizaciones) {
+                await SemaforoService.actualizarCacheSemaforo(org.id);
+            }
+            console.log(`✅ ${organizaciones.length} organizaciones actualizadas\n`);
         } catch (error) {
-            console.error('⚠️ Advertencia en unificación de tipos:', error.message);
+            console.error('⚠️ Advertencia en migración de datos:', error.message);
         }
 
         console.log('✅ Migración completada exitosamente\n');

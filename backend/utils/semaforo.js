@@ -21,24 +21,25 @@ class SemaforoService {
             const Herramienta = require('../models/Herramienta');
             const herramientas = await Herramienta.obtenerPorOrganizacion(organizacionId);
 
-            // 1. Organigrama
+            // 1. Organigrama (Verde >= 2022, Amarillo 2018-2021, Rojo < 2018)
             const org = herramientas.find(h => h.tipo_herramienta === 'ORGANIGRAMA');
             const p1 = this.evaluarFecha(org);
 
             // 2. Reglamento / Estatuto (Unificado)
+            // Lógica: Verde >= 2022, Amarillo si Publicado > Organigrama, Naranja 2018-2021, Rojo rest.
             const reg = herramientas.find(h => h.tipo_herramienta === 'REGLAMENTO_ESTATUTO' || h.tipo_herramienta === 'REGLAMENTO_INTERIOR' || h.tipo_herramienta === 'ESTATUTO_ORGANICO');
             const p2 = this.evaluarReglamento(reg, org);
 
-            // 3. Manual de Organización
-            const mOrg = herramientas.find(h => h.tipo_herramienta === 'MANUAL_ORGANIZACION');
+            // 3. Manual de Organización (Buscamos el más reciente si hay múltiples)
+            const mOrg = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_ORGANIZACION').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
             const p3 = this.evaluarFecha(mOrg);
 
             // 4. Manual de Procedimientos
-            const mProc = herramientas.find(h => h.tipo_herramienta === 'MANUAL_PROCEDIMIENTOS');
+            const mProc = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_PROCEDIMIENTOS').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
             const p4 = this.evaluarFecha(mProc);
 
             // 5. Manual de Servicios (Condicional)
-            const mServ = herramientas.find(h => h.tipo_herramienta === 'MANUAL_SERVICIOS');
+            const mServ = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_SERVICIOS').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
             const p5 = mServ ? this.evaluarFecha(mServ) : null;
 
             return {

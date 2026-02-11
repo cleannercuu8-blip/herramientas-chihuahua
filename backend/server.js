@@ -126,10 +126,12 @@ app.post('/api/admin/migrate-schema', async (req, res) => {
         const SemaforoService = require('./utils/semaforo');
         const organizaciones = await Organizacion.obtenerTodas();
 
-        console.log(`📊 Poblando caché para ${organizaciones.length} dependencias...`);
+        console.log(`📊 Poblando caché para ${organizaciones.length} dependencias con la NUEVA lógica...`);
         for (const org of organizaciones) {
             await SemaforoService.actualizarCacheSemaforo(org.id);
         }
+
+        console.log('✅ Caché de semáforo actualizada');
 
         res.json({ success: true, message: 'Esquema actualizado y caché poblada correctamente' });
     } catch (error) {

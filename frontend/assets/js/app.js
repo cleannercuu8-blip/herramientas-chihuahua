@@ -180,9 +180,8 @@
   // Utilidad para renderizar los círculos del semáforo
   function renderizarSemaforoDots(puntos) {
     if (!puntos || puntos.length === 0) {
-      // Si no hay datos, mostrar 5 puntos grises por defecto
+      // Si no hay datos, mostrar 4 puntos grises por defecto (mínimo base)
       return `
-        <span class="dot dot-vacio"></span>
         <span class="dot dot-vacio"></span>
         <span class="dot dot-vacio"></span>
         <span class="dot dot-vacio"></span>
@@ -192,6 +191,7 @@
 
     return puntos.map(color => {
       const c = (color || '').toLowerCase();
+      // El color naranja ya está contemplado en el CSS como .dot-naranja
       return `<span class="dot dot-${c}"></span>`;
     }).join('');
   }
