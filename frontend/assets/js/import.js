@@ -33,6 +33,17 @@
         window.mostrarModal('modal-importar-excel');
     };
 
+    window.actualizarNombreArchivo = function (input) {
+        const display = document.getElementById('file-name-display');
+        if (input.files && input.files.length > 0) {
+            display.textContent = input.files[0].name;
+            display.style.display = 'block';
+        } else {
+            display.textContent = '';
+            display.style.display = 'none';
+        }
+    };
+
     window.handleImportarExcel = async function (e) {
         e.preventDefault();
         const tipo = document.getElementById('import-type').value;
