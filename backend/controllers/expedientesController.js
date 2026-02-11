@@ -58,6 +58,37 @@ class ExpedientesController {
             res.status(500).json({ error: 'Error al agregar etapa' });
         }
     }
+
+    static async agregarAvance(req, res) {
+        const ExpedienteAvance = require('../models/ExpedienteAvance');
+        try {
+            const { id } = req.params;
+            const { titulo, descripcion, tipo, fecha } = req.body;
+
+            const avance = await ExpedienteAvance.crear({
+                expediente_id: id,
+                usuario_id: req.usuario.id,
+                titulo,
+                descripcion,
+                tipo,
+                fecha
+            });
+
+            // Actualizar fecha de última actualización del expediente
+            await Expediente.actualizar(id, {
+                ultima_actualizacion: new Date()
+            });
+
+            res.status(201).json({
+                mensaje: 'Avance registrado exitosamente',
+                avance
+            });
+
+        } catch (error) {
+            console.error('Error al agregar avance:', error);
+            res.status(500).json({ error: 'Error en el servidor' });
+        }
+    }
 }
 
 module.exports = ExpedientesController;
