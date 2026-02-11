@@ -29,10 +29,10 @@
 
         <!-- Navegación -->
         <div class="nav">
-            <button class="nav-btn active" onclick="mostrarVista('organizaciones', event)">🏢
+            <button class="nav-btn" onclick="mostrarVista('organizaciones', event)">🏢
                 Dependencia/Entidad</button>
             <button class="nav-btn" onclick="mostrarVista('herramientas', event)">📁 Herramientas</button>
-            <button class="nav-btn" onclick="mostrarVista('dashboard', event)">📊 Reporte General</button>
+            <button class="nav-btn active" onclick="mostrarVista('dashboard', event)">📊 Reporte General</button>
             <button class="nav-btn" onclick="mostrarVista('reportes', event)">📥 Exportar</button>
             <button class="nav-btn" id="nav-btn-usuarios" style="display: none;"
                 onclick="mostrarVista('usuarios', event)">👥 Usuarios</button>
@@ -45,17 +45,32 @@
         <!-- VISTAS -->
 
         <!-- Vista Reporte General -->
-        <div id="vista-dashboard" class="hidden">
+        <div id="vista-dashboard">
             <h2 class="card-title mb-20">Reporte General del Sistema</h2>
             <div class="stats-grid" id="stats-grid">
                 <div class="spinner"></div>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Resumen de Semáforo</h3>
+            <div class="dashboard-sections" id="dashboard-sections">
+                <!-- Section: Centralizado -->
+                <div class="dashboard-section-card">
+                    <div class="section-header-custom header-centralizado">Dependencias (Centralizado)</div>
+                    <div class="section-body-custom" id="list-centralizado">
+                        <div class="spinner"></div>
+                    </div>
                 </div>
-                <div id="tabla-semaforo">
-                    <div class="spinner"></div>
+                <!-- Section: Paraestatal -->
+                <div class="dashboard-section-card">
+                    <div class="section-header-custom header-paraestatal">Entidades (Paraestatal)</div>
+                    <div class="section-body-custom" id="list-paraestatal">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <!-- Section: Autónomos -->
+                <div class="dashboard-section-card">
+                    <div class="section-header-custom header-autonomo">Organismos Autónomos</div>
+                    <div class="section-body-custom" id="list-autonomo">
+                        <div class="spinner"></div>
+                    </div>
                 </div>
             </div>
             <div class="card">
@@ -69,7 +84,7 @@
         </div>
 
         <!-- Vista Dependencias/Entidades -->
-        <div id="vista-organizaciones">
+        <div id="vista-organizaciones" class="hidden">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Dependencias y Entidades</h3>

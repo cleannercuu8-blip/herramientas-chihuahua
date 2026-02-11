@@ -64,7 +64,7 @@
       }
     }
 
-    window.mostrarVista('organizaciones');
+    window.mostrarVista('dashboard');
 
     // Configurar visibilidad de mantenimiento para administradores
     const getUsuario = window.AuthModule.getUsuario || (() => window.AppUtils.AppState.usuario);
@@ -75,7 +75,7 @@
     }
 
     // Al cargar, inicializar estado de navegación
-    AppState.currentView = 'organizaciones';
+    AppState.currentView = 'dashboard';
   }
 
   // Función para configurar eventos (anteriormente dentro de DOMContentLoaded)
@@ -127,64 +127,73 @@
     }
   }
 
-  // Cargar resumen de semáforo
+  // Cargar resumen de semáforo (Nuevo Dashboard Categorizado)
   async function cargarResumenSemaforo() {
-    const container = document.getElementById('tabla-semaforo');
-    container.innerHTML = '<div class="spinner"></div>';
+    const listCentralizado = document.getElementById('list-centralizado');
+    const listParaestatal = document.getElementById('list-paraestatal');
+    const listAutonomo = document.getElementById('list-autonomo');
 
-    // Para el dashboard, solo cargamos los primeros 10 para rapidez
-    const resultado = await window.OrganizacionesModule.obtenerTodas(null, 10, 0);
+    if (listCentralizado) listCentralizado.innerHTML = '<div class="spinner"></div>';
+    if (listParaestatal) listParaestatal.innerHTML = '<div class="spinner"></div>';
+    if (listAutonomo) listAutonomo.innerHTML = '<div class="spinner"></div>';
+
+    const resultado = await window.OrganizacionesModule.obtenerTodas();
 
     if (resultado.success) {
       const organizaciones = resultado.data;
 
-      if (organizaciones.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state p-40 text-center">
-            <p class="mb-20">No hay Dependencias/Entidades registradas aún.</p>
-            <button class="btn btn-primary" onclick="window.mostrarModal('modal-nueva-organizacion')">➕ Registrar Primera Dependencia</button>
-          </div>
-        `;
-        return;
-      }
+      const centralizadas = organizaciones.filter(o => o.tipo === 'DEPENDENCIA');
+      const paraestatales = organizaciones.filter(o => o.tipo === 'ENTIDAD_PARAESTATAL');
+      const autonomos = organizaciones.filter(o => o.tipo === 'ORGANISMO_AUTONOMO');
 
-      let html = `
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Dependencia/Entidad</th>
-                <th>Tipo</th>
-                <th>Semáforo</th>
-                <th>Observaciones</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
+      renderSectionCompact('list-centralizado', centralizadas);
+      renderSectionCompact('list-paraestatal', paraestatales);
+      renderSectionCompact('list-autonomo', autonomos);
+    }
+  }
 
-      organizaciones.forEach(org => {
-        html += `
-          <tr>
-            <td><strong>${org.nombre}</strong></td>
-            <td>${window.AppUtils.getNombreTipoOrganizacion(org.tipo)}</td>
-            <td>${window.AppUtils.getBadgeSemaforo(org.semaforo)}</td>
-            <td>${org.detalles_semaforo?.mensaje || 'Sin detalles'}</td>
-          </tr>
-        `;
-      });
+  // Renderizar sección compacta de organización
+  function renderSectionCompact(containerId, lista) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
 
-      html += '</tbody></table></div>';
+    if (lista.length === 0) {
+      container.innerHTML = '<p class="text-center p-20 text-muted" style="font-size: 0.8rem;">Sin registros</p>';
+      return;
+    }
 
-      // Agregar indicador de que es un resumen
+    let html = '';
+    lista.forEach(org => {
+      const dotsHTML = renderizarSemaforoDots(org.detalles_semaforo?.puntos || []);
       html += `
-        <div class="text-center mt-10">
-          <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">Mostrando las primeras 10 dependencias de la lista.</p>
-          <button class="btn btn-primary" onclick="mostrarVista('organizaciones', event)">Ver Todas las Dependencias</button>
+        <div class="org-row-compact">
+          <div class="org-name-compact" title="${org.nombre}">${org.nombre}</div>
+          <div class="dot-container">
+            ${dotsHTML}
+          </div>
         </div>
       `;
+    });
+    container.innerHTML = html;
+  }
 
-      container.innerHTML = html;
+  // Utilidad para renderizar los círculos del semáforo
+  function renderizarSemaforoDots(puntos) {
+    if (!puntos || puntos.length === 0) {
+      // Si no hay datos, mostrar 5 puntos grises por defecto
+      return `
+        <span class="dot dot-vacio"></span>
+        <span class="dot dot-vacio"></span>
+        <span class="dot dot-vacio"></span>
+        <span class="dot dot-vacio"></span>
+        <span class="dot dot-vacio"></span>
+      `;
     }
+
+    return puntos.map(color => {
+      const c = (color || '').toLowerCase();
+      return `<span class="dot dot-${c}"></span>`;
+    }).join('');
   }
 
   // Cargar herramientas próximas a vencer

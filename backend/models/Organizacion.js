@@ -6,7 +6,7 @@ class Organizacion {
       CREATE TABLE IF NOT EXISTS organizaciones (
         id SERIAL PRIMARY KEY,
         nombre TEXT NOT NULL,
-        tipo TEXT CHECK(tipo IN ('DEPENDENCIA', 'ENTIDAD_PARAESTATAL')) NOT NULL,
+        tipo TEXT CHECK(tipo IN ('DEPENDENCIA', 'ENTIDAD_PARAESTATAL', 'ORGANISMO_AUTONOMO')) NOT NULL,
         siglas TEXT,
         titular TEXT,
         decreto_creacion TEXT,

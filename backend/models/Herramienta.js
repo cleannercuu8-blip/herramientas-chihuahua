@@ -10,6 +10,7 @@ class Herramienta {
           'ORGANIGRAMA',
           'REGLAMENTO_INTERIOR',
           'ESTATUTO_ORGANICO',
+          'REGLAMENTO_ESTATUTO',
           'MANUAL_ORGANIZACION',
           'MANUAL_PROCEDIMIENTOS',
           'MANUAL_SERVICIOS'

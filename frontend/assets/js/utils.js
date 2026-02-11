@@ -159,6 +159,7 @@ function getNombreTipoHerramienta(tipo) {
         'ORGANIGRAMA': 'Organigrama',
         'REGLAMENTO_INTERIOR': 'Reglamento Interior',
         'ESTATUTO_ORGANICO': 'Estatuto Orgánico',
+        'REGLAMENTO_ESTATUTO': 'Reglamento Interior / Estatuto Orgánico',
         'MANUAL_ORGANIZACION': 'Manual de Organización',
         'MANUAL_PROCEDIMIENTOS': 'Manual de Procedimientos',
         'MANUAL_SERVICIOS': 'Manual de Servicios'
@@ -169,8 +170,9 @@ function getNombreTipoHerramienta(tipo) {
 // Obtener nombre legible de tipo de organización
 function getNombreTipoOrganizacion(tipo) {
     const nombres = {
-        'DEPENDENCIA': 'Dependencia',
-        'ENTIDAD_PARAESTATAL': 'Entidad Paraestatal'
+        'DEPENDENCIA': 'Dependencia (Centralizada)',
+        'ENTIDAD_PARAESTATAL': 'Entidad (Paraestatal)',
+        'ORGANISMO_AUTONOMO': 'Organismo Autónomo'
     };
     return nombres[tipo] || tipo;
 }
