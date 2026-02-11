@@ -254,10 +254,21 @@
     lista.forEach(org => {
       const dotsHTML = renderizarSemaforoDots(org.detalles_semaforo?.puntos || []);
       html += `
-        <div class="org-row-compact">
-          <div class="org-name-compact" title="${org.nombre}">${org.nombre}</div>
-          <div class="dot-container">
-            ${dotsHTML}
+        <div class="org-row-compact" onclick="verDetalleOrganizacion(${org.id})" style="cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="org-name-compact" title="${org.nombre}">${org.nombre}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="dot-container">
+                ${dotsHTML}
+              </div>
+              <a href="/api/reportes/exportar/organizacion/${org.id}" 
+                 class="btn-export-pdf" 
+                 style="font-size: 0.7rem; padding: 4px 8px;" 
+                 onclick="event.stopPropagation();"
+                 title="Exportar PDF">
+                📄
+              </a>
+            </div>
           </div>
         </div>
       `;
@@ -1093,6 +1104,16 @@
       targetSection.classList.remove('hidden');
       targetSection.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  // Función para ver detalle de organización desde el dashboard
+  window.verDetalleOrganizacion = function (id) {
+    // Cambiar a la vista de herramientas
+    window.mostrarVista('herramientas');
+    // Esperar un momento para que la vista se cargue y luego mostrar el detalle
+    setTimeout(() => {
+      window.verHerramientasPorDependencia(id);
+    }, 100);
   };
 
   window.regresarTableroGlobal = function () {
