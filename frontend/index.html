@@ -12,16 +12,26 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>🏛️ Sistema de Herramientas Organizacionales</h1>
-            <p>Gobierno del Estado de Chihuahua</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <h1>🏛️ Sistema de Herramientas Organizacionales</h1>
+                    <p>Gobierno del Estado de Chihuahua</p>
+                </div>
 
-            <!-- Menú de Usuario -->
-            <div class="user-menu-container">
-                <div class="profile-trigger" onclick="window.mostrarModalPerfil()">
-                    <div class="profile-avatar" id="user-avatar-initials">?</div>
-                    <div class="profile-info">
-                        <span class="profile-name" id="user-display-name">Usuario</span>
-                        <span class="profile-role" id="user-display-role">Cargando...</span>
+                <div class="smart-search-container" style="flex: 1; max-width: 400px; margin: 0 20px;">
+                    <input type="text" id="smart-search-input"
+                        placeholder="¿Qué deseas buscar hoy? Ej: 'avances consejeria'..." autocomplete="off">
+                    <div id="smart-search-results" class="search-results-dropdown"></div>
+                </div>
+
+                <!-- Menú de Usuario -->
+                <div class="user-menu-container">
+                    <div class="profile-trigger" onclick="window.mostrarModalPerfil()">
+                        <div class="profile-avatar" id="user-avatar-initials">?</div>
+                        <div class="profile-info">
+                            <span class="profile-name" id="user-display-name">Usuario</span>
+                            <span class="profile-role" id="user-display-role">Cargando...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -30,9 +40,11 @@
         <!-- Navegación -->
         <div class="nav">
             <button class="nav-btn active" onclick="mostrarVista('dashboard', event)">📊 Reporte General</button>
-            <button class="nav-btn" onclick="mostrarVista('organizaciones', event)">🏢
-                Dependencia/Entidad</button>
-            <button class="nav-btn" onclick="mostrarVista('herramientas', event)">📁 Herramientas</button>
+            <button class="nav-btn" onclick="mostrarVista('expedientes', event)">📁 Expedientes</button>
+            <button class="nav-btn" onclick="mostrarVista('organizaciones', event)">🏢 Dependencia/Entidad</button>
+            <button class="nav-btn" onclick="mostrarVista('herramientas', event)">💼 Herramientas</button>
+            <button class="nav-btn" id="nav-btn-cargas" style="display: none;"
+                onclick="mostrarVista('cargas', event)">📈 Cargas de Trabajo</button>
             <button class="nav-btn" onclick="mostrarVista('reportes', event)">📥 Exportar</button>
             <button class="nav-btn" id="nav-btn-usuarios" style="display: none;"
                 onclick="mostrarVista('usuarios', event)">👥 Usuarios</button>
@@ -285,6 +297,51 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista Expedientes -->
+        <div id="vista-expedientes" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📁 Gestión de Expedientes y Avances</h3>
+                    <button class="btn btn-primary" onclick="mostrarModalNuevoExpediente()">➕ Nuevo Expediente</button>
+                </div>
+                <div class="p-20">
+                    <div id="expedientes-lista" class="dashboard-sections">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista Cargas de Trabajo -->
+        <div id="vista-cargas" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📈 Cargas de Trabajo y Productividad</h3>
+                </div>
+                <div class="p-20">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Herramientas</th>
+                                    <th>Expedientes</th>
+                                    <th>Última Actividad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cargas-tabla-body">
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -597,6 +654,8 @@
     <script src="assets/js/reportes.js"></script>
     <script src="assets/js/usuarios.js"></script>
     <script src="assets/js/import.js"></script>
+    <script src="assets/js/expedientes.js"></script>
+    <script src="assets/js/search.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 

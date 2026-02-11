@@ -1,0 +1,63 @@
+const Expediente = require('../models/Expediente');
+const EtapaExpediente = require('../models/EtapaExpediente');
+
+class ExpedientesController {
+    static async obtenerTodos(req, res) {
+        try {
+            const expedientes = await Expediente.obtenerTodos(req.query);
+            res.json({ expedientes });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al obtener expedientes' });
+        }
+    }
+
+    static async obtenerPorId(req, res) {
+        try {
+            const { id } = req.params;
+            const expediente = await Expediente.obtenerPorId(id);
+            if (!expediente) return res.status(404).json({ error: 'No encontrado' });
+
+            const etapas = await EtapaExpediente.obtenerPorExpediente(id);
+            res.json({ expediente, etapas });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al obtener detalle' });
+        }
+    }
+
+    static async crear(req, res) {
+        try {
+            const data = { ...req.body, capturista_id: req.usuario.id };
+            const nuevo = await Expediente.crear(data);
+            res.status(201).json(nuevo);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al crear expediente' });
+        }
+    }
+
+    static async actualizar(req, res) {
+        try {
+            const { id } = req.params;
+            await Expediente.actualizar(id, req.body);
+            res.json({ mensaje: 'Actualizado' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al actualizar' });
+        }
+    }
+
+    static async agregarEtapa(req, res) {
+        try {
+            const { id } = req.params;
+            const etapa = await EtapaExpediente.agregar({ ...req.body, expediente_id: id });
+            res.json(etapa);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al agregar etapa' });
+        }
+    }
+}
+
+module.exports = ExpedientesController;

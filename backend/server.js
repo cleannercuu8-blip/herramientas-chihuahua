@@ -30,6 +30,8 @@ app.use('/api/herramientas', require('./routes/herramientas'));
 app.use('/api/reportes', require('./routes/reportes'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/import', require('./routes/import'));
+app.use('/api/expedientes', require('./routes/expedientes'));
+app.use('/api/search', require('./routes/search'));
 
 // Ruta administrativa para inicializar la base de datos
 app.post('/api/admin/init-database', async (req, res) => {

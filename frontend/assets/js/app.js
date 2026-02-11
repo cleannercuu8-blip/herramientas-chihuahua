@@ -762,6 +762,12 @@
       case 'usuarios':
         cargarUsuariosAdmin();
         break;
+      case 'expedientes':
+        window.cargarExpedientes();
+        break;
+      case 'cargas':
+        cargarCargasTrabajo();
+        break;
       case 'reportes':
         cargarHistorial();
         // Asegurar que mantenimiento sea visible para admins si cambian de vista
@@ -1045,6 +1051,58 @@
     } finally {
       window.AppUtils.mostrarSpinner(false);
     }
+  };
+  // Cargar estadísticas de carga de trabajo (Admin)
+  async function cargarCargasTrabajo() {
+    const container = document.getElementById('cargas-tabla-body');
+    if (!container) return;
+
+    try {
+      const response = await fetch('/api/search/cargas-trabajo', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      const data = await response.json();
+
+      if (!data.cargas || data.cargas.length === 0) {
+        container.innerHTML = '<tr><td colspan="4" class="text-center">No hay datos de actividad disponibles.</td></tr>';
+        return;
+      }
+
+      container.innerHTML = data.cargas.map(c => `
+        <tr>
+          <td>
+            <strong>${c.nombre_completo}</strong><br>
+            <small class="badge">${c.rol}</small>
+          </td>
+          <td class="text-center">${c.total_herramientas}</td>
+          <td class="text-center">${c.total_expedientes}</td>
+          <td>
+            <div style="font-size: 0.8rem;">
+              H: ${c.ultima_act_herramienta ? new Date(c.ultima_act_herramienta).toLocaleString() : 'N/A'}<br>
+              E: ${c.ultima_act_expediente ? new Date(c.ultima_act_expediente).toLocaleString() : 'N/A'}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    } catch (error) {
+      console.error(error);
+      container.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error al cargar estadísticas.</td></tr>';
+    }
+  }
+
+  // Cargar lista de expedientes
+  window.cargarExpedientes = async function () {
+    const listado = document.getElementById('listado-expedientes');
+    if (!listado) return;
+
+    const data = await window.ExpedientesModule.obtenerTodos();
+    window.ExpedientesModule.renderizarLista(data.expedientes);
+  };
+
+  // Funciones de utilidad para modales de expedientes
+  window.mostrarModalNuevoExpediente = function () {
+    alert('Módulo de creación de expedientes: Próximamente en esta interfaz.');
+    // Aquí iría el código para abrir un modal con formulario
   };
 
 })();
