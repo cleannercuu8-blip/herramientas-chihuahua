@@ -132,7 +132,8 @@ class ImportController {
                     // Validar tipo herramienta
                     const tipoMap = {
                         'ORGANIGRAMA': 'ORGANIGRAMA',
-                        'REGLAMENTO': 'REGLAMENTO_INTERIOR',
+                        'REGLAMENTO': 'REGLAMENTO_ESTATUTO',
+                        'ESTATUTO': 'REGLAMENTO_ESTATUTO',
                         'MANUAL DE ORGANIZACIÓN': 'MANUAL_ORGANIZACION',
                         'MANUAL DE PROCEDIMIENTOS': 'MANUAL_PROCEDIMIENTOS',
                         'MANUAL DE SERVICIOS': 'MANUAL_SERVICIOS'

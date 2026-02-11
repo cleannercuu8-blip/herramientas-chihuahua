@@ -127,30 +127,118 @@
     }
   }
 
-  // Cargar resumen de semáforo (Nuevo Dashboard Categorizado)
+  // Cargar resumen de semáforo (Dashboard Visual Redesign)
   async function cargarResumenSemaforo() {
     const listCentralizado = document.getElementById('list-centralizado');
     const listParaestatal = document.getElementById('list-paraestatal');
     const listAutonomo = document.getElementById('list-autonomo');
+    const estadoGeneralDiv = document.getElementById('estado-general-bars');
 
     if (listCentralizado) listCentralizado.innerHTML = '<div class="spinner"></div>';
     if (listParaestatal) listParaestatal.innerHTML = '<div class="spinner"></div>';
     if (listAutonomo) listAutonomo.innerHTML = '<div class="spinner"></div>';
+    if (estadoGeneralDiv) estadoGeneralDiv.innerHTML = '<div class="spinner"></div>';
 
-    const resultado = await window.OrganizacionesModule.obtenerTodas();
+    try {
+      const resultado = await window.OrganizacionesModule.obtenerTodas();
 
-    if (resultado.success) {
-      const organizaciones = resultado.data;
+      if (resultado.success) {
+        const organizaciones = resultado.data;
 
-      const centralizadas = organizaciones.filter(o => o.tipo === 'DEPENDENCIA');
-      const paraestatales = organizaciones.filter(o => o.tipo === 'ENTIDAD_PARAESTATAL');
-      const autonomos = organizaciones.filter(o => o.tipo === 'ORGANISMO_AUTONOMO');
+        const centralizadas = organizaciones.filter(o => o.tipo === 'DEPENDENCIA');
+        const paraestatales = organizaciones.filter(o => o.tipo === 'ENTIDAD_PARAESTATAL');
+        const autonomos = organizaciones.filter(o => o.tipo === 'ORGANISMO_AUTONOMO');
 
-      renderSectionCompact('list-centralizado', centralizadas);
-      renderSectionCompact('list-paraestatal', paraestatales);
-      renderSectionCompact('list-autonomo', autonomos);
+        // Actualizar contadores de trapecios
+        document.getElementById('count-centralizado').textContent = `${centralizadas.length} dependencias`;
+        document.getElementById('count-paraestatal').textContent = `${paraestatales.length} entidades`;
+        document.getElementById('count-autonomo').textContent = `${autonomos.length} dependencias`;
+
+        // Renderizar secciones compactas (listas de dependencias)
+        renderSectionCompact('list-centralizado', centralizadas);
+        renderSectionCompact('list-paraestatal', paraestatales);
+        renderSectionCompact('list-autonomo', autonomos);
+
+        // Renderizar Barras de Estado General
+        renderEstadoGeneralBars(centralizadas, paraestatales, autonomos);
+      }
+    } catch (error) {
+      console.error('Error al cargar resumen de semáforo:', error);
     }
   }
+
+  // Utilidad para renderizar las barras de estado agregado
+  function renderEstadoGeneralBars(central, para, auto) {
+    const div = document.getElementById('estado-general-bars');
+    if (!div) return;
+
+    const sections = [
+      { title: 'A. Centralizada', data: central, count: central.length },
+      { title: 'A. Paraestatal', data: para, count: para.length },
+      { title: 'A. Autónomos', data: auto, count: auto.length }
+    ];
+
+    div.innerHTML = sections.map(sec => {
+      // Calcular agregados por tipo de herramienta (primeras 4 barras según imagen)
+      // Puntos: [Organigrama, RI/EO, Manual Org, Manual Proc, Manual Serv]
+      const stats = [
+        { label: 'Organigramas', icon: '📊', index: 0 },
+        { label: 'Reglamentos / Estatutos', icon: '📄', index: 1 },
+        { label: 'Manuales Org', icon: '📖', index: 2 },
+        { label: 'Manuales Proc', icon: '⚙️', index: 3 }
+      ].map(type => {
+        const counts = { verde: 0, amarillo: 0, naranja: 0, rojo: 0 };
+        sec.data.forEach(org => {
+          const color = (org.detalles_semaforo?.puntos?.[type.index] || 'rojo').toLowerCase();
+          if (counts[color] !== undefined) counts[color]++;
+        });
+        return { ...type, counts };
+      });
+
+      return `
+        <div class="estado-seccion">
+          <div class="estado-seccion-title">
+            <span>${sec.title}</span>
+            <span class="badge" style="background: #e2e8f0; color: #475569;">${sec.count} DEPS.</span>
+          </div>
+          <div class="bars-grid">
+            ${stats.map(s => `
+              <div class="bar-item">
+                <div class="bar-label">${s.icon} ${s.label}</div>
+                <div class="status-bar-container">
+                  ${renderBarSubsegment(s.counts.verde, sec.count, 'verde')}
+                  ${renderBarSubsegment(s.counts.amarillo, sec.count, 'amarillo')}
+                  ${renderBarSubsegment(s.counts.naranja, sec.count, 'naranja')}
+                  ${renderBarSubsegment(s.counts.rojo, sec.count, 'rojo')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderBarSubsegment(count, total, color) {
+    if (count === 0) return '';
+    const pct = (count / total) * 100;
+    return `
+      <div class="bar-segment segment-${color}" style="width: ${pct}%" 
+           data-tooltip="${count} en ${color.toUpperCase()}">
+        <span>${count}</span>
+      </div>
+    `;
+  }
+
+  // Función global para scroll suave
+  window.scrollToSection = function (id) {
+    const el = document.getElementById(`${id}-section`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+      el.style.boxShadow = '0 0 20px var(--azul-claro)';
+      setTimeout(() => el.style.boxShadow = '', 2000);
+    }
+  };
 
   // Renderizar sección compacta de organización
   function renderSectionCompact(containerId, lista) {
@@ -177,22 +265,29 @@
     container.innerHTML = html;
   }
 
-  // Utilidad para renderizar los círculos del semáforo
+  // Utilidad para renderizar los círculos del semáforo (con tooltips)
   function renderizarSemaforoDots(puntos) {
+    const labels = [
+      'Organigrama',
+      'Reglamento Interior / Estatuto Orgánico',
+      'Manual de Organización',
+      'Manual de Procedimientos',
+      'Manual de Servicios'
+    ];
+
     if (!puntos || puntos.length === 0) {
-      // Si no hay datos, mostrar 4 puntos grises por defecto (mínimo base)
       return `
-        <span class="dot dot-vacio"></span>
-        <span class="dot dot-vacio"></span>
-        <span class="dot dot-vacio"></span>
-        <span class="dot dot-vacio"></span>
+        <span class="dot dot-vacio" data-tooltip="Sin información"></span>
+        <span class="dot dot-vacio" data-tooltip="Sin información"></span>
+        <span class="dot dot-vacio" data-tooltip="Sin información"></span>
+        <span class="dot dot-vacio" data-tooltip="Sin información"></span>
       `;
     }
 
-    return puntos.map(color => {
-      const c = (color || '').toLowerCase();
-      // El color naranja ya está contemplado en el CSS como .dot-naranja
-      return `<span class="dot dot-${c}"></span>`;
+    return puntos.map((color, idx) => {
+      const c = (color || 'vacio').toLowerCase();
+      const label = labels[idx] || 'Herramienta';
+      return `<span class="dot dot-${c}" data-tooltip="${label}: ${color || 'Pendiente'}"></span>`;
     }).join('');
   }
 
@@ -394,17 +489,27 @@
         <div class="tool-card-grid">
       `;
 
-      // Definir tipos de herramientas para asegurar que aparezcan aunque no tengan archivo
-      const tiposOmitidos = ['ORGANIGRAMA', 'REGLAMENTO_INTERIOR', 'ESTATUTO_ORGANICO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'];
+      // Definir tipos de herramientas unificados para asegurar que aparezcan
+      const tiposMostrar = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'];
 
-      tiposOmitidos.forEach(tipo => {
-        const herramienta = org.herramientas.find(h => h.tipo_herramienta === tipo);
+      tiposMostrar.forEach(tipo => {
+        // Buscar herramienta: si es REGLAMENTO_ESTATUTO, buscar cualquiera de los 3 posibles valores en DB
+        let herramienta;
+        if (tipo === 'REGLAMENTO_ESTATUTO') {
+          herramienta = org.herramientas.find(h =>
+            h.tipo_herramienta === 'REGLAMENTO_ESTATUTO' ||
+            h.tipo_herramienta === 'REGLAMENTO_INTERIOR' ||
+            h.tipo_herramienta === 'ESTATUTO_ORGANICO'
+          );
+        } else {
+          herramienta = org.herramientas.find(h => h.tipo_herramienta === tipo);
+        }
 
         if (herramienta) {
           html += `
             <div class="tool-item-card">
               <div class="tool-card-header">
-                <div class="tool-card-title">${AppUtils.getNombreTipoHerramienta(tipo)}</div>
+                <div class="tool-card-title">${AppUtils.getNombreTipoHerramienta(herramienta.tipo_herramienta)}</div>
               </div>
               <div><strong>Estado:</strong> <span class="badge badge-verde">✓ Registrado</span></div>
               <div><strong>Fecha de publicación:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>

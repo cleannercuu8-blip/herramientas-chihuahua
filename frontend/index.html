@@ -46,36 +46,80 @@
 
         <!-- Vista Reporte General -->
         <div id="vista-dashboard">
-            <h2 class="card-title mb-20">Reporte General del Sistema</h2>
-            <div class="stats-grid" id="stats-grid">
-                <div class="spinner"></div>
+            <h2 class="card-title mb-20 text-center">Tablero de Control - Herramientas Organizacionales</h2>
+
+            <!-- Bloques Principales (Trapecios) -->
+            <div class="dashboard-trapecios-grid" id="trapecios-grid">
+                <div class="trapecio-wrapper" onclick="window.scrollToSection('list-centralizado')">
+                    <div class="trapecio-card trapecio-azul">
+                        <div class="trapecio-content">
+                            <i class="icon-org">🏢</i>
+                            <h3>Centralizado</h3>
+                            <p>Sector Centralizado del Gobierno</p>
+                            <div class="trapecio-count" id="count-centralizado">0 dependencias</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trapecio-wrapper" onclick="window.scrollToSection('list-paraestatal')">
+                    <div class="trapecio-card trapecio-morado">
+                        <div class="trapecio-content">
+                            <i class="icon-org">🏭</i>
+                            <h3>Paraestatal</h3>
+                            <p>Sector Paraestatal</p>
+                            <div class="trapecio-count" id="count-paraestatal">0 entidades</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trapecio-wrapper" onclick="window.scrollToSection('list-autonomo')">
+                    <div class="trapecio-card trapecio-oscuro">
+                        <div class="trapecio-content">
+                            <i class="icon-org">🏛️</i>
+                            <h3>Autónomos</h3>
+                            <p>Organismos Autónomos</p>
+                            <div class="trapecio-count" id="count-autonomo">0 dependencias</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Estado General (Barras de Progreso) -->
+            <div class="card mt-30">
+                <div class="card-header">
+                    <h3 class="card-title">📈 Estado General de Herramientas Organizacionales</h3>
+                </div>
+                <div class="p-20" id="estado-general-bars">
+                    <!-- Dinámico: Sección Centralizada, Paraestatal, etc. con sus 4 barras -->
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
             <div class="dashboard-sections" id="dashboard-sections">
                 <!-- Section: Centralizado -->
-                <div class="dashboard-section-card">
+                <div class="dashboard-section-card" id="list-centralizado-section">
                     <div class="section-header-custom header-centralizado">Dependencias (Centralizado)</div>
                     <div class="section-body-custom" id="list-centralizado">
                         <div class="spinner"></div>
                     </div>
                 </div>
                 <!-- Section: Paraestatal -->
-                <div class="dashboard-section-card">
+                <div class="dashboard-section-card" id="list-paraestatal-section">
                     <div class="section-header-custom header-paraestatal">Entidades (Paraestatal)</div>
                     <div class="section-body-custom" id="list-paraestatal">
                         <div class="spinner"></div>
                     </div>
                 </div>
                 <!-- Section: Autónomos -->
-                <div class="dashboard-section-card">
+                <div class="dashboard-section-card" id="list-autonomo-section">
                     <div class="section-header-custom header-autonomo">Organismos Autónomos</div>
                     <div class="section-body-custom" id="list-autonomo">
                         <div class="spinner"></div>
                     </div>
                 </div>
             </div>
+
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Herramientas Próximas a Vencer</h3>
+                    <h3 class="card-title">⏰ Herramientas Próximas a Vencer</h3>
                 </div>
                 <div id="tabla-proximas-vencer">
                     <div class="spinner"></div>
@@ -462,8 +506,7 @@
                         <label class="form-label">Tipo</label>
                         <select class="form-select" name="tipo_herramienta" required>
                             <option value="ORGANIGRAMA">Organigrama</option>
-                            <option value="REGLAMENTO_INTERIOR">Reglamento Interior</option>
-                            <option value="ESTATUTO_ORGANICO">Estatuto Orgánico</option>
+                            <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
                             <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
                             <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
                             <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
@@ -496,8 +539,7 @@
                         <label class="form-label">Tipo</label>
                         <select class="form-select" name="tipo_herramienta" id="edit-herramienta-tipo">
                             <option value="ORGANIGRAMA">Organigrama</option>
-                            <option value="REGLAMENTO_INTERIOR">Reglamento Interior</option>
-                            <option value="ESTATUTO_ORGANICO">Estatuto Orgánico</option>
+                            <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
                             <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
                             <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
                             <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
