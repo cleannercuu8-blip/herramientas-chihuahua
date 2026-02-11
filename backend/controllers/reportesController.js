@@ -2,6 +2,8 @@ const ExcelJS = require('exceljs');
 const Organizacion = require('../models/Organizacion');
 const Herramienta = require('../models/Herramienta');
 const Historial = require('../models/Historial');
+const Expediente = require('../models/Expediente');
+const ExpedienteAvance = require('../models/ExpedienteAvance');
 const SemaforoService = require('../utils/semaforo');
 const PDFDocument = require('pdfkit');
 const db = require('../config/database');
@@ -84,6 +86,44 @@ class ReportesController {
                 doc.fillColor('#666666').text('No hay herramientas registradas para esta organización.');
             }
             doc.moveDown();
+
+            // --- ESTADO DEL EXPEDIENTE ---
+            // Buscar expediente asociado
+            const expedientes = await Expediente.obtenerTodos({ organizacion_id: id });
+            if (expedientes.length > 0) {
+                const expediente = expedientes[0]; // Tomar el más reciente
+                const avances = await ExpedienteAvance.obtenerPorExpediente(expediente.id);
+
+                doc.fontSize(16).fillColor('#003DA5').text('Expediente de Reestructuración');
+                doc.moveDown(0.5);
+
+                // Tarjeta de resumen
+                const startY = doc.y;
+                doc.rect(50, startY, 500, 60).fillAndStroke('#F3F4F6', '#E5E7EB');
+
+                doc.fontSize(12).fillColor('#000000').text(expediente.titulo, 60, startY + 10);
+                doc.fontSize(10).fillColor('#666666').text(`Expediente: ${expediente.numero_expediente} | Estatus: ${expediente.estatus} | Prioridad: ${expediente.prioridad}`, 60, startY + 30);
+                doc.text(`Progreso: ${expediente.porcentaje_progreso}%`, 450, startY + 30);
+
+                doc.moveDown(4); // Ajustar según altura de tarjeta
+
+                if (avances.length > 0) {
+                    doc.fontSize(12).fillColor('#333333').text('Últimos Avances:');
+                    doc.moveDown(0.5);
+
+                    // Listar últimos 5 avances
+                    avances.slice(0, 5).forEach(avance => {
+                        doc.fontSize(10).fillColor('#000000').text(`• [${new Date(avance.fecha).toLocaleDateString()}] ${avance.titulo}`);
+                        if (avance.descripcion) {
+                            doc.fontSize(9).fillColor('#666666').text(`   ${avance.descripcion}`, { indent: 10 });
+                        }
+                        doc.moveDown(0.3);
+                    });
+                } else {
+                    doc.fontSize(10).fillColor('#666666').text('No hay avances registrados en el expediente.');
+                }
+                doc.moveDown();
+            }
 
             // --- DETALLE DE ARCHIVOS ---
             doc.fontSize(16).fillColor('#003DA5').text('Archivos y Documentación');

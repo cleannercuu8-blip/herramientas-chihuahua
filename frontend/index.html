@@ -702,6 +702,74 @@
         </div>
     </div>
 
+    <!-- Modal Detalle Expediente -->
+    <div id="modal-detalle-expediente" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <div>
+                    <h3 class="card-title" id="detalle-exp-titulo">Detalle del Expediente</h3>
+                    <small id="detalle-exp-subtitulo" class="text-muted">Cargando...</small>
+                </div>
+                <button class="modal-close" onclick="cerrarModal('modal-detalle-expediente')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab(event, 'tab-avances')">Bitácora de
+                        Avances</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'tab-info')">Información General</button>
+                </div>
+
+                <!-- Tab Avances -->
+                <div id="tab-avances" class="tab-content active">
+                    <!-- Formulario Nuevo Avance -->
+                    <div class="card bg-light mb-20">
+                        <form id="form-nuevo-avance" onsubmit="window.ExpedientesModule.handleAgregarAvance(event)">
+                            <div class="form-group">
+                                <label class="form-label">Nuevo Movimiento</label>
+                                <input type="text" class="form-input" name="titulo"
+                                    placeholder="Título del avance (ej. Reunión con Director)" required>
+                            </div>
+                            <div class="row">
+                                <div class="col" style="flex: 1;">
+                                    <select class="form-select" name="tipo">
+                                        <option value="AVANCE">Avance General</option>
+                                        <option value="REUNION">Reunión</option>
+                                        <option value="OFICIO">Oficio / Documento</option>
+                                        <option value="OTRO">Otro</option>
+                                    </select>
+                                </div>
+                                <div class="col" style="flex: 1;">
+                                    <input type="date" class="form-input" name="fecha" required>
+                                </div>
+                            </div>
+                            <div class="form-group mt-10">
+                                <textarea class="form-input" name="descripcion" rows="2"
+                                    placeholder="Detalles adicionales..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary">Registrar Avance</button>
+                        </form>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="timeline" id="expediente-timeline">
+                        <!-- Items inyectados por JS -->
+                        <p class="text-center text-muted">Cargando historial...</p>
+                    </div>
+                </div>
+
+                <!-- Tab Info -->
+                <div id="tab-info" class="tab-content">
+                    <div id="expediente-info-content"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="window.ExpedientesModule.descargarPDF()">📄 Descargar Reporte
+                    PDF</button>
+                <button class="btn btn-primary" onclick="cerrarModal('modal-detalle-expediente')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Importar Excel -->
     <div id="modal-importar-excel" class="modal">
         <div class="modal-content">

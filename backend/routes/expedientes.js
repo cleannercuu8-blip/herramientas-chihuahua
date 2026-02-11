@@ -12,5 +12,6 @@ router.get('/:id', ExpedientesController.obtenerPorId);
 router.post('/', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesController.crear);
 router.put('/:id', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesController.actualizar);
 router.post('/:id/etapas', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesController.agregarEtapa);
+router.post('/:id/avances', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesController.agregarAvance);
 
 module.exports = router;

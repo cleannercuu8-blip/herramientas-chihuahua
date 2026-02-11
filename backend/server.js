@@ -71,6 +71,11 @@ app.post('/api/admin/init-database', async (req, res) => {
         await EtapaExpediente.crearTabla();
         console.log('✅ Tabla de etapas de expediente creada\n');
 
+        console.log('📋 Creando tabla de avances de expediente...');
+        const ExpedienteAvance = require('./models/ExpedienteAvance');
+        await ExpedienteAvance.crearTabla();
+        console.log('✅ Tabla de avances de expediente creada\n');
+
         // Crear usuario administrador por defecto
         console.log('👤 Creando usuario administrador por defecto...');
         const passwordHash = await bcrypt.hash('admin123', 10);
