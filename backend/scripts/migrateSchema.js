@@ -54,10 +54,8 @@ async function migrarEsquema() {
 
             console.log('✅ Tipos unificados y restricciones actualizadas\n');
 
-            console.log(`✅ ${organizaciones.length} organizaciones actualizadas\n`);
-
             // 5. Crear tablas de Expedientes (Nuevas Funciones)
-            console.log('� Creando tablas de expedientes y etapas...');
+            console.log('📋 Creando tablas de expedientes y etapas...');
             const Expediente = require('../models/Expediente');
             const EtapaExpediente = require('../models/EtapaExpediente');
             await Expediente.crearTabla();
