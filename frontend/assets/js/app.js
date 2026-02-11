@@ -631,9 +631,8 @@
     const formData = new FormData(form);
 
     // Validación manual: Si NO hay archivo nuevo Y el campo Link está vacío...
-    const archivoInput = document.getElementById('edit-herramienta-archivo'); // Necesito agregar este ID en el HTML o usar querySelector
-    // Mejor usar el input por nombre en el form
-    const fileInput = form.querySelector('input[type="file"]');
+    // Validación manual: Si NO hay archivo nuevo Y el campo Link está vacío...
+    const archivoInput = document.getElementById('edit-herramienta-archivo');
     const linkInput = document.getElementById('edit-herramienta-link');
 
     // Como no podemos saber fácilmente si ya tiene archivo previo sin consultar al objeto (que ya no tenemos aquí),
