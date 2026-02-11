@@ -1301,3 +1301,41 @@
   };
 
 })();
+// Función para togglear campos de manual
+window.toggleCamposManual = function (tipo) {
+  const preguntaDiv = document.getElementById('pregunta-manual-servicios');
+  const camposDiv = document.getElementById('campos-herramienta-archivo');
+  const radios = document.getElementsByName('req_manual');
+
+  if (tipo === 'MANUAL_SERVICIOS') {
+    preguntaDiv.classList.remove('hidden');
+    // Reset radios
+    radios.forEach(r => r.checked = false);
+    // Hide fields initially until Yes/No is picked
+    camposDiv.classList.add('hidden');
+    toggleInputsRequired(false);
+  } else {
+    preguntaDiv.classList.add('hidden');
+    camposDiv.classList.remove('hidden');
+    toggleInputsRequired(true);
+  }
+};
+
+window.toggleInputsManual = function (show) {
+  const camposDiv = document.getElementById('campos-herramienta-archivo');
+  if (show) {
+    camposDiv.classList.remove('hidden');
+    toggleInputsRequired(true);
+  } else {
+    camposDiv.classList.add('hidden');
+    toggleInputsRequired(false);
+  }
+};
+
+function toggleInputsRequired(isRequired) {
+  const linkInput = document.getElementById('input-link-herramienta');
+  const fechaInput = document.getElementById('input-fecha-herramienta');
+
+  if (linkInput) linkInput.required = isRequired;
+  if (fechaInput) fechaInput.required = isRequired;
+}

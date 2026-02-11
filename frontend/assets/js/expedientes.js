@@ -11,6 +11,36 @@ const ExpedientesModule = {
         }
     },
 
+    async cargarOrganizaciones() {
+        const select = document.getElementById('select-organizacion-expediente');
+        if (!select) return;
+
+        try {
+            select.innerHTML = '<option value="">Cargando...</option>';
+            // Reutilizar la lógica de organizaciones si es posible, o hacer fetch directo
+            const response = await fetch('/api/organizaciones', {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const data = await response.json();
+            const organizaciones = data.organizaciones || [];
+
+            if (organizaciones.length > 0) {
+                select.innerHTML = '<option value="">Seleccione una dependencia...</option>' +
+                    organizaciones.map(org => `<option value="${org.id}">${org.nombre}</option>`).join('');
+            } else {
+                select.innerHTML = '<option value="">No hay dependencias registradas</option>';
+            }
+        } catch (error) {
+            console.error('Error cargando organizaciones para expediente:', error);
+            select.innerHTML = '<option value="">Error al cargar</option>';
+        }
+    },
+
+    prepararNuevo() {
+        this.cargarOrganizaciones();
+        window.mostrarModal('modal-nuevo-expediente');
+    },
+
     async crear(datos) {
         try {
             const response = await fetch('/api/expedientes', {
@@ -78,11 +108,15 @@ const ExpedientesModule = {
         timelineContainer.innerHTML = '<p class="text-center">Cargando...</p>';
         window.mostrarModal('modal-detalle-expediente');
 
+        // Call the new function here
+        await this.cargarOrganizaciones();
+
         try {
             const response = await fetch(`/api/expedientes/${id}`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
+
 
             if (data.error) throw new Error(data.error);
 

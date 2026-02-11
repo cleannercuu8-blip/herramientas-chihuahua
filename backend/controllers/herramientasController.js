@@ -89,11 +89,24 @@ class HerramientasController {
                 });
             }
 
-            // Si no hay archivo, el link es obligatorio
-            if (!req.file && !link_publicacion_poe) {
-                return res.status(400).json({
-                    error: 'Debe subir un archivo o proporcionar un link de consulta'
-                });
+            // Validación específica: Si no es Manual de Servicios (o si lo es pero se quiere subir), validar archivo/link
+            // Si es Manual de Servicios y no trae archivo/link, asumimos que es un registro "Sin requerimiento" o "No aplica"
+            // Pero como la BD exige NOT NULL, usaremos valores dummy si es el caso.
+
+            let finalNombreArchivo = (req.file ? req.file.originalname : null);
+            let finalRutaArchivo = (req.file ? req.file.path : null);
+            let finalLink = link_publicacion_poe;
+
+            if (tipo_herramienta === 'MANUAL_SERVICIOS' && !req.file && !link_publicacion_poe) {
+                finalNombreArchivo = 'NO_APLICA';
+                finalRutaArchivo = 'NO_APLICA';
+                finalLink = 'NO_APLICA';
+            } else {
+                if (!req.file && !link_publicacion_poe) {
+                    return res.status(400).json({
+                        error: 'Debe subir un archivo o proporcionar un link de consulta'
+                    });
+                }
             }
 
             const tiposValidos = [

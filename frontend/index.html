@@ -562,6 +562,15 @@
 
     <!-- Modal Nueva Herramienta -->
     <div id="modal-nueva-herramienta" class="modal">
+        <div id="vista-expedientes" class="hidden">
+            <div class="header-section">
+                <h2>📁 Gestión de Expedientes</h2>
+                <button class="btn btn-primary" onclick="ExpedientesModule.prepararNuevo()">+ Nuevo Expediente</button>
+            </div>
+            <div id="expedientes-lista" class="expedientes-grid">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="card-title">Nueva Herramienta</h3>
@@ -577,7 +586,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Tipo</label>
-                        <select class="form-select" name="tipo_herramienta" required>
+                        <select class="form-select" name="tipo_herramienta" id="select-tipo-herramienta"
+                            onchange="window.toggleCamposManual(this.value)" required>
                             <option value="ORGANIGRAMA">Organigrama</option>
                             <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
                             <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
@@ -585,12 +595,31 @@
                             <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
                         </select>
                     </div>
-                    <div class="form-group"><label class="form-label">Link</label><input type="url" class="form-input"
-                            name="link_publicacion_poe" required placeholder="https://..."></div>
-                    <div class="form-group"><label class="form-label">Archivo (Opcional)</label><input type="file"
-                            class="form-input" name="archivo"></div>
-                    <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input"
-                            name="fecha_emision" required></div>
+
+                    <!-- Pregunta condicional para Manual de Servicios -->
+                    <div class="form-group hidden" id="pregunta-manual-servicios">
+                        <label class="form-label">¿Requiere Manual de Servicios?</label>
+                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="req_manual" value="SI"
+                                    onchange="window.toggleInputsManual(true)"> Sí
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="req_manual" value="NO"
+                                    onchange="window.toggleInputsManual(false)"> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="campos-herramienta-archivo">
+                        <div class="form-group"><label class="form-label">Link</label><input type="url"
+                                class="form-input" name="link_publicacion_poe" id="input-link-herramienta" required
+                                placeholder="https://..."></div>
+                        <div class="form-group"><label class="form-label">Archivo (Opcional)</label><input type="file"
+                                class="form-input" name="archivo" id="input-archivo-herramienta"></div>
+                        <div class="form-group"><label class="form-label">Fecha</label><input type="date"
+                                class="form-input" name="fecha_emision" id="input-fecha-herramienta" required></div>
+                    </div>
                     <button type="submit" class="btn btn-primary w-100">Guardar</button>
                 </form>
             </div>
