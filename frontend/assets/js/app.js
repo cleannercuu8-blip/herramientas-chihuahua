@@ -263,10 +263,10 @@
               </div>
               <a href="/api/reportes/exportar/organizacion/${org.id}" 
                  class="btn-export-pdf" 
-                 style="font-size: 0.7rem; padding: 4px 8px;" 
+                 style="font-size: 0.75rem; padding: 6px 12px; background: #DC2626; color: white; border-radius: 6px; text-decoration: none; font-weight: 600;" 
                  onclick="event.stopPropagation();"
-                 title="Exportar PDF">
-                📄
+                 title="Exportar Informe PDF">
+                📄 PDF
               </a>
             </div>
           </div>
