@@ -3,8 +3,8 @@ const API_URL = window.location.origin + '/api';
 
 // Estado global de la aplicación
 const AppState = {
-    token: sessionStorage.getItem('token') || null,
-    usuario: JSON.parse(sessionStorage.getItem('usuario')) || null,
+    token: localStorage.getItem('token') || null,
+    usuario: JSON.parse(localStorage.getItem('usuario')) || null,
     currentView: 'dashboard'
 };
 
@@ -12,16 +12,16 @@ const AppState = {
 function guardarSesion(token, usuario) {
     AppState.token = token;
     AppState.usuario = usuario;
-    sessionStorage.setItem('token', token);
-    sessionStorage.setItem('usuario', JSON.stringify(usuario));
+    localStorage.setItem('token', token);
+    localStorage.setItem('usuario', JSON.stringify(usuario));
 }
 
 // Cerrar sesión
 function cerrarSesion() {
     AppState.token = null;
     AppState.usuario = null;
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('usuario');
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
     window.location.href = '/pages/login.html';
 }
 

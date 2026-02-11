@@ -1241,8 +1241,10 @@
 
   // Funciones de utilidad para modales de expedientes
   window.mostrarModalNuevoExpediente = function () {
-    alert('Módulo de creación de expedientes: Próximamente en esta interfaz.');
+    // alert('Módulo de creación de expedientes: Próximamente en esta interfaz.');
     // Aquí iría el código para abrir un modal con formulario
+    // Por ahora, mostrar un mensaje más amigable o abrir un modal vacío
+    window.AppUtils.mostrarAlerta('Funcionalidad en desarrollo', 'info');
   };
 
 })();
