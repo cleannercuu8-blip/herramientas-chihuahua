@@ -98,8 +98,6 @@ class HerramientasController {
 
             const tiposValidos = [
                 'ORGANIGRAMA',
-                'REGLAMENTO_INTERIOR',
-                'ESTATUTO_ORGANICO',
                 'REGLAMENTO_ESTATUTO',
                 'MANUAL_ORGANIZACION',
                 'MANUAL_PROCEDIMIENTOS',
