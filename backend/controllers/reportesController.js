@@ -101,7 +101,15 @@ class ReportesController {
 
         } catch (error) {
             console.error('Error al generar PDF:', error);
-            res.status(500).json({ error: 'Error al generar el informe PDF' });
+            console.error('Stack:', error.stack);
+
+            // Si ya se empezó a enviar el PDF, no podemos enviar JSON
+            if (!res.headersSent) {
+                return res.status(500).json({
+                    error: 'Error al generar el informe PDF',
+                    details: error.message
+                });
+            }
         }
     }
 
