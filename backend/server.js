@@ -308,7 +308,7 @@ app.use((err, req, res, next) => {
 });
 
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log('╔════════════════════════════════════════════════════════════╗');
     console.log('║                                                            ║');
     console.log('║   Sistema de Registro de Herramientas Organizacionales    ║');
@@ -319,6 +319,30 @@ app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en: http://localhost:${PORT}`);
     console.log(`📊 API disponible en: http://localhost:${PORT}/api`);
     console.log('');
+
+    // Auto-inicialización de base de datos (simplificada para asegurar tablas)
+    try {
+        console.log('🔄 Verificando esquema de base de datos...');
+        const Usuario = require('./models/Usuario');
+        const Organizacion = require('./models/Organizacion');
+        const Herramienta = require('./models/Herramienta');
+        const Historial = require('./models/Historial');
+        const Expediente = require('./models/Expediente');
+        const EtapaExpediente = require('./models/EtapaExpediente');
+        const ExpedienteAvance = require('./models/ExpedienteAvance');
+
+        await Usuario.crearTabla();
+        await Organizacion.crearTabla();
+        await Herramienta.crearTabla();
+        await Historial.crearTabla();
+        await Expediente.crearTabla();
+        await EtapaExpediente.crearTabla();
+        await ExpedienteAvance.crearTabla();
+        console.log('✅ Esquema de base de datos verificado/creado exitosamente.');
+    } catch (error) {
+        console.error('❌ Error al verificar esquema de base de datos:', error);
+    }
+
     console.log('Presiona Ctrl+C para detener el servidor');
     console.log('');
 });
