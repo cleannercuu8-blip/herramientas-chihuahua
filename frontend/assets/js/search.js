@@ -64,13 +64,14 @@ const SearchModule = {
         document.getElementById('smart-search-input').value = '';
 
         if (type === 'ORGANIZACION') {
-            window.verDetalleDependencia(id);
+            window.mostrarVista('herramientas');
+            setTimeout(() => window.verHerramientasPorDependencia(id), 100);
         } else if (type === 'EXPEDIENTE') {
             window.mostrarVista('expedientes');
-            // Podríamos scrollear o filtrar para abrir este específicamente
+            // Futuro: Abrir modal del expediente o filtrar
         } else if (type === 'HERRAMIENTA') {
-            // Abrir herramienta
-            window.HerramientasModule.descargar(id);
+            // Descargar directamente
+            window.location.href = `/api/herramientas/descargar/${id}`;
         }
     }
 };

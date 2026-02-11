@@ -476,6 +476,9 @@
               <div><strong>Tipo:</strong> ${AppUtils.getNombreTipoOrganizacion(org.tipo)}</div>
               <div><strong>Semáforo:</strong> ${AppUtils.getBadgeSemaforo(org.semaforo)}</div>
             </div>
+            <div style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 15px;">
+                <a href="/api/reportes/exportar/organizacion/${org.id}" class="btn btn-secondary" style="background: var(--primario); color: white;">📄 Exportar Informe Detallado (PDF)</a>
+            </div>
             ${org.decreto_creacion ? `
               <div style="margin-top: 15px;">
                 <strong>Decreto de Creación:</strong> 
@@ -1052,6 +1055,70 @@
       window.AppUtils.mostrarSpinner(false);
     }
   };
+  // Interactividad del Tablero (Drill-down)
+  window.interactuarDashboard = function (tipo) {
+    const grid = document.getElementById('trapecios-grid');
+    const mainTitle = document.getElementById('dashboard-main-title');
+    const estadoGeneral = document.getElementById('estado-general-card');
+    const proximasVencer = document.getElementById('proximas-vencer-card');
+    const drilldownHeader = document.getElementById('dashboard-drilldown-header');
+    const drilldownTitle = document.getElementById('dashboard-drilldown-title');
+
+    // Ocultar elementos globales
+    if (grid) grid.classList.add('hidden');
+    if (mainTitle) mainTitle.classList.add('hidden');
+    if (estadoGeneral) estadoGeneral.classList.add('hidden');
+    if (proximasVencer) proximasVencer.classList.add('hidden');
+
+    // Mostrar header de drilldown
+    if (drilldownHeader) drilldownHeader.classList.remove('hidden');
+
+    // Configurar título y mostrar sección correspondiente
+    const titulos = {
+      'centralizado': 'Sector Centralizado',
+      'paraestatal': 'Sector Paraestatal',
+      'autonomo': 'Organismos Autónomos'
+    };
+    if (drilldownTitle) drilldownTitle.textContent = titulos[tipo] || 'Detalle del Sector';
+
+    // Ocultar todas las secciones de listas primero
+    ['centralizado', 'paraestatal', 'autonomo'].forEach(t => {
+      const section = document.getElementById(`list-${t}-section`);
+      if (section) section.classList.add('hidden');
+    });
+
+    // Mostrar la seleccionada
+    const targetSection = document.getElementById(`list-${tipo}-section`);
+    if (targetSection) {
+      targetSection.classList.remove('hidden');
+      targetSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  window.regresarTableroGlobal = function () {
+    const grid = document.getElementById('trapecios-grid');
+    const mainTitle = document.getElementById('dashboard-main-title');
+    const estadoGeneral = document.getElementById('estado-general-card');
+    const proximasVencer = document.getElementById('proximas-vencer-card');
+    const drilldownHeader = document.getElementById('dashboard-drilldown-header');
+
+    // Mostrar elementos globales
+    if (grid) grid.classList.remove('hidden');
+    if (mainTitle) mainTitle.classList.remove('hidden');
+    if (estadoGeneral) estadoGeneral.classList.remove('hidden');
+    if (proximasVencer) proximasVencer.classList.remove('hidden');
+
+    // Ocultar drilldown
+    if (drilldownHeader) drilldownHeader.classList.add('hidden');
+
+    // Mostrar todas las secciones de nuevo (opcional) o mantenerlas ocultas hasta el próximo clic
+    // Para que no se vea el "scroll" largo, las mantendremos ocultas por defecto en el estado global
+    ['centralizado', 'paraestatal', 'autonomo'].forEach(t => {
+      const section = document.getElementById(`list-${t}-section`);
+      if (section) section.classList.add('hidden');
+    });
+  };
+
   // Cargar estadísticas de carga de trabajo (Admin)
   async function cargarCargasTrabajo() {
     const container = document.getElementById('cargas-tabla-body');

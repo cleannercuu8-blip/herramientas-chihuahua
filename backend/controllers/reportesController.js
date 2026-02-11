@@ -3,11 +3,107 @@ const Organizacion = require('../models/Organizacion');
 const Herramienta = require('../models/Herramienta');
 const Historial = require('../models/Historial');
 const SemaforoService = require('../utils/semaforo');
+const PDFDocument = require('pdfkit');
+const db = require('../config/database');
 
 /**
  * Controlador de reportes y exportaciones
  */
 class ReportesController {
+
+    /**
+     * Exportar informe detallado de organización a PDF
+     */
+    static async exportarOrganizacionPDF(req, res) {
+        const { id } = req.params;
+        try {
+            // Obtener datos de la organización
+            const orgRes = await db.query('SELECT * FROM organizaciones WHERE id = $1', [id]);
+            if (orgRes.rows.length === 0) {
+                return res.status(404).json({ error: 'Organización no encontrada' });
+            }
+            const org = orgRes.rows[0];
+
+            // Obtener herramientas
+            const toolsRes = await db.query('SELECT * FROM herramientas WHERE organizacion_id = $1 ORDER BY tipo_herramienta', [id]);
+            const herramientas = toolsRes.rows;
+
+            // Crear documento PDF
+            const doc = new PDFDocument({ margin: 50 });
+
+            // Configurar respuesta
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=Informe_${org.nombre.replace(/\s+/g, '_')}.pdf`);
+            doc.pipe(res);
+
+            // --- ENCABEZADO ---
+            doc.fillColor('#003DA5').fontSize(20).text('SISTEMA DE HERRAMIENTAS ORGANIZACIONALES', { align: 'center' });
+            doc.fontSize(14).text('Gobierno del Estado de Chihuahua', { align: 'center' });
+            doc.moveDown();
+            doc.strokeColor('#003DA5').lineWidth(2).moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+            doc.moveDown();
+
+            // --- INFORMACIÓN GENERAL ---
+            doc.fillColor('#333333').fontSize(16).text('Informe Detallado de la Dependencia/Entidad', { underline: true });
+            doc.moveDown(0.5);
+            doc.fontSize(12).fillColor('#000000');
+            doc.text(`Nombre: ${org.nombre}`);
+            doc.text(`Tipo: ${org.tipo}`);
+            doc.text(`Titular: ${org.titular || 'No registrado'}`);
+            doc.text(`Decreto de Creación: ${org.decreto_creacion || 'No registrado'}`);
+            doc.moveDown();
+
+            // --- RESUMEN DE CUMPLIMIENTO (SEMÁFORO) ---
+            doc.fontSize(16).fillColor('#003DA5').text('Situación de Herramientas (Semáforo)');
+            doc.moveDown(0.5);
+
+            const labels = {
+                'ORGANIGRAMA': 'Organigrama',
+                'REGLAMENTO_ESTATUTO': 'Reglamento Interior / Estatuto Orgánico',
+                'MANUAL_ORGANIZACION': 'Manual de Organización',
+                'MANUAL_PROCEDIMIENTOS': 'Manual de Procedimientos',
+                'MANUAL_SERVICIOS': 'Manual de Servicios'
+            };
+
+            herramientas.forEach(h => {
+                const label = labels[h.tipo_herramienta] || h.tipo_herramienta;
+                const status = (h.estatus_semaforo || 'rojo').toLowerCase();
+
+                doc.fontSize(11).fillColor('#333333').text(`${label}: `, { continued: true });
+
+                let color = '#EF4444';
+                if (status === 'verde') color = '#10B981';
+                if (status === 'amarillo') color = '#F59E0B';
+                if (status === 'naranja') color = '#F97316';
+
+                doc.fillColor(color).text(status.toUpperCase(), { continued: true });
+                doc.fillColor('#666666').fontSize(9).text(`  (Act: ${h.fecha_actualizacion ? new Date(h.fecha_actualizacion).toLocaleDateString() : 'N/A'})`);
+            });
+
+            if (herramientas.length === 0) {
+                doc.fillColor('#666666').text('No hay herramientas registradas para esta organización.');
+            }
+            doc.moveDown();
+
+            // --- DETALLE DE ARCHIVOS ---
+            doc.fontSize(16).fillColor('#003DA5').text('Archivos y Documentación');
+            doc.moveDown(0.5);
+
+            herramientas.forEach((h, idx) => {
+                doc.fontSize(11).fillColor('#000000').text(`${idx + 1}. ${labels[h.tipo_herramienta] || h.tipo_herramienta}`);
+                doc.fontSize(10).fillColor('#666666');
+                doc.text(`   Archivo: ${h.nombre_archivo || 'N/A'}`);
+                doc.text(`   POE: ${h.fecha_publicacion_poe ? new Date(h.fecha_publicacion_poe).toLocaleDateString() : 'No publicado'}`);
+                doc.moveDown(0.3);
+            });
+
+            doc.end();
+
+        } catch (error) {
+            console.error('Error al generar PDF:', error);
+            res.status(500).json({ error: 'Error al generar el informe PDF' });
+        }
+    }
 
     /**
      * Exportar inventario completo a Excel

@@ -12,13 +12,13 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div>
+            <div class="header-container">
+                <div class="header-titles">
                     <h1>🏛️ Sistema de Herramientas Organizacionales</h1>
                     <p>Gobierno del Estado de Chihuahua</p>
                 </div>
 
-                <div class="smart-search-container" style="flex: 1; max-width: 400px; margin: 0 20px;">
+                <div class="smart-search-container">
                     <input type="text" id="smart-search-input"
                         placeholder="¿Qué deseas buscar hoy? Ej: 'avances consejeria'..." autocomplete="off">
                     <div id="smart-search-results" class="search-results-dropdown"></div>
@@ -40,9 +40,9 @@
         <!-- Navegación -->
         <div class="nav">
             <button class="nav-btn active" onclick="mostrarVista('dashboard', event)">📊 Reporte General</button>
-            <button class="nav-btn" onclick="mostrarVista('expedientes', event)">📁 Expedientes</button>
             <button class="nav-btn" onclick="mostrarVista('organizaciones', event)">🏢 Dependencia/Entidad</button>
             <button class="nav-btn" onclick="mostrarVista('herramientas', event)">💼 Herramientas</button>
+            <button class="nav-btn" onclick="mostrarVista('expedientes', event)">📁 Expedientes</button>
             <button class="nav-btn" id="nav-btn-cargas" style="display: none;"
                 onclick="mostrarVista('cargas', event)">📈 Cargas de Trabajo</button>
             <button class="nav-btn" onclick="mostrarVista('reportes', event)">📥 Exportar</button>
@@ -58,11 +58,18 @@
 
         <!-- Vista Reporte General -->
         <div id="vista-dashboard">
-            <h2 class="card-title mb-20 text-center">Tablero de Control - Herramientas Organizacionales</h2>
+            <div id="dashboard-drilldown-header" class="hidden mb-20"
+                style="display: flex; align-items: center; gap: 20px;">
+                <button class="btn-back" onclick="regresarTableroGlobal()">⬅️ Regresar al Resumen</button>
+                <h2 id="dashboard-drilldown-title" class="card-title" style="margin-bottom: 0;">Resumen por Sector</h2>
+            </div>
+
+            <h2 id="dashboard-main-title" class="card-title mb-20 text-center">Tablero de Control - Herramientas
+                Organizacionales</h2>
 
             <!-- Bloques Principales (Trapecios) -->
             <div class="dashboard-trapecios-grid" id="trapecios-grid">
-                <div class="trapecio-wrapper" onclick="window.scrollToSection('list-centralizado')">
+                <div class="trapecio-wrapper" onclick="interactuarDashboard('centralizado')">
                     <div class="trapecio-card trapecio-azul">
                         <div class="trapecio-content">
                             <i class="icon-org">🏢</i>
@@ -72,7 +79,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="trapecio-wrapper" onclick="window.scrollToSection('list-paraestatal')">
+                <div class="trapecio-wrapper" onclick="interactuarDashboard('paraestatal')">
                     <div class="trapecio-card trapecio-morado">
                         <div class="trapecio-content">
                             <i class="icon-org">🏭</i>
@@ -82,7 +89,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="trapecio-wrapper" onclick="window.scrollToSection('list-autonomo')">
+                <div class="trapecio-wrapper" onclick="interactuarDashboard('autonomo')">
                     <div class="trapecio-card trapecio-oscuro">
                         <div class="trapecio-content">
                             <i class="icon-org">🏛️</i>
@@ -95,7 +102,7 @@
             </div>
 
             <!-- Estado General (Barras de Progreso) -->
-            <div class="card mt-30">
+            <div class="card mt-30" id="estado-general-card">
                 <div class="card-header">
                     <h3 class="card-title">📈 Estado General de Herramientas Organizacionales</h3>
                 </div>
@@ -129,7 +136,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" id="proximas-vencer-card">
                 <div class="card-header">
                     <h3 class="card-title">⏰ Herramientas Próximas a Vencer</h3>
                 </div>
