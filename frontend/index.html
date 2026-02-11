@@ -623,7 +623,7 @@
                         </select>
                     </div>
                     <div class="form-group"><label class="form-label">Link</label><input type="url" class="form-input"
-                            name="link_publicacion_poe" id="edit-herramienta-link" required></div>
+                            name="link_publicacion_poe" id="edit-herramienta-link" placeholder="https://..."></div>
                     <div class="form-group"><label class="form-label">Archivo</label><input type="file"
                             class="form-input" name="archivo"></div>
                     <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input"
@@ -635,6 +635,50 @@
                         <button type="button" class="btn btn-danger" style="flex: 1;"
                             onclick="borrarHerramientaDefinitivamente()">Eliminar</button>
                     </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Expediente -->
+    <div id="modal-nuevo-expediente" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title">Nuevo Expediente</h3>
+                <button class="modal-close" onclick="cerrarModal('modal-nuevo-expediente')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-nuevo-expediente" onsubmit="window.handleCrearExpediente(event)">
+                    <div class="form-group">
+                        <label class="form-label">Título del Proyecto</label>
+                        <input type="text" class="form-input" name="titulo" required
+                            placeholder="Ej: Reestructuración 2024">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Número de Expediente</label>
+                        <input type="text" class="form-input" name="numero_expediente" required
+                            placeholder="EXP-2024-001">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dependencia/Entidad</label>
+                        <select class="form-select" name="organizacion_id" id="select-organizacion-expediente" required>
+                            <option value="">Cargando...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prioridad</label>
+                        <select class="form-select" name="prioridad">
+                            <option value="BAJA">Baja</option>
+                            <option value="MEDIA">Media</option>
+                            <option value="ALTA">Alta</option>
+                            <option value="URGENTE">Urgente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-input" name="descripcion" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Crear Expediente</button>
                 </form>
             </div>
         </div>
@@ -662,6 +706,31 @@
                     <div id="import-results"></div>
                     <button type="submit" class="btn btn-primary w-100" id="btn-import-submit">Importar</button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Smart Search (Spotlight) -->
+    <div id="modal-search-spotlight" class="modal-search-overlay" style="display: none;">
+        <div class="modal-search-container">
+            <div class="search-header">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="spotlight-input" placeholder="Buscar dependencia, herramienta, expediente..."
+                    autocomplete="off">
+                <span class="esc-hint">ESC para cerrar</span>
+            </div>
+            <div class="search-body">
+                <div id="spotlight-results" class="search-results-list">
+                    <!-- Resultados dinámicos -->
+                    <div class="search-empty-state">
+                        <p>Escribe para buscar en todo el sistema...</p>
+                        <small>Prueba: "Secretaría", "Organigrama", "Expediente 001"</small>
+                    </div>
+                </div>
+            </div>
+            <div class="search-footer">
+                <span>Use las flechas ⬆⬇ para navegar</span>
+                <span>ENTER para seleccionar</span>
             </div>
         </div>
     </div>

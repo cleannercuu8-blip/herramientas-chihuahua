@@ -630,6 +630,21 @@
     const orgId = document.getElementById('edit-herramienta-org-id').value;
     const formData = new FormData(form);
 
+    // Validación manual: Si NO hay archivo nuevo Y el campo Link está vacío...
+    const archivoInput = document.getElementById('edit-herramienta-archivo'); // Necesito agregar este ID en el HTML o usar querySelector
+    // Mejor usar el input por nombre en el form
+    const fileInput = form.querySelector('input[type="file"]');
+    const linkInput = document.getElementById('edit-herramienta-link');
+
+    // Como no podemos saber fácilmente si ya tiene archivo previo sin consultar al objeto (que ya no tenemos aquí),
+    // confiamos en que el backend validará si queda "huérfano".
+    // Pero el backend mantiene el archivo anterior si no se envía nada.
+    // El único riesgo es si el usuario BORRA el link y NO sube archivo, esperando que se quede el archivo anterior.
+    // Eso es comportamiento válido (se mantiene archivo anterior).
+    // Si quiere cambiar de archivo a link, pone link. El backend priorizará el link si no hay archivo?
+    // Revisemos backend: "if (req.file) ... else if (link ...)".
+    // Si pone link y no archivo, actualiza ruta_archivo al link. Correcto.
+
     window.AppUtils.mostrarSpinner(true);
     try {
       const resultado = await window.HerramientasModule.actualizar(id, formData);
@@ -771,6 +786,9 @@
         break;
       case 'herramientas':
         refrescarVistaHerramientas();
+        break;
+      case 'expedientes':
+        if (window.cargarExpedientes) window.cargarExpedientes();
         break;
       case 'usuarios':
         cargarUsuariosAdmin();
@@ -1240,11 +1258,47 @@
   };
 
   // Funciones de utilidad para modales de expedientes
-  window.mostrarModalNuevoExpediente = function () {
-    // alert('Módulo de creación de expedientes: Próximamente en esta interfaz.');
-    // Aquí iría el código para abrir un modal con formulario
-    // Por ahora, mostrar un mensaje más amigable o abrir un modal vacío
-    window.AppUtils.mostrarAlerta('Funcionalidad en desarrollo', 'info');
+  // Funciones de utilidad para modales de expedientes
+  window.mostrarModalNuevoExpediente = async function () {
+    const select = document.getElementById('select-organizacion-expediente');
+    if (select && select.options.length <= 1) {
+      // Cargar organizaciones si no están
+      try {
+        const orgs = await window.OrganizacionesModule.obtenerTodas();
+        select.innerHTML = '<option value="">Seleccione una dependencia...</option>' +
+          orgs.map(o => `<option value="${o.id}">${o.nombre}</option>`).join('');
+      } catch (e) { console.error(e); }
+    }
+    window.mostrarModal('modal-nuevo-expediente');
+  };
+
+  window.handleCrearExpediente = async function (e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const datos = Object.fromEntries(formData.entries());
+
+    // Valores por defecto
+    datos.estatus = 'EN_REVISION';
+    datos.porcentaje_progreso = 0;
+
+    window.AppUtils.mostrarSpinner(true);
+    try {
+      const resultado = await window.ExpedientesModule.crear(datos);
+      if (resultado && !resultado.error) {
+        window.AppUtils.mostrarAlerta('Expediente creado exitosamente', 'success');
+        window.cerrarModal('modal-nuevo-expediente');
+        form.reset();
+        if (window.cargarExpedientes) window.cargarExpedientes();
+      } else {
+        window.AppUtils.mostrarAlerta(resultado.error || 'Error al crear', 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      window.AppUtils.mostrarAlerta('Error de conexión', 'error');
+    } finally {
+      window.AppUtils.mostrarSpinner(false);
+    }
   };
 
 })();

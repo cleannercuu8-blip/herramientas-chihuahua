@@ -1075,3 +1075,82 @@ body {
     background-color: #FEE2E2;
     color: #991B1B;
 }
+
+/* Estilos para Expedientes */
+.expediente-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-left: 5px solid #ccc;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.expediente-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.exp-status-abierto { border-left-color: var(--verde-cumplimiento); }
+.exp-status-en_proceso { border-left-color: var(--azul-institucional); }
+.exp-status-en_revision { border-left-color: var(--azul-institucional); }
+.exp-status-cerrado { border-left-color: #555; }
+.exp-status-suspendido { border-left-color: var(--rojo-incumplimiento); }
+
+.exp-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.exp-num {
+    font-weight: bold;
+    color: #333;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.priority-BAJA { color: var(--verde-cumplimiento); }
+.priority-MEDIA { color: var(--amarillo-advertencia); font-weight: bold; }
+.priority-ALTA { color: var(--rojo-incumplimiento); font-weight: bold; }
+.priority-URGENTE { color: white; background: var(--rojo-incumplimiento); padding: 2px 8px; border-radius: 4px; }
+
+.exp-progreso-wrapper {
+    margin: 15px 0;
+}
+
+.exp-progreso-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.exp-progreso-bar {
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.exp-progreso-fill {
+    height: 100%;
+    background: var(--azul-institucional);
+    transition: width 0.5s ease;
+}
+
+.exp-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
