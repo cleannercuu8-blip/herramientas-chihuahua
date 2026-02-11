@@ -710,6 +710,100 @@
         </div>
     </div>
 
+    <!-- Modal Importar Excel -->
+    <div id="modal-importar-excel" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title" id="import-modal-title">Importar Excel</h3>
+                <button class="modal-close" onclick="cerrarModal('modal-importar-excel')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-importar-excel" onsubmit="window.handleImportarExcel(event)">
+                    <input type="hidden" id="import-type" name="tipo">
+
+                    <p class="mb-10" id="import-instructions">Instrucciones...</p>
+
+                    <div class="form-group">
+                        <label class="form-label">Plantilla</label>
+                        <a href="#" id="btn-descargar-plantilla" class="btn btn-secondary btn-sm"
+                            style="text-decoration: none;">
+                            ⬇️ Descargar Plantilla
+                        </a>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Columnas Requeridas</label>
+                        <ul id="import-columns-list" style="font-size: 0.85rem; color: #666; padding-left: 20px;"></ul>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Archivo Excel (.xlsx)</label>
+                        <input type="file" class="form-input" id="import-file" accept=".xlsx, .xls" required>
+                    </div>
+
+                    <div id="import-status" style="display: none; margin-bottom: 10px;">
+                        <div class="spinner"></div> Procesando...
+                    </div>
+
+                    <div id="import-results" class="mb-10"></div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="cerrarModal('modal-importar-excel')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btn-import-submit">📤 Importar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Importar Excel -->
+    <div id="modal-importar-excel" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title" id="import-modal-title">Importar Excel</h3>
+                <button class="modal-close" onclick="cerrarModal('modal-importar-excel')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-importar-excel" onsubmit="window.handleImportarExcel(event)">
+                    <input type="hidden" id="import-type" name="tipo">
+
+                    <p class="mb-10" id="import-instructions">Instrucciones...</p>
+
+                    <div class="form-group">
+                        <label class="form-label">Plantilla</label>
+                        <a href="#" id="btn-descargar-plantilla" class="btn btn-secondary btn-sm"
+                            style="text-decoration: none;">
+                            ⬇️ Descargar Plantilla
+                        </a>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Columnas Requeridas</label>
+                        <ul id="import-columns-list" style="font-size: 0.85rem; color: #666; padding-left: 20px;"></ul>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Archivo Excel (.xlsx)</label>
+                        <input type="file" class="form-input" id="import-file" accept=".xlsx, .xls" required>
+                    </div>
+
+                    <div id="import-status" style="display: none; margin-bottom: 10px;">
+                        <div class="spinner"></div> Procesando...
+                    </div>
+
+                    <div id="import-results" class="mb-10"></div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="cerrarModal('modal-importar-excel')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btn-import-submit">📤 Importar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Smart Search (Spotlight) -->
     <div id="modal-search-spotlight" class="modal-search-overlay" style="display: none;">
         <div class="modal-search-container">
