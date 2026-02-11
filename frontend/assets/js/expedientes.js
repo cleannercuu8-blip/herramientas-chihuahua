@@ -32,25 +32,31 @@ const ExpedientesModule = {
         const container = document.getElementById('expedientes-lista');
         if (!container) return;
 
-        if (expedientes.length === 0) {
+        console.log('Renderizando expedientes:', expedientes);
+        if (!expedientes || expedientes.length === 0) {
             container.innerHTML = '<p class="text-center p-20">No hay expedientes registrados.</p>';
             return;
         }
 
-        container.innerHTML = expedientes.map(exp => `
-            <div class="expediente-card exp-status-${exp.estatus.toLowerCase()}" onclick="ExpedientesModule.verDetalle(${exp.id})">
+        container.innerHTML = expedientes.map(exp => {
+            const statusClass = exp.estatus ? `exp-status-${exp.estatus.toLowerCase()}` : 'exp-status-abierto';
+            const priorityClass = exp.prioridad ? `priority-${exp.prioridad}` : 'priority-media';
+            const progress = exp.porcentaje_progreso || 0;
+
+            return `
+            <div class="expediente-card ${statusClass}" onclick="ExpedientesModule.verDetalle(${exp.id})">
                 <div class="exp-header">
-                    <span class="exp-num">${exp.numero_expediente}</span>
-                    <span class="exp-prioridad priority-${exp.prioridad}">${exp.prioridad}</span>
+                    <span class="exp-num">${exp.numero_expediente || 'S/N'}</span>
+                    <span class="exp-prioridad ${priorityClass}">${exp.prioridad || 'MEDIA'}</span>
                 </div>
                 <h4 class="mb-5">${exp.titulo}</h4>
                 <div class="exp-progreso-wrapper">
                     <div class="exp-progreso-header">
-                        <span>Progreso: ${exp.porcentaje_progreso}%</span>
-                        <span>${exp.estatus}</span>
+                        <span>Progreso: ${progress}%</span>
+                        <span>${exp.estatus || 'ABIERTO'}</span>
                     </div>
                     <div class="exp-progreso-bar">
-                        <div class="exp-progreso-fill" style="width: ${exp.porcentaje_progreso}%"></div>
+                        <div class="exp-progreso-fill" style="width: ${progress}%"></div>
                     </div>
                 </div>
                 <div class="exp-footer">
