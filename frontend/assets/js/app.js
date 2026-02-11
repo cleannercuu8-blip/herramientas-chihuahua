@@ -261,13 +261,12 @@
               <div class="dot-container">
                 ${dotsHTML}
               </div>
-              <a href="/api/reportes/exportar/organizacion/${org.id}" 
+              <button onclick="event.stopPropagation(); descargarPDFOrganizacion(${org.id}, '${org.nombre.replace(/'/g, "\\'")}')" 
                  class="btn-export-pdf" 
-                 style="font-size: 0.75rem; padding: 6px 12px; background: #DC2626; color: white; border-radius: 6px; text-decoration: none; font-weight: 600;" 
-                 onclick="event.stopPropagation();"
+                 style="font-size: 0.75rem; padding: 6px 12px; background: #DC2626; color: white; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" 
                  title="Exportar Informe PDF">
                 📄 PDF
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -1114,6 +1113,59 @@
     setTimeout(() => {
       window.verHerramientasPorDependencia(id);
     }, 100);
+  };
+
+  // Función para cargar expedientes
+  window.cargarExpedientes = async function () {
+    try {
+      const data = await window.ExpedientesModule.obtenerTodos();
+      if (data && data.expedientes) {
+        window.ExpedientesModule.renderizarLista(data.expedientes);
+      } else {
+        const container = document.getElementById('expedientes-lista');
+        if (container) {
+          container.innerHTML = '<p class="text-center p-20">No hay expedientes registrados.</p>';
+        }
+      }
+    } catch (error) {
+      console.error('Error al cargar expedientes:', error);
+      const container = document.getElementById('expedientes-lista');
+      if (container) {
+        container.innerHTML = '<p class="text-center p-20 text-error">Error al cargar expedientes.</p>';
+      }
+    }
+  };
+
+  // Función para descargar PDF con autenticación
+  window.descargarPDFOrganizacion = async function (id, nombre) {
+    try {
+      const response = await fetch(`/api/reportes/exportar/organizacion/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        window.AppUtils.mostrarAlerta(error.error || 'Error al generar PDF', 'error');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Informe_${nombre.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      window.AppUtils.mostrarAlerta('PDF generado exitosamente', 'success');
+    } catch (error) {
+      console.error('Error al descargar PDF:', error);
+      window.AppUtils.mostrarAlerta('Error al generar el PDF', 'error');
+    }
   };
 
   window.regresarTableroGlobal = function () {
