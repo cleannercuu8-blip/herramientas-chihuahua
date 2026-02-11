@@ -89,53 +89,68 @@ class ReportesController {
 
             // --- ESTADO DEL EXPEDIENTE ---
             // Buscar expediente asociado
-            const expedientes = await Expediente.obtenerTodos({ organizacion_id: id });
-            if (expedientes.length > 0) {
-                const expediente = expedientes[0]; // Tomar el más reciente
-                const avances = await ExpedienteAvance.obtenerPorExpediente(expediente.id);
+            try {
+                const expedientes = await Expediente.obtenerTodos({ organizacion_id: id });
+                if (expedientes && expedientes.length > 0) {
+                    const expediente = expedientes[0]; // Tomar el más reciente
+                    const avances = await ExpedienteAvance.obtenerPorExpediente(expediente.id) || [];
 
-                doc.fontSize(16).fillColor('#003DA5').text('Expediente de Reestructuración');
-                doc.moveDown(0.5);
+                    doc.addPage(); // Nueva pagina para el expediente si es muy largo, o solo separar visualmente
 
-                // Tarjeta de resumen
-                const startY = doc.y;
-                doc.rect(50, startY, 500, 60).fillAndStroke('#F3F4F6', '#E5E7EB');
-
-                doc.fontSize(12).fillColor('#000000').text(expediente.titulo, 60, startY + 10);
-                doc.fontSize(10).fillColor('#666666').text(`Expediente: ${expediente.numero_expediente} | Estatus: ${expediente.estatus} | Prioridad: ${expediente.prioridad}`, 60, startY + 30);
-                doc.text(`Progreso: ${expediente.porcentaje_progreso}%`, 450, startY + 30);
-
-                doc.moveDown(4); // Ajustar según altura de tarjeta
-
-                if (avances.length > 0) {
-                    doc.fontSize(12).fillColor('#333333').text('Últimos Avances:');
+                    doc.fontSize(16).fillColor('#003DA5').text('Expediente de Reestructuración');
                     doc.moveDown(0.5);
 
-                    // Listar últimos 5 avances
-                    avances.slice(0, 5).forEach(avance => {
-                        doc.fontSize(10).fillColor('#000000').text(`• [${new Date(avance.fecha).toLocaleDateString()}] ${avance.titulo}`);
-                        if (avance.descripcion) {
-                            doc.fontSize(9).fillColor('#666666').text(`   ${avance.descripcion}`, { indent: 10 });
-                        }
-                        doc.moveDown(0.3);
-                    });
-                } else {
-                    doc.fontSize(10).fillColor('#666666').text('No hay avances registrados en el expediente.');
+                    // Tarjeta de resumen
+                    const startY = doc.y;
+                    doc.rect(50, startY, 500, 70).fillAndStroke('#F3F4F6', '#E5E7EB');
+
+                    doc.fontSize(12).fillColor('#000000').text(expediente.titulo || 'Sin Título', 60, startY + 10);
+                    doc.fontSize(10).fillColor('#666666').text(
+                        `Expediente: ${expediente.numero_expediente || 'S/N'} | Estatus: ${expediente.estatus || 'N/A'} | Prioridad: ${expediente.prioridad || 'Media'}`,
+                        60, startY + 30
+                    );
+                    doc.text(`Progreso: ${expediente.porcentaje_progreso || 0}%`, 450, startY + 30);
+
+                    doc.moveDown(5);
+
+                    if (avances.length > 0) {
+                        doc.fontSize(12).fillColor('#333333').text('Últimos Avances:');
+                        doc.moveDown(0.5);
+
+                        // Listar últimos 5 avances
+                        avances.slice(0, 5).forEach(avance => {
+                            doc.fontSize(10).fillColor('#000000').text(`• [${new Date(avance.fecha).toLocaleDateString()}] ${avance.titulo}`);
+                            if (avance.descripcion) {
+                                doc.fontSize(9).fillColor('#666666').text(`   ${avance.descripcion}`, { indent: 10 });
+                            }
+                            doc.moveDown(0.3);
+                        });
+                    } else {
+                        doc.fontSize(10).fillColor('#666666').text('No hay avances registrados en el expediente.');
+                    }
+                    doc.moveDown();
                 }
-                doc.moveDown();
+            } catch (err) {
+                console.error("Error al generar sección de expedientes en PDF:", err);
+                doc.fontSize(10).fillColor('red').text('Error al cargar datos del expediente.');
             }
 
             // --- DETALLE DE ARCHIVOS ---
+            doc.addPage();
             doc.fontSize(16).fillColor('#003DA5').text('Archivos y Documentación');
             doc.moveDown(0.5);
 
-            herramientas.forEach((h, idx) => {
-                doc.fontSize(11).fillColor('#000000').text(`${idx + 1}. ${labels[h.tipo_herramienta] || h.tipo_herramienta}`);
-                doc.fontSize(10).fillColor('#666666');
-                doc.text(`   Archivo: ${h.nombre_archivo || 'N/A'}`);
-                doc.text(`   POE: ${h.fecha_publicacion_poe ? new Date(h.fecha_publicacion_poe).toLocaleDateString() : 'No publicado'}`);
-                doc.moveDown(0.3);
-            });
+            if (herramientas.length > 0) {
+                herramientas.forEach((h, idx) => {
+                    doc.fontSize(11).fillColor('#000000').text(`${idx + 1}. ${labels[h.tipo_herramienta] || h.tipo_herramienta}`);
+                    doc.fontSize(10).fillColor('#666666');
+                    doc.text(`   Archivo: ${h.nombre_archivo || 'N/A'}`);
+                    doc.text(`   POE: ${h.fecha_publicacion_poe ? new Date(h.fecha_publicacion_poe).toLocaleDateString() : 'No publicado'}`);
+                    doc.moveDown(0.3);
+                });
+            } else {
+                doc.fontSize(11).fillColor('#000000').text('No hay herramientas registradas.');
+            }
 
             doc.end();
 
