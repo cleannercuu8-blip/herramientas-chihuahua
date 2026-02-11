@@ -35,8 +35,8 @@ const upload = multer({
     }
 });
 
-// Rutas (Solo administradores)
-router.post('/organizaciones', verificarToken, verificarRol('ADMINISTRADOR'), upload.single('archivo'), ImportController.importarOrganizaciones);
-router.post('/herramientas', verificarToken, verificarRol('ADMINISTRADOR'), upload.single('archivo'), ImportController.importarHerramientas);
+// Rutas (Administradores y Capturistas)
+router.post('/organizaciones', verificarToken, verificarRol('ADMINISTRADOR', 'CAPTURISTA'), upload.single('archivo'), ImportController.importarOrganizaciones);
+router.post('/herramientas', verificarToken, verificarRol('ADMINISTRADOR', 'CAPTURISTA'), upload.single('archivo'), ImportController.importarHerramientas);
 
 module.exports = router;

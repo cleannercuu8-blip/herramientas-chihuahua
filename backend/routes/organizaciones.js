@@ -15,11 +15,11 @@ router.get('/estadisticas', OrganizacionesController.obtenerEstadisticas);
 // Obtener una organización por ID (todos los roles)
 router.get('/:id', OrganizacionesController.obtenerPorId);
 
-// Crear organización (solo ADMINISTRADOR)
-router.post('/', verificarRol('ADMINISTRADOR'), OrganizacionesController.crear);
+// Crear organización (solo ADMINISTRADOR y CAPTURISTA)
+router.post('/', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), OrganizacionesController.crear);
 
-// Actualizar organización (solo ADMINISTRADOR)
-router.put('/:id', verificarRol('ADMINISTRADOR'), OrganizacionesController.actualizar);
+// Actualizar organización (solo ADMINISTRADOR y CAPTURISTA)
+router.put('/:id', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), OrganizacionesController.actualizar);
 
 // Eliminar organización (solo ADMINISTRADOR)
 router.delete('/:id', verificarRol('ADMINISTRADOR'), OrganizacionesController.eliminar);

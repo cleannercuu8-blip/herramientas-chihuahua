@@ -237,11 +237,11 @@
   // Cargar organizaciones en la tabla
   window.cargarOrganizaciones = async function () {
     const usuario = window.AuthModule.getUsuario();
-    const isAdmin = usuario && usuario.rol === 'ADMINISTRADOR';
+    const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
 
     const adminActions = document.getElementById('admin-actions-organizaciones');
     if (adminActions) {
-      adminActions.style.display = isAdmin ? 'block' : 'none';
+      adminActions.style.display = isAdminOrCapturista ? 'block' : 'none';
     }
 
     const tipo = document.getElementById('filtro-tipo-org')?.value || null;
@@ -262,7 +262,7 @@
             <td>
               <div style="display: flex; gap: 5px;">
                 <button class="btn btn-secondary btn-sm" onclick="verDetalleOrganizacion(${org.id})">Ver</button>
-                ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="mostrarModalEditarOrganizacion(${org.id})">Editar</button>` : ''}
+                ${isAdminOrCapturista ? `<button class="btn btn-primary btn-sm" onclick="mostrarModalEditarOrganizacion(${org.id})">Editar</button>` : ''}
               </div>
             </td>
           </tr>
@@ -358,9 +358,9 @@
       document.getElementById('titulo-dependencia-seleccionada').textContent = org.nombre;
 
       const usuario = window.AuthModule.getUsuario();
-      const isAdmin = usuario && usuario.rol === 'ADMINISTRADOR';
+      const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
       const adminActions = document.getElementById('admin-actions-herramientas');
-      if (adminActions) adminActions.style.display = isAdmin ? 'block' : 'none';
+      if (adminActions) adminActions.style.display = isAdminOrCapturista ? 'block' : 'none';
 
       let html = `
         <div class="card mb-20" style="background: var(--gris-claro); border: none; box-shadow: none;">
@@ -401,7 +401,7 @@
               <div><strong>Fecha de publicación:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
               <div style="display: flex; gap: 5px; margin-top: 10px;">
                 <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 2; text-align: center;" target="_blank">Ver Documento 🔗</a>
-                ${(isAdmin && herramienta.id) ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
+                ${(isAdminOrCapturista && herramienta.id) ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
               </div>
             </div>
           `;
