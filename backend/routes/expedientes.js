@@ -13,5 +13,6 @@ router.post('/', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesControl
 router.put('/:id', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesController.actualizar);
 router.post('/:id/etapas', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesController.agregarEtapa);
 router.post('/:id/avances', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesController.agregarAvance);
+router.delete('/:id/avances/:advanceId', verificarRol('ADMINISTRADOR', 'CAPTURISTA'), ExpedientesController.eliminarAvance);
 
 module.exports = router;

@@ -94,6 +94,20 @@ class ExpedientesController {
             res.status(500).json({ error: 'Error en el servidor' });
         }
     }
+
+    static async eliminarAvance(req, res) {
+        const ExpedienteAvance = require('../models/ExpedienteAvance');
+        try {
+            const { advanceId } = req.params;
+            // Note: route should be /:id/avances/:advanceId
+
+            await ExpedienteAvance.eliminar(advanceId);
+            res.json({ mensaje: 'Avance eliminado' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error al eliminar avance' });
+        }
+    }
 }
 
 module.exports = ExpedientesController;

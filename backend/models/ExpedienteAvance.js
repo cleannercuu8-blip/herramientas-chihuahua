@@ -47,6 +47,10 @@ class ExpedienteAvance {
         const { rows } = await db.query(sql, [expedienteId]);
         return rows;
     }
+
+    static async eliminar(id) {
+        return db.query('DELETE FROM expediente_avances WHERE id = $1', [id]);
+    }
 }
 
 module.exports = ExpedienteAvance;

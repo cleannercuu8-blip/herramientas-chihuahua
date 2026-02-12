@@ -291,85 +291,196 @@ const ExpedientesModule = {
         } catch (error) {
             console.error(error);
             alert('Error al procesar: ' + error.message);
-        }
+            this.verDetalle(this.currentExpedienteId);
+
+            // Actualizar vista resumida también si está visible
+            const resumenContainer = document.getElementById('detalle-org-expediente-content');
+            if (resumenContainer && !resumenContainer.innerHTML.includes('Activar Expediente')) {
+                // No action needed really, main view updates on next verify
+            }
+
+        } else {
+            alert('Error al eliminar: ' + (response ? response.error : 'Desconocido'));
+            }
+        } catch (e) { console.error(e); alert('Error de conexión'); }
     },
-
+    
     async verDetalle(id) {
-        this.currentExpedienteId = id;
-        window.mostrarModal('modal-detalle-expediente');
-        const timelineContainer = document.getElementById('expediente-timeline');
-        timelineContainer.innerHTML = '<p class="text-center">Cargando...</p>';
+    this.currentExpedienteId = id;
 
-        try {
-            const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
-            if (data.error) throw new Error(data.error);
+    // 1. Full Screen / Larger Modal
+    const modal = document.getElementById('modal-detalle-expediente');
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) modalContent.style.maxWidth = '95%';
 
-            const { expediente, avances } = data;
+    window.mostrarModal('modal-detalle-expediente');
+    const timelineContainer = document.getElementById('expediente-timeline');
+    timelineContainer.innerHTML = '<p class="text-center">Cargando...</p>';
 
-            // Header
-            document.getElementById('detalle-exp-titulo').textContent = expediente.titulo;
-            document.getElementById('detalle-exp-subtitulo').textContent = `${expediente.numero_expediente} | ${expediente.organizacion_nombre}`;
+    try {
+        const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
+        if (data.error) throw new Error(data.error);
 
-            // Render Timeline
-            this.renderTimeline(avances || []);
+        const { expediente, avances } = data;
 
-            // Initial date in form
-            const dateInput = document.querySelector('#form-nuevo-avance input[name="fecha"]');
-            if (dateInput) dateInput.valueAsDate = new Date();
+        // Header
+        document.getElementById('detalle-exp-titulo').textContent = expediente.titulo;
+        document.getElementById('detalle-exp-subtitulo').textContent = `${expediente.numero_expediente} | ${expediente.organizacion_nombre}`;
 
-            // Inject Close Button in Footer if Open
-            const footer = document.querySelector('#modal-detalle-expediente .modal-footer');
-            if (footer) {
-                let closeBtn = '';
-                if (expediente.estatus !== 'CERRADO') {
-                    closeBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cerrarExpediente()" style="margin-right: auto;">🔒 Cerrar Expediente</button>`;
-                }
-                footer.innerHTML = `
-                    ${closeBtn}
+        // Render Timeline
+        this.renderTimeline(avances || []);
+
+        // Initial date in form
+        const dateInput = document.querySelector('#form-nuevo-avance input[name="fecha"]');
+        if (dateInput) dateInput.valueAsDate = new Date();
+
+        // Footer Logic: Close vs Reopen
+        const footer = document.querySelector('#modal-detalle-expediente .modal-footer');
+        if (footer) {
+            let actionBtn = '';
+            if (expediente.estatus !== 'CERRADO') {
+                actionBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cerrarExpediente()" style="margin-right: auto;">🔒 Cerrar Expediente</button>`;
+            } else {
+                actionBtn = `<button class="btn btn-warning" onclick="window.ExpedientesModule.reabrirExpediente()" style="margin-right: auto; background-color: #f59e0b; color: white;">↩️ Reabrir Expediente</button>`;
+            }
+
+            footer.innerHTML = `
+                    ${actionBtn}
                     <button class="btn btn-secondary" onclick="window.ExpedientesModule.descargarPDF()">📄 Descargar Reporte PDF</button>
                     <button class="btn btn-primary" onclick="cerrarModal('modal-detalle-expediente')">Cerrar Ventana</button>
                 `;
-            }
-
-        } catch (error) {
-            console.error(error);
-            alert('Error al cargar expediente');
         }
-    },
 
-    async cerrarExpediente() {
-        if (!this.currentExpedienteId) return;
-        if (!confirm('¿Está seguro de que desea CERRAR este expediente? Esto registrará un cierre formal en la bitácora.')) return;
+    } catch (error) {
+        console.error(error);
+        alert('Error al cargar expediente');
+    }
+},
 
-        try {
-            // 1. Actualizar estatus
-            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
-                method: 'PUT',
-                body: JSON.stringify({ estatus: 'CERRADO' })
-            });
+renderTimeline(avances) {
+    const container = document.getElementById('expediente-timeline');
+    if (avances.length === 0) {
+        container.innerHTML = '<p class="text-center text-muted p-20">No hay avances registrados.</p>';
+        return;
+    }
 
-            // 2. Agregar movimiento de cierre
-            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    titulo: 'Expediente Cerrado',
-                    descripcion: 'Se procedió al cierre formal del expediente de seguimiento.',
-                    tipo: 'OTRO',
-                    fecha: new Date().toISOString().split('T')[0]
-                })
-            });
+    container.innerHTML = avances.map(av => `
+            <div class="timeline-item">
+                <div class="timeline-marker ${av.tipo.toLowerCase()}"></div>
+                <div class="timeline-content" style="position: relative;">
+                    <button class="btn btn-sm btn-action" 
+                            style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.2rem; cursor: pointer;" 
+                            onclick="ExpedientesModule.eliminarAvance(${av.id})" 
+                            title="Eliminar registro">
+                        🗑️
+                    </button>
+                    
+                    <div class="timeline-header">
+                        <span class="timeline-date">${new Date(av.fecha).toLocaleDateString()}</span>
+                        <span class="timeline-type badge badge-${av.tipo.toLowerCase()}">${av.tipo}</span>
+                    </div>
+                    <h5 class="timeline-title">${av.titulo}</h5>
+                    ${av.descripcion ? `<p>${av.descripcion}</p>` : ''}
+                    <small class="text-muted" style="display: block; margin-top: 5px;">
+                        Por: <strong>${av.usuario_nombre || 'Desconocido'}</strong>
+                    </small>
+                </div>
+            </div>
+        `).join('');
+},
 
-            // 3. Recargar detalle y lista principal si hizo falta
+    async eliminarAvance(avanceId) {
+    if (!confirm('¿Seguro que desea eliminar este registro?')) return;
+
+    try {
+        const response = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances/${avanceId}`, {
+            method: 'DELETE'
+        });
+
+        if (response && !response.error) {
             this.verDetalle(this.currentExpedienteId);
 
-            // Refrescar lista de fondo si existe
-            if (document.getElementById('expedientes-lista')) this.cargarExpedientes();
+            // Actualizar vista resumida también si está visible
+            const resumenContainer = document.getElementById('detalle-org-expediente-content');
+            if (resumenContainer && !resumenContainer.innerHTML.includes('Activar Expediente')) {
+                // No action needed really
+            }
 
-        } catch (error) {
-            console.error(error);
-            alert('Error al cerrar expediente');
+        } else {
+            alert('Error al eliminar: ' + (response ? response.error : 'Desconocido'));
         }
+    } catch (e) { console.error(e); alert('Error de conexión'); }
+},
+    
+    async cerrarExpediente() {
+    if (!this.currentExpedienteId) return;
+
+    const motivo = prompt('Para cerrar el expediente, por favor indique una razón o conclusión final:');
+    if (motivo === null) return; // Cancelado
+
+    try {
+        // 1. Actualizar estatus
+        await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ estatus: 'CERRADO' })
+        });
+
+        // 2. Agregar movimiento de cierre
+        await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
+            method: 'POST',
+            body: JSON.stringify({
+                titulo: 'Expediente Cerrado',
+                descripcion: motivo || 'Cierre formal del expediente.',
+                tipo: 'OTRO',
+                fecha: new Date().toISOString().split('T')[0]
+            })
+        });
+
+        // 3. Recargar
+        this.verDetalle(this.currentExpedienteId);
+
+        if (document.getElementById('expedientes-lista')) this.cargarExpedientes();
+
+    } catch (error) {
+        console.error(error);
+        alert('Error al cerrar expediente');
     }
+},
+
+    async reabrirExpediente() {
+    if (!this.currentExpedienteId) return;
+
+    const motivo = prompt('¿Por qué se reabre este expediente? (Este comentario quedará registrado):');
+    if (!motivo) return;
+
+    try {
+        // 1. Actualizar estatus
+        await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ estatus: 'ABIERTO' })
+        });
+
+        // 2. Agregar movimiento de reapertura
+        await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
+            method: 'POST',
+            body: JSON.stringify({
+                titulo: 'Expediente Reabierto',
+                descripcion: motivo,
+                tipo: 'OTRO',
+                fecha: new Date().toISOString().split('T')[0]
+            })
+        });
+
+        // 3. Recargar
+        this.verDetalle(this.currentExpedienteId);
+
+        if (document.getElementById('expedientes-lista')) this.cargarExpedientes();
+
+    } catch (error) {
+        console.error(error);
+        alert('Error al reabrir expediente');
+    }
+}
 };
 
 window.ExpedientesModule = ExpedientesModule;
