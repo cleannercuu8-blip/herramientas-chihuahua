@@ -121,52 +121,75 @@ class ImportController {
             const adminId = req.usuario.id;
 
             for (const item of tools) {
-                if (!item.orgName || !item.link) continue;
+                const filaActual = tools.indexOf(item) + 2;
+                if (!item.orgName) continue;
 
-                // 1. Buscar correspondencia de organización
-                const { rows: orgs } = await db.query('SELECT id FROM organizaciones WHERE nombre = $1 OR siglas = $1', [item.orgName]);
+                // 1. Buscar correspondencia de organización (por nombre exacto o siglas)
+                const { rows: orgs } = await db.query(
+                    'SELECT id FROM organizaciones WHERE UPPER(nombre) = UPPER($1) OR UPPER(siglas) = UPPER($1)',
+                    [item.orgName]
+                );
 
                 if (orgs.length === 0) {
-                    omitidos.push(`Organización no encontrada: ${item.orgName}`);
+                    omitidos.push(`Fila ${filaActual}: Dependencia no encontrada ("${item.orgName}")`);
                     continue;
                 }
 
                 const orgId = orgs[0].id;
 
                 try {
-                    // Validar tipo herramienta
+                    // Validar tipo herramienta (Mapeo más robusto)
                     const tipoMap = {
                         'ORGANIGRAMA': 'ORGANIGRAMA',
                         'REGLAMENTO': 'REGLAMENTO_ESTATUTO',
                         'ESTATUTO': 'REGLAMENTO_ESTATUTO',
-                        'MANUAL DE ORGANIZACIÓN': 'MANUAL_ORGANIZACION',
-                        'MANUAL DE PROCEDIMIENTOS': 'MANUAL_PROCEDIMIENTOS',
-                        'MANUAL DE SERVICIOS': 'MANUAL_SERVICIOS'
+                        'INTERIOR': 'REGLAMENTO_ESTATUTO',
+                        'ORGANIZACIÓN': 'MANUAL_ORGANIZACION',
+                        'ORGANIZACION': 'MANUAL_ORGANIZACION',
+                        'PROCEDIMIENTOS': 'MANUAL_PROCEDIMIENTOS',
+                        'SERVICIOS': 'MANUAL_SERVICIOS'
                     };
 
-                    let tipoFinal = 'MANUAL_ORGANIZACION'; // Default
+                    let tipoFinal = null;
+                    const tipoTexto = item.tipo?.toUpperCase() || '';
+
                     for (const key in tipoMap) {
-                        if (item.tipo?.toUpperCase().includes(key)) {
+                        if (tipoTexto.includes(key)) {
                             tipoFinal = tipoMap[key];
                             break;
+                        }
+                    }
+
+                    if (!tipoFinal) {
+                        omitidos.push(`Fila ${filaActual}: Tipo de herramienta no reconocido ("${item.tipo}")`);
+                        continue;
+                    }
+
+                    // Si no hay link, el registro falla a menos que sea MANUAL_SERVICIOS? 
+                    // El controller de creación ya tiene esa lógica, pero aquí lo forzamos si viene en blanco el link
+                    if (!item.link) {
+                        if (tipoFinal !== 'MANUAL_SERVICIOS') {
+                            omitidos.push(`Fila ${filaActual}: Link faltante para ${tipoFinal}`);
+                            continue;
                         }
                     }
 
                     await Herramienta.crear({
                         organizacion_id: orgId,
                         tipo_herramienta: tipoFinal,
-                        nombre_archivo: `Importación masiva: ${tipoFinal}`,
-                        ruta_archivo: item.link,
+                        nombre_archivo: `Importación: ${item.orgName} - ${tipoFinal}`,
+                        ruta_archivo: item.link || 'NO_APLICA',
                         fecha_emision: item.fecha ? new Date(item.fecha) : new Date(),
-                        estatus_poe: item.estatusPoe || 'PENDIENTE',
-                        link_publicacion_poe: item.linkPoe || null,
-                        comentarios: item.comentarios || 'Cargado vía Excel',
+                        estatus_poe: item.estatusPoe || 'SIN REGISTRO',
+                        link_publicacion_poe: item.linkPoe || item.link || null,
+                        comentarios: item.comentarios || 'Cargado vía importación masiva',
                         version: '1.0',
                         usuario_registro_id: adminId
                     });
                     procesados++;
                 } catch (e) {
-                    omitidos.push(`Error en registro ${item.orgName}: ${e.message}`);
+                    console.error(`Error en fila ${filaActual}:`, e);
+                    omitidos.push(`Fila ${filaActual}: ${e.message}`);
                 }
             }
 
