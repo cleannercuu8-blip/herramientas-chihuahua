@@ -508,6 +508,9 @@
           </div>
         </div>
 
+        <!-- Sección de Expediente de Seguimiento -->
+        <div id="detalle-herramientas-expediente-container" class="mb-20"></div>
+
         <h4 style="margin-bottom: 20px; color: var(--azul-institucional);">Clasificación por Herramienta</h4>
         <div class="tool-card-grid">
       `;
@@ -567,6 +570,13 @@
         if (el.innerHTML.includes(org.nombre)) el.classList.add('active');
         else el.classList.remove('active');
       });
+
+      // Renderizar Expediente AFTER DOM update
+      if (window.ExpedientesModule && window.ExpedientesModule.renderizarEnDetalleOrganizacion) {
+        // We use a specific ID for this view
+        window.ExpedientesModule.renderizarEnDetalleOrganizacion(org.id, 'detalle-herramientas-expediente-container');
+      }
+
     } else {
       container.innerHTML = `<p class="p-20 text-center text-error">${resultado.error}</p>`;
     }

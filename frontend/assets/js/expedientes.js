@@ -230,16 +230,14 @@ const ExpedientesModule = {
         }
     },
     // Nueva función para renderizar dentro del detalle de organización
-    async renderizarEnDetalleOrganizacion(organizacionId) {
-        const container = document.getElementById('detalle-org-expediente-content');
+    async renderizarEnDetalleOrganizacion(organizacionId, containerId = 'detalle-org-expediente-content') {
+        const container = document.getElementById(containerId);
         if (!container) return;
 
         container.innerHTML = '<div class="spinner"></div>';
         this.currentExpedienteId = null; // Reset
 
         try {
-            // Reutilizar obtenerTodos con filtro
-            // Nota: Podríamos necesitar un endpoint más directo, pero este funciona si el backend soporta filtros
             const response = await fetch(`/api/expedientes?organizacion_id=${organizacionId}`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
@@ -250,16 +248,25 @@ const ExpedientesModule = {
                 // Ya existe expediente, mostramos detalle simplificado y lista de avances
                 const expediente = expedientes[0];
                 this.currentExpedienteId = expediente.id;
-                this.renderizarVistaSeguimiento(expediente, container);
+                this.renderizarVistaSeguimiento(expediente, container, containerId);
             } else {
-                // No existe, mostrar botón para crear
+                // No existe, mostrar opción de configuración para activar
+                // Estilo tarjeta de configuración
                 container.innerHTML = `
-                    <div class="text-center p-20">
-                        <p class="mb-10 text-muted">Esta dependencia no tiene un expediente de seguimiento activo.</p>
-                        <button class="btn btn-primary" onclick="ExpedientesModule.crearExpedienteRapido(${organizacionId})">
-                            📂 Abrir Expediente de Seguimiento
-                        </button>
-                    </div>
+                   <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="margin: 0; font-size: 1rem; color: #1e293b;">Expediente de Seguimiento</h4>
+                            <p style="margin: 5px 0 0; font-size: 0.85rem; color: #64748b;">
+                                Esta dependencia no tiene un expediente activo.
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="badge" style="background: #e2e8f0; color: #64748b;">Inactivo</span>
+                            <button class="btn btn-sm btn-primary" onclick="ExpedientesModule.crearExpedienteRapido(${organizacionId}, '${containerId}')">
+                                Activar Expediente
+                            </button>
+                        </div>
+                   </div>
                 `;
             }
         } catch (error) {
@@ -268,30 +275,30 @@ const ExpedientesModule = {
         }
     },
 
-    async crearExpedienteRapido(organizacionId) {
+    async crearExpedienteRapido(organizacionId, containerId) {
         if (!confirm('¿Desea abrir un nuevo expediente de seguimiento para esta dependencia?')) return;
 
         // Crear con valores por defecto
         const datos = {
             titulo: 'Seguimiento General',
-            numero_expediente: `EXP-${new Date().getFullYear()}-${organizacionId}`, // Generar algo automático
+            numero_expediente: `EXP-${new Date().getFullYear()}-${organizacionId}`,
             organizacion_id: organizacionId,
             prioridad: 'MEDIA',
             estatus: 'ABIERTO',
-            descripcion: 'Expediente generado automáticamente para seguimiento de herramientas.'
+            descripcion: 'Expediente generado automáticamente para seguimiento.'
         };
 
         const resultado = await this.crear(datos);
         if (resultado && !resultado.error) {
-            // Recargar la vista
-            this.renderizarEnDetalleOrganizacion(organizacionId);
+            // Recargar la vista con el ID correcto de contenedor
+            this.renderizarEnDetalleOrganizacion(organizacionId, containerId);
         } else {
             alert('Error al crear expediente: ' + (resultado.error || 'Desconocido'));
         }
     },
 
-    async renderizarVistaSeguimiento(expediente, container) {
-        // Cargar avances
+    async renderizarVistaSeguimiento(expediente, container, containerId = 'detalle-org-expediente-content') {
+        // ... (fetch logic)
         try {
             const response = await fetch(`/api/expedientes/${expediente.id}`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -300,31 +307,26 @@ const ExpedientesModule = {
             const avances = data.avances || [];
 
             let html = `
-                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div>
-                            <h4 style="margin: 0; color: #1e293b;">${expediente.titulo}</h4>
+                            <h4 style="margin: 0; color: #1e293b; font-size: 1rem;">Expediente de Seguimiento (Activo)</h4>
                             <div style="font-size: 0.85rem; color: #64748b; margin-top: 5px;">
-                                Folio: <strong>${expediente.numero_expediente}</strong> | 
-                                Estatus: <span class="badge badge-info">${expediente.estatus}</span>
+                                Folio: <strong>${expediente.numero_expediente}</strong>
                             </div>
                         </div>
-                        <!-- Opcional: Botón para editar detalles del expediente -->
-                    </div>
-                    <div class="mt-10">
-                        <small>Progreso General: ${expediente.porcentaje_progreso}%</small>
-                        <div style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 2px;">
-                            <div style="background: var(--azul-institucional); width: ${expediente.porcentaje_progreso}%; height: 100%; border-radius: 3px;"></div>
-                        </div>
+                         <div style="text-align: right;">
+                             <span class="badge badge-info">${expediente.estatus}</span>
+                         </div>
                     </div>
                 </div>
 
-                <h5 class="mb-10" style="color: var(--azul-institucional);">Bitácora de Movimientos</h5>
+                <h5 class="mb-10" style="color: var(--azul-institucional); font-size: 0.95rem;">Bitácora de Movimientos</h5>
                 
                 <!-- Formulario Rápido de Avance -->
-                <form onsubmit="ExpedientesModule.handleAgregarAvanceRapido(event, ${expediente.id}, ${expediente.organizacion_id})" class="mb-20" style="display: flex; gap: 10px; flex-wrap: wrap; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                <form onsubmit="ExpedientesModule.handleAgregarAvanceRapido(event, ${expediente.id}, ${expediente.organizacion_id}, '${containerId}')" class="mb-20" style="display: flex; gap: 10px; flex-wrap: wrap; background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
                      <div style="flex: 1; min-width: 200px;">
-                        <input type="text" name="titulo" class="form-input" placeholder="Descripción del movimiento (Ej. Reunión, Dictamen...)" required>
+                        <input type="text" name="titulo" class="form-input" placeholder="Descripción del movimiento..." required style="height: 38px;">
                      </div>
                      <div style="width: 150px;">
                         <select name="tipo" class="form-select">
@@ -366,12 +368,12 @@ const ExpedientesModule = {
         }
     },
 
-    async handleAgregarAvanceRapido(e, expedienteId, organizacionId) {
+    async handleAgregarAvanceRapido(e, expedienteId, organizacionId, containerId) {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        data.expediente_id = expedienteId; // Asegurar ID
+        data.expediente_id = expedienteId;
 
         try {
             const response = await fetch(`/api/expedientes/${expedienteId}/avances`, {
@@ -385,7 +387,7 @@ const ExpedientesModule = {
 
             if (response.ok) {
                 // Recargar solo la parte del expediente
-                this.renderizarEnDetalleOrganizacion(organizacionId);
+                this.renderizarEnDetalleOrganizacion(organizacionId, containerId);
             } else {
                 alert('Error al registrar movimiento');
             }
