@@ -800,6 +800,31 @@
     // Cargar datos según la vista
     switch (vista) {
       case 'dashboard':
+        // Resetear vista del dashboard (mostrar elementos principales, ocultar drilldown)
+        const grid = document.getElementById('trapecios-grid');
+        const mainTitle = document.getElementById('dashboard-main-title');
+        const estadoGeneral = document.getElementById('estado-general-card');
+        const proximasVencer = document.getElementById('proximas-vencer-card');
+        const drilldownHeader = document.getElementById('dashboard-drilldown-header');
+
+        // Mostrar elementos principales
+        if (grid) grid.classList.remove('hidden');
+        if (mainTitle) mainTitle.classList.remove('hidden');
+        if (estadoGeneral) estadoGeneral.classList.remove('hidden');
+        if (proximasVencer) proximasVencer.classList.remove('hidden');
+
+        // Ocultar drilldown
+        if (drilldownHeader) drilldownHeader.classList.add('hidden');
+
+        // Ocultar todas las secciones de sectores
+        ['centralizado', 'paraestatal', 'autonomo'].forEach(t => {
+          const section = document.getElementById(`list-${t}-section`);
+          if (section) section.classList.add('hidden');
+        });
+
+        // Limpiar sector actual
+        window.AppUtils.AppState.currentSector = null;
+
         cargarReporteGeneral();
         break;
       case 'organizaciones':
