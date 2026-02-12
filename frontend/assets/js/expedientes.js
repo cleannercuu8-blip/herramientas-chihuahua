@@ -228,6 +228,171 @@ const ExpedientesModule = {
             console.error('Error al cargar expedientes:', error);
             container.innerHTML = '<p class="text-center p-20 text-error">Error de conexión.</p>';
         }
+    },
+    // Nueva función para renderizar dentro del detalle de organización
+    async renderizarEnDetalleOrganizacion(organizacionId) {
+        const container = document.getElementById('detalle-org-expediente-content');
+        if (!container) return;
+
+        container.innerHTML = '<div class="spinner"></div>';
+        this.currentExpedienteId = null; // Reset
+
+        try {
+            // Reutilizar obtenerTodos con filtro
+            // Nota: Podríamos necesitar un endpoint más directo, pero este funciona si el backend soporta filtros
+            const response = await fetch(`/api/expedientes?organizacion_id=${organizacionId}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const data = await response.json();
+            const expedientes = data.expedientes || [];
+
+            if (expedientes.length > 0) {
+                // Ya existe expediente, mostramos detalle simplificado y lista de avances
+                const expediente = expedientes[0];
+                this.currentExpedienteId = expediente.id;
+                this.renderizarVistaSeguimiento(expediente, container);
+            } else {
+                // No existe, mostrar botón para crear
+                container.innerHTML = `
+                    <div class="text-center p-20">
+                        <p class="mb-10 text-muted">Esta dependencia no tiene un expediente de seguimiento activo.</p>
+                        <button class="btn btn-primary" onclick="ExpedientesModule.crearExpedienteRapido(${organizacionId})">
+                            📂 Abrir Expediente de Seguimiento
+                        </button>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error al cargar expediente de organización:', error);
+            container.innerHTML = '<p class="text-error">Error al cargar información del expediente.</p>';
+        }
+    },
+
+    async crearExpedienteRapido(organizacionId) {
+        if (!confirm('¿Desea abrir un nuevo expediente de seguimiento para esta dependencia?')) return;
+
+        // Crear con valores por defecto
+        const datos = {
+            titulo: 'Seguimiento General',
+            numero_expediente: `EXP-${new Date().getFullYear()}-${organizacionId}`, // Generar algo automático
+            organizacion_id: organizacionId,
+            prioridad: 'MEDIA',
+            estatus: 'ABIERTO',
+            descripcion: 'Expediente generado automáticamente para seguimiento de herramientas.'
+        };
+
+        const resultado = await this.crear(datos);
+        if (resultado && !resultado.error) {
+            // Recargar la vista
+            this.renderizarEnDetalleOrganizacion(organizacionId);
+        } else {
+            alert('Error al crear expediente: ' + (resultado.error || 'Desconocido'));
+        }
+    },
+
+    async renderizarVistaSeguimiento(expediente, container) {
+        // Cargar avances
+        try {
+            const response = await fetch(`/api/expedientes/${expediente.id}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const data = await response.json();
+            const avances = data.avances || [];
+
+            let html = `
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h4 style="margin: 0; color: #1e293b;">${expediente.titulo}</h4>
+                            <div style="font-size: 0.85rem; color: #64748b; margin-top: 5px;">
+                                Folio: <strong>${expediente.numero_expediente}</strong> | 
+                                Estatus: <span class="badge badge-info">${expediente.estatus}</span>
+                            </div>
+                        </div>
+                        <!-- Opcional: Botón para editar detalles del expediente -->
+                    </div>
+                    <div class="mt-10">
+                        <small>Progreso General: ${expediente.porcentaje_progreso}%</small>
+                        <div style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 2px;">
+                            <div style="background: var(--azul-institucional); width: ${expediente.porcentaje_progreso}%; height: 100%; border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="mb-10" style="color: var(--azul-institucional);">Bitácora de Movimientos</h5>
+                
+                <!-- Formulario Rápido de Avance -->
+                <form onsubmit="ExpedientesModule.handleAgregarAvanceRapido(event, ${expediente.id}, ${expediente.organizacion_id})" class="mb-20" style="display: flex; gap: 10px; flex-wrap: wrap; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                     <div style="flex: 1; min-width: 200px;">
+                        <input type="text" name="titulo" class="form-input" placeholder="Descripción del movimiento (Ej. Reunión, Dictamen...)" required>
+                     </div>
+                     <div style="width: 150px;">
+                        <select name="tipo" class="form-select">
+                            <option value="AVANCE">Avance</option>
+                            <option value="REUNION">Reunión</option>
+                            <option value="OFICIO">Oficio</option>
+                            <option value="OTRO">Otro</option>
+                        </select>
+                     </div>
+                     <div style="width: 130px;">
+                        <input type="date" name="fecha" class="form-input" required value="${new Date().toISOString().split('T')[0]}">
+                     </div>
+                     <button type="submit" class="btn btn-primary">Registrar</button>
+                </form>
+
+                <div id="lista-avances-simple" class="timeline-container-simple">
+            `;
+
+            if (avances.length === 0) {
+                html += '<p class="text-center text-muted">No hay movimientos registrados.</p>';
+            } else {
+                html += avances.map(av => `
+                    <div class="avance-item" style="border-left: 3px solid var(--azul-claro); padding-left: 15px; margin-bottom: 15px; position: relative;">
+                        <div style="font-weight: 600; color: #334155;">${av.titulo}</div>
+                        <div style="font-size: 0.85rem; color: #64748b;">
+                            ${new Date(av.fecha).toLocaleDateString()} • <span class="badge badge-sm">${av.tipo}</span> • ${av.usuario_nombre}
+                        </div>
+                        ${av.descripcion ? `<div style="font-size: 0.9rem; margin-top: 5px; color: #475569;">${av.descripcion}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = '<p class="text-error">Error al cargar seguimiento.</p>';
+        }
+    },
+
+    async handleAgregarAvanceRapido(e, expedienteId, organizacionId) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        data.expediente_id = expedienteId; // Asegurar ID
+
+        try {
+            const response = await fetch(`/api/expedientes/${expedienteId}/avances`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                // Recargar solo la parte del expediente
+                this.renderizarEnDetalleOrganizacion(organizacionId);
+            } else {
+                alert('Error al registrar movimiento');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error de conexión');
+        }
     }
 };
 

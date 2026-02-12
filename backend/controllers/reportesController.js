@@ -282,20 +282,94 @@ class ReportesController {
                     drawHeader();
                     doc.moveDown(2);
                 }
+
+                // Título de sección
                 doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('3. EXPEDIENTE DE SEGUIMIENTO');
                 doc.moveDown(1);
-                doc.fillColor('#334155').fontSize(11).font('Helvetica-Bold').text(`TÍTULO: ${exp.titulo || 'SIN TÍTULO'}`);
-                doc.fontSize(10).font('Helvetica').text(`No. Expediente: ${exp.numero_expediente || 'N/A'} | Estatus: ${exp.estatus}`);
-                doc.moveDown(0.5);
-                const progX = doc.x;
-                const progY = doc.y;
+
+                // Info del expediente
                 doc.save();
-                doc.rect(progX, progY, 300, 15).fill('#E2E8F0');
-                doc.rect(progX, progY, (exp.porcentaje_progreso || 0) * 3, 15).fill('#003DA5');
+                doc.rect(50, doc.y, 500, 60).fill('#F8FAFC');
+                doc.strokeColor('#E2E8F0').lineWidth(1).rect(50, doc.y, 500, 60).stroke();
                 doc.restore();
-                doc.fillColor('#FFFFFF').fontSize(8).text(`${exp.porcentaje_progreso || 0}%`, progX + 140, progY + 4);
+
+                const expY = doc.y + 10;
+                doc.fillColor('#334155').fontSize(11).font('Helvetica-Bold').text(exp.titulo || 'SIN TÍTULO', 60, expY);
+                doc.fontSize(9).font('Helvetica').text(`Folio: ${exp.numero_expediente || 'N/A'}`, 60, expY + 20);
+                doc.text(`Estatus: ${exp.estatus}`, 250, expY + 20);
+
+                // Barra de progreso PDF
+                const progY = expY + 35;
+                doc.save();
+                doc.rect(60, progY, 400, 8).fill('#E2E8F0');
+                if (exp.porcentaje_progreso > 0) {
+                    doc.rect(60, progY, exp.porcentaje_progreso * 4, 8).fill('#003DA5');
+                }
+                doc.restore();
+                doc.fillColor('#64748B').fontSize(8).text(`${exp.porcentaje_progreso || 0}%`, 470, progY);
+
+                doc.moveDown(4);
+
+                // AVANCES
+                const avances = await ExpedienteAvance.obtenerPorExpediente(exp.id);
+                if (avances && avances.length > 0) {
+                    doc.fillColor('#003DA5').fontSize(12).font('Helvetica-Bold').text('Bitácora de Movimientos', 50);
+                    doc.moveDown(0.5);
+
+                    // Tabla header
+                    const tableTop = doc.y;
+                    doc.save();
+                    doc.rect(50, tableTop, 500, 20).fill('#E2E8F0');
+                    doc.restore();
+
+                    doc.fillColor('#334155').fontSize(9).font('Helvetica-Bold');
+                    doc.text('FECHA', 60, tableTop + 5);
+                    doc.text('TIPO', 120, tableTop + 5);
+                    doc.text('MOVIMIENTO', 200, tableTop + 5);
+                    doc.text('USUARIO', 450, tableTop + 5);
+
+                    let y = tableTop + 25;
+
+                    for (const av of avances) {
+                        if (y > 700) {
+                            doc.addPage({ margin: { top: 50, bottom: 20, left: 50, right: 50 } });
+                            drawHeader();
+                            y = 60;
+                        }
+
+                        doc.fillColor('#334155').fontSize(9).font('Helvetica');
+                        const fecha = new Date(av.fecha).toLocaleDateString();
+
+                        doc.text(fecha, 60, y);
+                        doc.text(av.tipo, 120, y);
+
+                        // Título y descripción con wrap
+                        const tituloHeight = doc.heightOfString(av.titulo, { width: 240 });
+                        doc.font('Helvetica-Bold').text(av.titulo, 200, y, { width: 240 });
+
+                        if (av.descripcion) {
+                            doc.font('Helvetica').fontSize(8).fillColor('#64748B');
+                            doc.text(av.descripcion, 200, y + tituloHeight + 2, { width: 240 });
+                        }
+
+                        const rowHeight = av.descripcion ? tituloHeight + doc.heightOfString(av.descripcion, { width: 240 }) + 10 : tituloHeight + 10;
+
+                        doc.fillColor('#334155').fontSize(9).text(av.usuario_nombre || 'Sistema', 450, y);
+
+                        y += rowHeight + 5;
+
+                        // Separador
+                        doc.save();
+                        doc.moveTo(50, y - 2).lineTo(550, y - 2).strokeColor('#F1F5F9').lineWidth(0.5).stroke();
+                        doc.restore();
+                    }
+                } else {
+                    doc.fillColor('#64748B').fontSize(10).font('Helvetica-Oblique').text('No se han registrado movimientos en este expediente.', 50);
+                }
             }
-        } catch (err) { }
+        } catch (err) {
+            console.error('Error PDF Expediente:', err);
+        }
     }
 
     static _agregarNumeracionPaginas(doc) {

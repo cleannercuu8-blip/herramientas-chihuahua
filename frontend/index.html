@@ -46,7 +46,7 @@
             <button class="nav-btn active" onclick="mostrarVista('dashboard', event)">📊 Reporte General</button>
             <button class="nav-btn" onclick="mostrarVista('organizaciones', event)">🏢 Dependencia/Entidad</button>
             <button class="nav-btn" onclick="mostrarVista('herramientas', event)">💼 Herramientas</button>
-            <button class="nav-btn" onclick="mostrarVista('expedientes', event)">📁 Expedientes</button>
+            <!-- <button class="nav-btn" onclick="mostrarVista('expedientes', event)">📁 Expedientes</button> -->
             <button class="nav-btn" id="nav-btn-cargas" style="display: none;"
                 onclick="mostrarVista('cargas', event)">📈 Cargas de Trabajo</button>
             <button class="nav-btn" onclick="mostrarVista('reportes', event)">📥 Exportar</button>
@@ -486,6 +486,17 @@
                         <h4 class="card-title">Herramientas Registradas</h4>
                     </div>
                     <div id="detalle-org-herramientas-lista">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <!-- Sección de Expediente de Seguimiento -->
+                <div class="card mt-20" id="detalle-org-expediente-section">
+                    <div class="card-header">
+                        <h4 class="card-title">📁 Expediente de Seguimiento</h4>
+                    </div>
+                    <div class="p-20" id="detalle-org-expediente-content">
+                        <!-- Aquí se renderizará el expediente activo o el botón para crear uno -->
                         <div class="spinner"></div>
                     </div>
                 </div>

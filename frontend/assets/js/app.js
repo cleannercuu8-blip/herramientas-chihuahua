@@ -481,6 +481,11 @@
       const adminActions = document.getElementById('admin-actions-herramientas');
       if (adminActions) adminActions.style.display = isAdminOrCapturista ? 'block' : 'none';
 
+      // Cargar Expediente de Seguimiento
+      if (window.ExpedientesModule && window.ExpedientesModule.renderizarEnDetalleOrganizacion) {
+        window.ExpedientesModule.renderizarEnDetalleOrganizacion(org.id);
+      }
+
       let html = `
         <div class="card mb-20" style="background: var(--gris-claro); border: none; box-shadow: none;">
           <div class="p-20">
