@@ -948,19 +948,29 @@
     const formNuevaHerramienta = document.getElementById('form-nueva-herramienta');
     formNuevaHerramienta?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      console.log('--- FORM SUBMIT: form-nueva-herramienta ---');
       const form = e.target;
       const formData = new FormData(form);
+
+      // Log FormData content
+      for (let [key, value] of formData.entries()) {
+        console.log(`DEBUG: ${key} = ${value instanceof File ? `File: ${value.name}` : value}`);
+      }
 
       // Validación manual: requieren al menos link o archivo, excepto si es MANUAL_SERVICIOS y marcaron NO
       const tipo = formData.get('tipo_herramienta');
       const link = formData.get('link_publicacion_poe');
-      const archivo = document.getElementById('input-archivo-herramienta').files[0];
+      const fileInput = document.getElementById('input-archivo-herramienta');
+      const archivo = fileInput ? fileInput.files[0] : null;
       const reqManual = form.querySelector('input[name="req_manual"]:checked')?.value;
 
+      console.log(`DEBUG: tipo=${tipo}, link=${link}, archivo=${archivo ? archivo.name : 'null'}, reqManual=${reqManual}`);
+
       if (tipo === 'MANUAL_SERVICIOS' && reqManual === 'NO') {
-        // Permitido sin archivos
+        console.log('DEBUG: Manual de Servicios - NO se requiere');
       } else {
         if (!link && !archivo) {
+          console.log('DEBUG: ERROR - Ni link ni archivo proporcionados');
           window.AppUtils.mostrarAlerta('Debe proporcionar un link o un archivo', 'error');
           return;
         }
@@ -968,11 +978,16 @@
 
       // Si estamos en contexto de organización, usar ese ID
       if (window.AppUtils.AppState.currentOrganizacionId) {
+        console.log(`DEBUG: Using currentOrganizacionId=${window.AppUtils.AppState.currentOrganizacionId}`);
         formData.set('organizacion_id', window.AppUtils.AppState.currentOrganizacionId);
+      } else {
+        console.log(`DEBUG: Using form organizacion_id=${formData.get('organizacion_id')}`);
       }
 
       window.AppUtils.mostrarSpinner(true);
+      console.log('DEBUG: Calling HerramientasModule.crear...');
       const resultado = await window.HerramientasModule.crear(formData);
+      console.log('DEBUG: API Result:', resultado);
 
       if (resultado.success) {
         window.AppUtils.mostrarAlerta('Herramienta creada exitosamente', 'success');
@@ -981,18 +996,16 @@
 
         // Auto-refresh: actualizar vista actual
         if (window.AppUtils.AppState.currentOrganizacionId) {
-          // Estamos en detalle de organización, refrescar
           await window.verHerramientasPorDependencia(window.AppUtils.AppState.currentOrganizacionId);
         } else {
-          // Estamos en vista general
           await refrescarVistaHerramientas();
         }
 
-        // Actualizar dashboard si estamos en esa vista
         if (window.AppUtils.AppState.currentView === 'dashboard') {
           await cargarReporteGeneral();
         }
       } else {
+        console.error('DEBUG: SAVE FAILED:', resultado.error);
         window.AppUtils.mostrarAlerta(resultado.error, 'error');
       }
       window.AppUtils.mostrarSpinner(false);

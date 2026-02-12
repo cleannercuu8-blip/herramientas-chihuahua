@@ -73,6 +73,9 @@ class HerramientasController {
      */
     static async crear(req, res) {
         try {
+            console.log('--- REQ BODY (crear herramienta) ---', req.body);
+            console.log('--- REQ FILE ---', req.file ? req.file.originalname : 'No file');
+
             const {
                 organizacion_id,
                 tipo_herramienta,
@@ -86,25 +89,25 @@ class HerramientasController {
 
             // Validaciones
             if (!organizacion_id || !tipo_herramienta || !fecha_emision) {
+                console.log('DEBUG: ERROR - Faltan campos requeridos');
                 return res.status(400).json({
                     error: 'organizacion_id, tipo_herramienta y fecha_emision son requeridos'
                 });
             }
 
-            // Validación específica: Si no es Manual de Servicios (o si lo es pero se quiere subir), validar archivo/link
-            // Si es Manual de Servicios y no trae archivo/link, asumimos que es un registro "Sin requerimiento" o "No aplica"
-            // Pero como la BD exige NOT NULL, usaremos valores dummy si es el caso.
-
+            // Lógica específica para Manual de Servicios (opcionalidad de archivos)
             let finalNombreArchivo = (req.file ? req.file.originalname : null);
             let finalRutaArchivo = (req.file ? req.file.path : null);
             let finalLink = link_publicacion_poe;
 
             if (tipo_herramienta === 'MANUAL_SERVICIOS' && !req.file && !link_publicacion_poe) {
+                console.log('DEBUG: Manual de Servicios sin archivo/link - OK (No aplica)');
                 finalNombreArchivo = 'NO_APLICA';
                 finalRutaArchivo = 'NO_APLICA';
                 finalLink = 'NO_APLICA';
             } else {
                 if (!req.file && !link_publicacion_poe) {
+                    console.log('DEBUG: ERROR - Ni archivo ni link');
                     return res.status(400).json({
                         error: 'Debe subir un archivo o proporcionar un link de consulta'
                     });
@@ -120,6 +123,7 @@ class HerramientasController {
             ];
 
             if (!tiposValidos.includes(tipo_herramienta)) {
+                console.log('DEBUG: ERROR - Tipo inválido');
                 return res.status(400).json({
                     error: 'Tipo de herramienta inválido',
                     tiposValidos
@@ -127,19 +131,21 @@ class HerramientasController {
             }
 
             // Crear herramienta
+            console.log('DEBUG: Persistiendo en DB...');
             const nuevaHerramienta = await Herramienta.crear({
                 organizacion_id,
                 tipo_herramienta,
                 nombre_archivo: finalNombreArchivo || 'Documento en línea',
                 ruta_archivo: finalRutaArchivo || finalLink,
                 fecha_emision,
-                fecha_publicacion_poe: fecha_publicacion_poe || fecha_emision, // Sincronizar fechas por defecto
+                fecha_publicacion_poe: fecha_publicacion_poe || fecha_emision,
                 link_publicacion_poe: finalLink !== 'NO_APLICA' ? finalLink : null,
-                estatus_poe: estatus_poe || null,
+                estatus_poe: estatus_poe || 'VIGENTE',
                 comentarios: comentarios || null,
                 version: version || '1.0',
                 usuario_registro_id: req.usuario.id
             });
+            console.log('DEBUG: ÉXITO - Herramienta ID:', nuevaHerramienta.id);
 
             // Registrar en historial
             await Historial.registrar({
@@ -159,7 +165,7 @@ class HerramientasController {
 
         } catch (error) {
             console.error('Error al crear herramienta:', error);
-            res.status(500).json({ error: 'Error en el servidor' });
+            res.status(500).json({ error: 'Error en el servidor: ' + error.message });
         }
     }
 
@@ -170,7 +176,6 @@ class HerramientasController {
         try {
             const { id } = req.params;
 
-            // Validar que el ID sea numérico
             if (isNaN(parseInt(id))) {
                 return res.status(400).json({ error: 'ID de herramienta no válido' });
             }
@@ -180,7 +185,9 @@ class HerramientasController {
                 fecha_emision,
                 fecha_publicacion_poe,
                 link_publicacion_poe,
-                version
+                version,
+                estatus_poe,
+                comentarios
             } = req.body;
 
             const herramienta = await Herramienta.obtenerPorId(id);
@@ -189,28 +196,22 @@ class HerramientasController {
                 return res.status(404).json({ error: 'Herramienta no encontrada' });
             }
 
-            // Si hay nuevo archivo, actualizar ruta
             let nombre_archivo = herramienta.nombre_archivo;
             let ruta_archivo = herramienta.ruta_archivo;
 
             if (req.file) {
-                // Eliminar archivo anterior si era físico
                 if (herramienta.ruta_archivo && !herramienta.ruta_archivo.startsWith('http') && fs.existsSync(herramienta.ruta_archivo)) {
                     fs.unlinkSync(herramienta.ruta_archivo);
                 }
-
                 nombre_archivo = req.file.originalname;
                 ruta_archivo = req.file.path;
             } else if (link_publicacion_poe && link_publicacion_poe !== herramienta.link_publicacion_poe) {
-                // Si el link cambió y no hay archivo físico nuevo
                 ruta_archivo = link_publicacion_poe;
-                // Solo cambiar el nombre si antes no era un documento en línea o si queremos resetearlo
                 if (!herramienta.ruta_archivo || herramienta.ruta_archivo.startsWith('http')) {
                     nombre_archivo = 'Documento en línea';
                 }
             }
 
-            // Función auxiliar para elegir valor (no sobreescribir con vacíos si hay anterior)
             const pick = (nuevo, viejo) => (nuevo !== undefined && nuevo !== '') ? nuevo : viejo;
 
             const resultado = await Herramienta.actualizar(id, {
@@ -220,12 +221,11 @@ class HerramientasController {
                 fecha_emision: pick(fecha_emision, herramienta.fecha_emision),
                 fecha_publicacion_poe: pick(fecha_publicacion_poe, (fecha_emision || herramienta.fecha_publicacion_poe)),
                 link_publicacion_poe: pick(link_publicacion_poe, herramienta.link_publicacion_poe),
-                estatus_poe: pick(req.body.estatus_poe, herramienta.estatus_poe),
-                comentarios: pick(req.body.comentarios, herramienta.comentarios),
+                estatus_poe: pick(estatus_poe, herramienta.estatus_poe),
+                comentarios: pick(comentarios, herramienta.comentarios),
                 version: pick(version, herramienta.version)
             });
 
-            // Registrar en historial
             await Historial.registrar({
                 herramienta_id: id,
                 usuario_id: req.usuario.id,
@@ -233,7 +233,6 @@ class HerramientasController {
                 descripcion: `Actualización de ${herramienta.tipo_herramienta}`
             });
 
-            // Actualizar caché de semáforo
             await SemaforoService.actualizarCacheSemaforo(herramienta.organizacion_id);
 
             res.json({
@@ -262,7 +261,6 @@ class HerramientasController {
 
             await Herramienta.eliminar(id);
 
-            // Registrar en historial
             await Historial.registrar({
                 herramienta_id: id,
                 usuario_id: req.usuario.id,
@@ -270,7 +268,6 @@ class HerramientasController {
                 descripcion: `Eliminación de ${herramienta.tipo_herramienta} - ${herramienta.nombre_archivo}`
             });
 
-            // Actualizar caché de semáforo
             await SemaforoService.actualizarCacheSemaforo(herramienta.organizacion_id);
 
             res.json({ mensaje: 'Herramienta eliminada exitosamente' });
@@ -294,7 +291,6 @@ class HerramientasController {
                 return res.status(404).json({ error: 'Herramienta no encontrada' });
             }
 
-            // Si es un link externo (comienza con http), redireccionar
             if (herramienta.ruta_archivo && (herramienta.ruta_archivo.startsWith('http://') || herramienta.ruta_archivo.startsWith('https://'))) {
                 return res.redirect(herramienta.ruta_archivo);
             }

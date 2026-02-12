@@ -6,11 +6,11 @@
         const title = tipo === 'organizaciones' ? 'Importar Dependencias/Entidades' : 'Importar Herramientas Masivamente';
         const instructions = tipo === 'organizaciones'
             ? 'Sube un Excel con las columnas: Nombre, Tipo (Dependencia/Paraestatal), Siglas, Titular, Decreto, Requiere Manual de Servicios (SI/NO).'
-            : 'Sube un Excel con: Dependencia, Tipo Herramienta, Link, Fecha, Estatus POE, Link POE, Comentarios.';
+            : 'Sube un Excel con: Organización, Tipo Herramienta, Link, Fecha, Estatus POE, Link POE, Comentarios.';
 
         const columns = tipo === 'organizaciones'
             ? ['Nombre', 'Tipo (Dependencia/Paraestatal)', 'Siglas', 'Titular', 'URL Decreto', 'Requiere Manual de Servicios (SI/NO)']
-            : ['Nombre Dependencia', 'Tipo Herramienta', 'Link Herramienta', 'Fecha (AAAA-MM-DD)', 'Estatus POE', 'Link POE', 'Comentarios'];
+            : ['Nombre Organización/Entidad', 'Tipo Herramienta', 'Link Herramienta', 'Fecha (AAAA-MM-DD)', 'Estatus POE', 'Link POE', 'Comentarios'];
 
         document.getElementById('import-modal-title').textContent = title;
         document.getElementById('import-instructions').textContent = instructions;

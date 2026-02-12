@@ -629,7 +629,7 @@
             <div class="modal-body">
                 <form id="form-nueva-herramienta">
                     <div class="form-group">
-                        <label class="form-label">Dependencia/Entidad</label>
+                        <label class="form-label">Organización/Entidad</label>
                         <select class="form-select" name="organizacion_id" id="select-organizacion" required>
                             <option value="">Cargando...</option>
                         </select>
@@ -686,7 +686,12 @@
             <div class="modal-body">
                 <form id="form-editar-herramienta" onsubmit="window.guardarCambiosHerramienta(event)">
                     <input type="hidden" name="id" id="edit-herramienta-id">
-                    <input type="hidden" name="organizacion_id" id="edit-herramienta-org-id">
+                    <div class="form-group">
+                        <label class="form-label">Organización/Entidad</label>
+                        <select class="form-select" name="organizacion_id" id="edit-herramienta-org-id">
+                            <!-- Inyectado por JS -->
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Tipo</label>
                         <select class="form-select" name="tipo_herramienta" id="edit-herramienta-tipo">
