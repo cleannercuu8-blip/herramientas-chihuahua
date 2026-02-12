@@ -111,15 +111,12 @@ class ReportesController {
             doc.restore();
             doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
 
-            // --- GENERAR CADA REPORTE ---
             for (const org of organizaciones) {
                 const toolsRes = await db.query('SELECT * FROM herramientas WHERE organizacion_id = $1 ORDER BY tipo_herramienta', [org.id]);
                 const herramientas = toolsRes.rows;
 
-                // Portada de cada organización (técnica)
-                await ReportesController._generarPaginaPortada(doc, org.nombre, org.tipo);
-                // Contenido
-                await ReportesController._generarContenidoReporte(doc, org, herramientas);
+                // Contenido (con título de organización incluido para el reporte masivo)
+                await ReportesController._generarContenidoReporte(doc, org, herramientas, true);
             }
 
             // Numeración de páginas global
@@ -162,7 +159,7 @@ class ReportesController {
         doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
     }
 
-    static async _generarContenidoReporte(doc, org, herramientas) {
+    static async _generarContenidoReporte(doc, org, herramientas, incluirTitulo = false) {
         doc.addPage({
             margin: { top: 50, bottom: 20, left: 50, right: 50 }
         });
@@ -176,7 +173,15 @@ class ReportesController {
         };
 
         drawHeader();
-        doc.moveDown(2);
+        doc.moveDown(1);
+
+        if (incluirTitulo) {
+            doc.fillColor('#003DA5').fontSize(18).font('Helvetica-Bold').text(org.nombre.toUpperCase());
+            doc.save();
+            doc.rect(50, doc.y + 2, 80, 2).fill('#6B4C9A');
+            doc.restore();
+            doc.moveDown(2);
+        }
 
         // Sección 1: Información General
         doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('1. INFORMACIÓN GENERAL');
