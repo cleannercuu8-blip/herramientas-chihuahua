@@ -185,10 +185,18 @@ function mostrarSpinner(show = true) {
     }
 }
 
+// Obtener URL con token de autenticación para descargas/previsualización
+function getAuthenticatedUrl(url) {
+    if (!AppState.token) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}token=${AppState.token}`;
+}
+
 // Descargar archivo
 function descargarArchivo(url, nombreArchivo) {
+    const authenticatedUrl = getAuthenticatedUrl(url);
     const link = document.createElement('a');
-    link.href = url;
+    link.href = authenticatedUrl;
     link.download = nombreArchivo;
     document.body.appendChild(link);
     link.click();
@@ -211,5 +219,6 @@ window.AppUtils = {
     getNombreTipoOrganizacion,
     mostrarSpinner,
     descargarArchivo,
+    getAuthenticatedUrl,
     API_URL
 };

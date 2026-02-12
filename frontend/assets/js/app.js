@@ -487,7 +487,7 @@
               <div><strong>Semáforo:</strong> ${AppUtils.getBadgeSemaforo(org.semaforo)}</div>
             </div>
             <div style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 15px;">
-                <a href="/api/reportes/exportar/organizacion/${org.id}" class="btn btn-secondary" style="background: var(--primario); color: white;">📄 Exportar Informe Detallado (PDF)</a>
+                <button onclick="descargarPDFOrganizacion(${org.id}, '${org.nombre.replace(/'/g, "\\'")}')" class="btn btn-secondary" style="background: var(--primario); color: white; border: none; cursor: pointer;">📄 Exportar Informe Detallado (PDF)</button>
             </div>
             ${org.decreto_creacion ? `
               <div style="margin-top: 15px;">
@@ -1152,35 +1152,10 @@
   };
 
   // Función para descargar PDF con autenticación
-  window.descargarPDFOrganizacion = async function (id, nombre) {
-    try {
-      const response = await fetch(`/api/reportes/exportar/organizacion/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        window.AppUtils.mostrarAlerta(error.error || 'Error al generar PDF', 'error');
-        return;
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Informe_${nombre.replace(/\s+/g, '_')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      window.AppUtils.mostrarAlerta('PDF generado exitosamente', 'success');
-    } catch (error) {
-      console.error('Error al descargar PDF:', error);
-      window.AppUtils.mostrarAlerta('Error al generar el PDF', 'error');
-    }
+  window.descargarPDFOrganizacion = function (id, nombre) {
+    const url = `/api/reportes/exportar/organizacion/${id}`;
+    const authenticatedUrl = window.AppUtils.getAuthenticatedUrl(url);
+    window.open(authenticatedUrl, '_blank');
   };
 
   window.regresarTableroGlobal = function () {
@@ -1214,7 +1189,7 @@
 
     try {
       const response = await fetch('/api/search/cargas-trabajo', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${window.AppUtils.AppState.token}` }
       });
       const data = await response.json();
 
