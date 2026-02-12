@@ -205,7 +205,8 @@ const ExpedientesModule = {
             });
             const data = await response.json();
             if (data.expediente) {
-                window.open(`/api/reportes/organizacion/${data.expediente.organizacion_id}/pdf`, '_blank');
+                const token = localStorage.getItem('token');
+                window.open(`/api/reportes/organizacion/${data.expediente.organizacion_id}/pdf?token=${token}`, '_blank');
             }
         } catch (e) { console.error(e); }
     },

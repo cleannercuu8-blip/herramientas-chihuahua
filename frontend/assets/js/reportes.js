@@ -2,20 +2,20 @@
 const ReportesModule = {
     // Exportar inventario completo
     exportarInventario() {
-        const url = `${window.AppUtils.API_URL}/reportes/exportar/inventario`;
-        window.open(url + `?token=${window.AppUtils.AppState.token}`, '_blank');
+        const token = window.AppUtils.AppState.token || localStorage.getItem('token');
+        window.open(url + `?token=${token}`, '_blank');
     },
 
     // Exportar reporte de semáforo
     exportarSemaforo() {
-        const url = `${window.AppUtils.API_URL}/reportes/exportar/semaforo`;
-        window.open(url + `?token=${window.AppUtils.AppState.token}`, '_blank');
+        const token = window.AppUtils.AppState.token || localStorage.getItem('token');
+        window.open(url + `?token=${token}`, '_blank');
     },
 
     // Exportar herramientas próximas a vencer
     exportarProximasVencer(meses = 12) {
-        const url = `${window.AppUtils.API_URL}/reportes/exportar/proximas-vencer?meses=${meses}`;
-        window.open(url + `?token=${window.AppUtils.AppState.token}`, '_blank');
+        const token = window.AppUtils.AppState.token || localStorage.getItem('token');
+        window.open(url + `&token=${token}`, '_blank');
     },
 
     // Obtener historial
