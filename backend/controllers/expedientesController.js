@@ -18,8 +18,13 @@ class ExpedientesController {
             const expediente = await Expediente.obtenerPorId(id);
             if (!expediente) return res.status(404).json({ error: 'No encontrado' });
 
+            const EtapaExpediente = require('../models/EtapaExpediente');
+            const ExpedienteAvance = require('../models/ExpedienteAvance');
+
             const etapas = await EtapaExpediente.obtenerPorExpediente(id);
-            res.json({ expediente, etapas });
+            const avances = await ExpedienteAvance.obtenerPorExpediente(id);
+
+            res.json({ expediente, etapas, avances });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error al obtener detalle' });
