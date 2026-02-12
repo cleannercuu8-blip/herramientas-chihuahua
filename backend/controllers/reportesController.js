@@ -27,12 +27,19 @@ class ReportesController {
             const toolsRes = await db.query('SELECT * FROM herramientas WHERE organizacion_id = $1 ORDER BY tipo_herramienta', [id]);
             const herramientas = toolsRes.rows;
 
-            const doc = new PDFDocument({ margin: 50, bufferPages: true });
+            const doc = new PDFDocument({
+                margin: 50,
+                bufferPages: true,
+                autoFirstPage: false // Crucial para evitar páginas en blanco automáticas
+            });
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `inline; filename=Informe_${org.nombre.replace(/\s+/g, '_')}.pdf`);
             doc.pipe(res);
 
             // --- PORTADA ---
+            // Agregar página de portada con margen 0 para control total de diseño
+            doc.addPage({ margin: 0 });
+
             // Dibujar fondo de color en la parte superior
             doc.save();
             doc.rect(0, 0, doc.page.width, 150).fill('#003DA5');
@@ -47,7 +54,6 @@ class ReportesController {
             doc.rect(50, 265, 50, 3).fill('#003DA5');
             doc.restore();
 
-            doc.moveDown(3);
             doc.fontSize(24).font('Helvetica-Bold').fillColor('#003DA5').text(org.nombre.toUpperCase(), 50, 300, { width: 500 });
 
             doc.fontSize(12).font('Helvetica').fillColor('#64748B').text(`FECHA DE EMISIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}`, 50, 380);
@@ -59,7 +65,8 @@ class ReportesController {
             doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
 
             // --- CONTENIDO ---
-            doc.addPage();
+            // Agregar página de contenido con márgenes estándar
+            doc.addPage({ margin: 50 });
 
             const drawHeader = () => {
                 doc.save();
@@ -126,7 +133,6 @@ class ReportesController {
             tiposAMostrar.forEach((tipo, i) => {
                 const item = herramientas.find(h => h.tipo_herramienta === tipo);
 
-                // Lógica de status real basado en fechas (SemaforoService)
                 let status = 'ROJO';
                 let statusColor = '#EF4444';
 
