@@ -218,44 +218,15 @@ const ExpedientesModule = {
                 const expediente = expedientes[0];
                 this.currentExpedienteId = expediente.id;
 
-                // VISTA RESUMIDA TIPO TARJETA
+                // Mostrar resumen
                 container.innerHTML = `
-                    <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
                         <div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <h4 style="margin: 0; font-size: 1rem; color: #1e293b;">Expediente de Seguimiento</h4>
-                                <span class="badge badge-info">${expediente.estatus}</span>
+                            <h5 style="margin: 0; color: var(--azul-institucional); font-size: 1rem;">${expediente.numero_expediente}</h5>
+                            <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #64748b;">${expediente.titulo}</p>
+                            <div style="margin-top: 5px;">
+                                <span class="badge ${expediente.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}">${expediente.estatus}</span>
                             </div>
-                            <p style="margin: 5px 0 0; font-size: 0.85rem; color: #64748b;">
-                                Folio: <strong>${expediente.numero_expediente}</strong>
-                            </p>
-                        </div>
-                        <button class="btn btn-sm btn-primary" onclick="ExpedientesModule.verDetalle(${expediente.id})">
-                            📂 Abrir Expediente
-                        </button>
-                    </div>
-                `;
-            } else {
-                // No existe, mostrar opción de configuración para activar
-                container.innerHTML = `
-                   <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h4 style="margin: 0; font-size: 1rem; color: #1e293b;">Expediente de Seguimiento</h4>
-                            <p style="margin: 5px 0 0; font-size: 0.85rem; color: #64748b;">
-                                Esta dependencia no tiene un expediente activo.
-                            </p>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="badge" style="background: #e2e8f0; color: #64748b;">Inactivo</span>
-                            <button class="btn btn-sm btn-primary" onclick="ExpedientesModule.crearExpedienteRapido(${organizacionId}, '${containerId}')">
-                                Activar Expediente
-                            </button>
-                        </div>
-                   </div>
-                `;
-            }
-        } catch (error) {
-            console.error('Error al cargar expediente de organización:', error);
             container.innerHTML = '<p class="text-error">Error al cargar información del expediente.</p>';
         }
     },
@@ -265,12 +236,12 @@ const ExpedientesModule = {
 
         try {
             // 1. Obtener detalles de la organización para las siglas
-            const orgData = await window.AppUtils.fetchAPI(`/organizaciones/${organizacionId}`);
+            const orgData = await window.AppUtils.fetchAPI(`/ organizaciones / ${ organizacionId } `);
             if (!orgData || !orgData.organizacion) throw new Error('No se pudo obtener datos de la organización');
 
             const siglas = orgData.organizacion.siglas || 'S-N';
             const anio = new Date().getFullYear();
-            const folio = `EXP-DSIJ-${siglas}-${anio}`;
+            const folio = `EXP - DSIJ - ${ siglas } -${ anio } `;
 
             // 2. Crear expediente
             const datos = {
@@ -318,14 +289,14 @@ const ExpedientesModule = {
     timelineContainer.innerHTML = '<p class="text-center">Cargando...</p>';
 
     try {
-        const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
+        const data = await window.AppUtils.fetchAPI(`/ expedientes / ${ id } `);
         if (data.error) throw new Error(data.error);
 
         const { expediente, avances } = data;
 
         // Header
         document.getElementById('detalle-exp-titulo').textContent = expediente.titulo;
-        document.getElementById('detalle-exp-subtitulo').textContent = `${expediente.numero_expediente} | ${expediente.organizacion_nombre}`;
+        document.getElementById('detalle-exp-subtitulo').textContent = `${ expediente.numero_expediente } | ${ expediente.organizacion_nombre } `;
 
         // Render Timeline
         this.renderTimeline(avances || []);
@@ -339,13 +310,13 @@ const ExpedientesModule = {
         if (footer) {
             let actionBtn = '';
             if (expediente.estatus !== 'CERRADO') {
-                actionBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cerrarExpediente()" style="margin-right: auto;">🔒 Cerrar Expediente</button>`;
+                actionBtn = `< button class="btn btn-danger" onclick = "window.ExpedientesModule.cerrarExpediente()" style = "margin-right: auto;" >🔒 Cerrar Expediente</button > `;
             } else {
-                actionBtn = `<button class="btn btn-warning" onclick="window.ExpedientesModule.reabrirExpediente()" style="margin-right: auto; background-color: #f59e0b; color: white;">↩️ Reabrir Expediente</button>`;
+                actionBtn = `< button class="btn btn-warning" onclick = "window.ExpedientesModule.reabrirExpediente()" style = "margin-right: auto; background-color: #f59e0b; color: white;" >↩️ Reabrir Expediente</button > `;
             }
 
             footer.innerHTML = `
-                    ${actionBtn}
+                    ${ actionBtn }
                     <button class="btn btn-secondary" onclick="window.ExpedientesModule.descargarPDF()">📄 Descargar Reporte PDF</button>
                     <button class="btn btn-primary" onclick="cerrarModal('modal-detalle-expediente')">Cerrar Ventana</button>
                 `;
@@ -365,7 +336,7 @@ renderTimeline(avances) {
     }
 
     container.innerHTML = avances.map(av => `
-            <div class="timeline-item">
+                    < div class="timeline-item" >
                 <div class="timeline-marker ${av.tipo.toLowerCase()}"></div>
                 <div class="timeline-content" style="position: relative;">
                     <button class="btn btn-sm btn-action" 
@@ -385,15 +356,15 @@ renderTimeline(avances) {
                         Por: <strong>${av.usuario_nombre || 'Desconocido'}</strong>
                     </small>
                 </div>
-            </div>
-        `).join('');
+            </div >
+    `).join('');
 },
 
     async eliminarAvance(avanceId) {
     if (!confirm('¿Seguro que desea eliminar este registro?')) return;
 
     try {
-        const response = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances/${avanceId}`, {
+        const response = await window.AppUtils.fetchAPI(`/ expedientes / ${ this.currentExpedienteId } /avances/${ avanceId } `, {
             method: 'DELETE'
         });
 
@@ -420,31 +391,31 @@ renderTimeline(avances) {
 
     try {
         // 1. Actualizar estatus
-        await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
+        await window.AppUtils.fetchAPI(`/ expedientes / ${ this.currentExpedienteId } `, {
             method: 'PUT',
             body: JSON.stringify({ estatus: 'CERRADO' })
         });
 
         // 2. Agregar movimiento de cierre
-        await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
-            method: 'POST',
-            body: JSON.stringify({
-                titulo: 'Expediente Cerrado',
-                descripcion: motivo || 'Cierre formal del expediente.',
-                tipo: 'OTRO',
-                fecha: new Date().toISOString().split('T')[0]
-            })
+        await window.AppUtils.fetchAPI(`/ expedientes / ${ this.currentExpedienteId }/avances`, {
+method: 'POST',
+    body: JSON.stringify({
+        titulo: 'Expediente Cerrado',
+        descripcion: motivo || 'Cierre formal del expediente.',
+        tipo: 'OTRO',
+        fecha: new Date().toISOString().split('T')[0]
+    })
         });
 
-        // 3. Recargar
-        this.verDetalle(this.currentExpedienteId);
+// 3. Recargar
+this.verDetalle(this.currentExpedienteId);
 
-        if (document.getElementById('expedientes-lista')) this.cargarExpedientes();
+if (document.getElementById('expedientes-lista')) this.cargarExpedientes();
 
     } catch (error) {
-        console.error(error);
-        alert('Error al cerrar expediente');
-    }
+    console.error(error);
+    alert('Error al cerrar expediente');
+}
 },
 
     async reabrirExpediente() {
