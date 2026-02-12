@@ -909,9 +909,11 @@
       if (window.AppUtils.AppState.currentOrganizacionId) {
         orgFieldGroup.style.display = 'none';
         select.value = window.AppUtils.AppState.currentOrganizacionId;
+        select.required = false; // EVITAR ERROR "NOT FOCUSABLE"
       } else {
         orgFieldGroup.style.display = 'block';
         select.value = '';
+        select.required = true;
       }
     }
 
@@ -1477,7 +1479,10 @@ function toggleInputsRequired(isRequired) {
   const fechaInput = document.getElementById('input-fecha-herramienta');
 
   // El link nunca será estrictamente 'required' por HTML5 si permitimos alternancia con FILE
-  // Pero la fecha SIEMPRE es requerida si 'isRequired' es true
-  if (linkInput) linkInput.required = false; // Manejado por JS en el submit
-  if (fechaInput) fechaInput.required = isRequired;
+  if (linkInput) linkInput.required = false;
+
+  // La fecha SIEMPRE es requerida si 'isRequired' es true Y el contenedor no está oculto
+  if (fechaInput) {
+    fechaInput.required = isRequired;
+  }
 }
