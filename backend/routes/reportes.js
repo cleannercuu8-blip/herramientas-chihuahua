@@ -18,6 +18,9 @@ router.get('/exportar/proximas-vencer', ReportesController.exportarProximasVence
 // Exportar informe detallado de organización a PDF
 router.get('/exportar/organizacion/:id', ReportesController.exportarOrganizacionPDF);
 
+// Exportar informe masivo por sector a PDF
+router.get('/exportar/sector/:tipo', ReportesController.exportarSectorPDF);
+
 // Obtener historial de cambios
 router.get('/historial', ReportesController.obtenerHistorial);
 

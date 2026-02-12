@@ -1106,6 +1106,9 @@
     const drilldownHeader = document.getElementById('dashboard-drilldown-header');
     const drilldownTitle = document.getElementById('dashboard-drilldown-title');
 
+    // Guardar el tipo actual para la exportación
+    window.AppState.currentSector = tipo;
+
     // Ocultar elementos globales
     if (grid) grid.classList.add('hidden');
     if (mainTitle) mainTitle.classList.add('hidden');
@@ -1171,6 +1174,18 @@
   // Función para descargar PDF con autenticación
   window.descargarPDFOrganizacion = function (id, nombre) {
     const url = `/api/reportes/exportar/organizacion/${id}`;
+    const authenticatedUrl = window.AppUtils.getAuthenticatedUrl(url);
+    window.open(authenticatedUrl, '_blank');
+  };
+
+  // Función para descargar PDF masivo por sector
+  window.descargarPDFSector = function () {
+    const tipo = window.AppState.currentSector;
+    if (!tipo) {
+      window.AppUtils.mostrarAlerta('No se ha seleccionado un sector', 'error');
+      return;
+    }
+    const url = `/api/reportes/exportar/sector/${tipo}`;
     const authenticatedUrl = window.AppUtils.getAuthenticatedUrl(url);
     window.open(authenticatedUrl, '_blank');
   };

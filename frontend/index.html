@@ -68,7 +68,12 @@
                     style="background: linear-gradient(135deg, #4A90E2 0%, #003DA5 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
                     ⬅️ Regresar al Resumen
                 </button>
-                <h2 id="dashboard-drilldown-title" class="card-title" style="margin-bottom: 0;">Resumen por Sector</h2>
+                <h2 id="dashboard-drilldown-title" class="card-title" style="margin: 0; flex-grow: 1;">Resumen por
+                    Sector</h2>
+                <button id="btn-exportar-sector-pdf" class="btn btn-secondary" onclick="window.descargarPDFSector()"
+                    style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">
+                    📥 Exportar Sector a PDF
+                </button>
             </div>
 
             <h2 id="dashboard-main-title" class="card-title mb-20 text-center">Tablero de Control - Herramientas
