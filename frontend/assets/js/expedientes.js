@@ -1,10 +1,7 @@
 const ExpedientesModule = {
     async obtenerTodos() {
         try {
-            const response = await fetch('/api/expedientes', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            return await response.json();
+            return await window.AppUtils.fetchAPI('/expedientes');
         } catch (error) {
             console.error(error);
             return { expedientes: [] };
@@ -17,11 +14,7 @@ const ExpedientesModule = {
 
         try {
             select.innerHTML = '<option value="">Cargando...</option>';
-            // Reutilizar la lógica de organizaciones si es posible, o hacer fetch directo
-            const response = await fetch('/api/organizaciones', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
+            const data = await window.AppUtils.fetchAPI('/organizaciones');
             const organizaciones = data.organizaciones || [];
 
             if (organizaciones.length > 0) {
@@ -43,15 +36,10 @@ const ExpedientesModule = {
 
     async crear(datos) {
         try {
-            const response = await fetch('/api/expedientes', {
+            return await window.AppUtils.fetchAPI('/expedientes', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
                 body: JSON.stringify(datos)
             });
-            return await response.json();
         } catch (error) {
             console.error(error);
             return { error: 'Error al crear expediente' };
@@ -113,11 +101,7 @@ const ExpedientesModule = {
         await this.cargarOrganizaciones();
 
         try {
-            const response = await fetch(`/api/expedientes/${id}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
-
+            const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
 
             if (data.error) throw new Error(data.error);
 
@@ -171,16 +155,12 @@ const ExpedientesModule = {
         if (!this.currentExpedienteId) return;
 
         try {
-            const response = await fetch(`/api/expedientes/${this.currentExpedienteId}/avances`, {
+            const response = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
                 body: JSON.stringify(data)
             });
 
-            if (response.ok) {
+            if (response && !response.error) {
                 form.reset();
                 this.verDetalle(this.currentExpedienteId); // Reload
             } else {
@@ -188,28 +168,20 @@ const ExpedientesModule = {
             }
         } catch (error) {
             console.error(error);
-            alert('Error de conexión');
+            alert('Error de conexión o permisos');
         }
     },
 
     async descargarPDF() {
-        // Since the user wants the organization report to include expediente info, we redirect to the Org PDF
-        // First we need the org ID from the current expediente
-        // Optimally we request the expediente details again or store the org ID
-
-        // For now, let's assume we want to download the ORGANIZATION report for this expediente
-        // We need to fetch the expediente first to get org_id if not stored
         try {
-            const response = await fetch(`/api/expedientes/${this.currentExpedienteId}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
+            const data = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`);
             if (data.expediente) {
-                const token = localStorage.getItem('token');
+                const token = window.AppUtils.AppState.token; // Use correct token source
                 window.open(`/api/reportes/organizacion/${data.expediente.organizacion_id}/pdf?token=${token}`, '_blank');
             }
         } catch (e) { console.error(e); }
     },
+
     // Función para cargar la lista principal desde el menú
     async cargarExpedientes() {
         const container = document.getElementById('expedientes-lista');
@@ -229,6 +201,7 @@ const ExpedientesModule = {
             container.innerHTML = '<p class="text-center p-20 text-error">Error de conexión.</p>';
         }
     },
+
     // Nueva función para renderizar dentro del detalle de organización
     async renderizarEnDetalleOrganizacion(organizacionId, containerId = 'detalle-org-expediente-content') {
         const container = document.getElementById(containerId);
@@ -238,10 +211,7 @@ const ExpedientesModule = {
         this.currentExpedienteId = null; // Reset
 
         try {
-            const response = await fetch(`/api/expedientes?organizacion_id=${organizacionId}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
+            const data = await window.AppUtils.fetchAPI(`/expedientes?organizacion_id=${organizacionId}`);
             const expedientes = data.expedientes || [];
 
             if (expedientes.length > 0) {
@@ -251,7 +221,6 @@ const ExpedientesModule = {
                 this.renderizarVistaSeguimiento(expediente, container, containerId);
             } else {
                 // No existe, mostrar opción de configuración para activar
-                // Estilo tarjeta de configuración
                 container.innerHTML = `
                    <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -298,12 +267,8 @@ const ExpedientesModule = {
     },
 
     async renderizarVistaSeguimiento(expediente, container, containerId = 'detalle-org-expediente-content') {
-        // ... (fetch logic)
         try {
-            const response = await fetch(`/api/expedientes/${expediente.id}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const data = await response.json();
+            const data = await window.AppUtils.fetchAPI(`/expedientes/${expediente.id}`);
             const avances = data.avances || [];
 
             let html = `
@@ -329,7 +294,7 @@ const ExpedientesModule = {
                         <input type="text" name="titulo" class="form-input" placeholder="Descripción del movimiento..." required style="height: 38px;">
                      </div>
                      <div style="width: 150px;">
-                        <select name="tipo" class="form-select">
+                         <select name="tipo" class="form-select">
                             <option value="AVANCE">Avance</option>
                             <option value="REUNION">Reunión</option>
                             <option value="OFICIO">Oficio</option>
@@ -376,24 +341,22 @@ const ExpedientesModule = {
         data.expediente_id = expedienteId;
 
         try {
-            const response = await fetch(`/api/expedientes/${expedienteId}/avances`, {
+            // Usar fetchAPI
+            const response = await window.AppUtils.fetchAPI(`/expedientes/${expedienteId}/avances`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
                 body: JSON.stringify(data)
             });
 
-            if (response.ok) {
+            // Si fetchAPI no lanzó error, es éxito
+            if (response && !response.error) {
                 // Recargar solo la parte del expediente
                 this.renderizarEnDetalleOrganizacion(organizacionId, containerId);
             } else {
-                alert('Error al registrar movimiento');
+                alert('Error al registrar movimiento: ' + (response ? response.error : 'Desconocido'));
             }
         } catch (error) {
             console.error(error);
-            alert('Error de conexión');
+            alert('Error de conexión o permisos');
         }
     }
 };

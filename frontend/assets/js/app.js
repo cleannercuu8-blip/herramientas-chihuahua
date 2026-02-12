@@ -497,7 +497,6 @@
               <div><strong>Semáforo:</strong> ${AppUtils.getBadgeSemaforo(org.semaforo)}</div>
             </div>
             <div style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 15px;">
-                <button onclick="descargarPDFOrganizacion(${org.id}, '${org.nombre.replace(/'/g, "\\'")}')" class="btn btn-secondary" style="background: var(--primario); color: white; border: none; cursor: pointer;">📄 Exportar Informe Detallado (PDF)</button>
             </div>
             ${org.decreto_creacion ? `
               <div style="margin-top: 15px;">
