@@ -1,5 +1,3 @@
-const Herramienta = require('../models/Herramienta');
-
 /**
  * Calcula el estatus de semáforo para una organización
  * basado en sus herramientas organizacionales
@@ -57,10 +55,19 @@ class SemaforoService {
      * 5+ herramientas → VERDE
      */
     static determinarColorPorCantidad(cantidad, totalEsperado) {
-        if (cantidad >= totalEsperado) return 'VERDE';
-        if (cantidad === totalEsperado - 1) return 'AMARILLO';
-        if (cantidad <= 1) return 'ROJO';
-        return 'NARANJA'; // 2 o 3 (o intermedios)
+        if (totalEsperado === 5) {
+            if (cantidad >= 5) return 'VERDE';
+            if (cantidad === 4) return 'AMARILLO';
+            if (cantidad === 3) return 'NARANJA_CLARO';
+            if (cantidad === 2) return 'NARANJA_FUERTE';
+            return 'ROJO';
+        } else {
+            // Caso 4 herramientas (o cualquier otro <=4)
+            if (cantidad >= 4) return 'VERDE';
+            if (cantidad === 3) return 'AMARILLO';
+            if (cantidad === 2) return 'NARANJA';
+            return 'ROJO';
+        }
     }
 
     /**
@@ -68,8 +75,20 @@ class SemaforoService {
      */
     static async calcularEstatus(organizacionId, tipoOrganizacion) {
         const resultado = await this.calcularSemaforoCincoPuntos(organizacionId);
-
         const color = this.determinarColorPorCantidad(resultado.cantidadHerramientas, resultado.totalEsperado);
+
+        // Obtener herramientas para saber cuáles específicamente tiene
+        const Herramienta = require('../models/Herramienta');
+        const herramientas = await Herramienta.obtenerPorOrganizacion(organizacionId);
+        const tipos = herramientas.map(h => h.tipo_herramienta);
+
+        // Mapeo para el dashboard (0: Organigrama, 1: Reglamento/Estatuto, 2: Man Org, 3: Man Proc)
+        const puntos = [
+            tipos.includes('ORGANIGRAMA') ? 'verde' : 'rojo',
+            (tipos.includes('REGLAMENTO_INTERIOR') || tipos.includes('ESTATUTO_ORGANICO') || tipos.includes('REGLAMENTO_ESTATUTO')) ? 'verde' : 'rojo',
+            tipos.includes('MANUAL_ORGANIZACION') ? 'verde' : 'rojo',
+            tipos.includes('MANUAL_PROCEDIMIENTOS') ? 'verde' : 'rojo'
+        ];
 
         return {
             estatus: color,
@@ -77,6 +96,7 @@ class SemaforoService {
                 cantidadHerramientas: resultado.cantidadHerramientas,
                 totalEsperado: resultado.totalEsperado,
                 tieneServicios: resultado.tieneServicios,
+                puntos: puntos, // Para las barras del dashboard
                 mensaje: `${resultado.cantidadHerramientas} de ${resultado.totalEsperado} herramientas registradas`
             }
         };

@@ -143,7 +143,7 @@
     try {
       const resultado = await window.OrganizacionesModule.obtenerTodas();
 
-      if (resultado.success) {
+      if (resultado && resultado.success) {
         const organizaciones = resultado.data;
 
         const centralizadas = organizaciones.filter(o => o.tipo === 'DEPENDENCIA');
@@ -180,37 +180,47 @@
     ];
 
     div.innerHTML = sections.map(sec => {
-      // Calcular agregados por tipo de herramienta (primeras 4 barras según imagen)
-      // Puntos: [Organigrama, RI/EO, Manual Org, Manual Proc, Manual Serv]
-      const stats = [
+      // Categorías solicitadas por el usuario (según puntos en detalles_semaforo)
+      const categories = [
         { label: 'Organigramas', icon: '📊', index: 0 },
         { label: 'Reglamentos / Estatutos', icon: '📄', index: 1 },
         { label: 'Manuales Org', icon: '📖', index: 2 },
         { label: 'Manuales Proc', icon: '⚙️', index: 3 }
-      ].map(type => {
-        const counts = { verde: 0, amarillo: 0, naranja: 0, rojo: 0 };
+      ];
+
+      const stats = categories.map(cat => {
+        const counts = { green: 0, yellow: 0, orange: 0, red: 0 };
         sec.data.forEach(org => {
-          const color = (org.detalles_semaforo?.puntos?.[type.index] || 'rojo').toLowerCase();
-          if (counts[color] !== undefined) counts[color]++;
+          const p = org.detalles_semaforo?.puntos?.[cat.index] || 'rojo';
+          if (p === 'verde') counts.green++;
+          else if (p === 'amarillo') counts.yellow++;
+          else if (p === 'naranja' || p.includes('NARANJA')) counts.orange++;
+          else counts.red++;
         });
-        return { ...type, counts };
+        return { ...cat, counts };
       });
 
       return `
-        <div class="estado-seccion">
-          <div class="estado-seccion-title">
-            <span>${sec.title}</span>
-            <span class="badge" style="background: #e2e8f0; color: #475569;">${sec.count} DEPS.</span>
+        <div class="estado-seccion" style="margin-bottom: 30px;">
+          <div class="estado-seccion-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+            <span style="font-weight: 700; color: var(--azul-institucional); font-size: 1.1rem;">${sec.title}</span>
+            <span class="badge" style="background: #e2e8f0; color: #475569;">${sec.count} REGISTROS</span>
           </div>
-          <div class="bars-grid">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
             ${stats.map(s => `
               <div class="bar-item">
-                <div class="bar-label">${s.icon} ${s.label}</div>
-                <div class="status-bar-container">
-                  ${renderBarSubsegment(s.counts.verde, sec.count, 'verde')}
-                  ${renderBarSubsegment(s.counts.amarillo, sec.count, 'amarillo')}
-                  ${renderBarSubsegment(s.counts.naranja, sec.count, 'naranja')}
-                  ${renderBarSubsegment(s.counts.rojo, sec.count, 'rojo')}
+                <div class="bar-label" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #4b5563;">${s.icon} ${s.label}</div>
+                <div class="status-bar-container" style="height: 10px; background: #f3f4f6; border-radius: 5px; overflow: hidden; display: flex;">
+                  ${renderBarSubsegment(s.counts.green, sec.count, 'verde')}
+                  ${renderBarSubsegment(s.counts.yellow, sec.count, 'amarillo')}
+                  ${renderBarSubsegment(s.counts.orange, sec.count, 'naranja')}
+                  ${renderBarSubsegment(s.counts.red, sec.count, 'rojo')}
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 5px; font-size: 0.7rem; color: #6b7280;">
+                  <span>🟢 ${s.counts.green}</span>
+                  <span>🟡 ${s.counts.yellow}</span>
+                  <span>🟠 ${s.counts.orange}</span>
+                  <span>🔴 ${s.counts.red}</span>
                 </div>
               </div>
             `).join('')}
@@ -221,12 +231,11 @@
   }
 
   function renderBarSubsegment(count, total, color) {
-    if (count === 0) return '';
+    if (count === 0 || total === 0) return '';
     const pct = (count / total) * 100;
     return `
       <div class="bar-segment segment-${color}" style="width: ${pct}%" 
-           data-tooltip="${count} en ${color.toUpperCase()}">
-        <span>${count}</span>
+           title="${count} organizaciones en ${color.toUpperCase()}">
       </div>
     `;
   }

@@ -128,11 +128,11 @@ class HerramientasController {
             const nuevaHerramienta = await Herramienta.crear({
                 organizacion_id,
                 tipo_herramienta,
-                nombre_archivo: req.file ? req.file.originalname : 'Documento en línea',
-                ruta_archivo: req.file ? req.file.path : link_publicacion_poe,
+                nombre_archivo: finalNombreArchivo || 'Documento en línea',
+                ruta_archivo: finalRutaArchivo || finalLink,
                 fecha_emision,
                 fecha_publicacion_poe: fecha_publicacion_poe || fecha_emision, // Sincronizar fechas por defecto
-                link_publicacion_poe: link_publicacion_poe || null,
+                link_publicacion_poe: finalLink !== 'NO_APLICA' ? finalLink : null,
                 version: version || '1.0',
                 usuario_registro_id: req.usuario.id
             });

@@ -148,9 +148,26 @@ function getBadgeSemaforo(estatus) {
     const badges = {
         'VERDE': '<span class="badge badge-verde">✓ Verde</span>',
         'AMARILLO': '<span class="badge badge-amarillo">⚠ Amarillo</span>',
+        'NARANJA': '<span class="badge badge-naranja">⚠ Naranja</span>',
+        'NARANJA_CLARO': '<span class="badge badge-naranja-claro">⚠ Naranja Claro</span>',
+        'NARANJA_FUERTE': '<span class="badge badge-naranja-fuerte">⚠ Naranja Fuerte</span>',
         'ROJO': '<span class="badge badge-rojo">✗ Rojo</span>'
     };
-    return badges[s] || '<span class="badge">-</span>';
+    return badges[s] || `<span class="badge">${s}</span>`;
+}
+
+// Obtener color hex para gráficos/barras
+function getHexColorSemaforo(estatus) {
+    const s = (estatus || '').toUpperCase();
+    const colors = {
+        'VERDE': '#10B981',        // Emerald 500
+        'AMARILLO': '#FBBF24',     // Amber 400
+        'NARANJA': '#F97316',      // Orange 500
+        'NARANJA_CLARO': '#FB923C', // Orange 400
+        'NARANJA_FUERTE': '#EA580C', // Orange 600
+        'ROJO': '#EF4444'          // Red 500
+    };
+    return colors[s] || '#94A3B8'; // Slate 400 for unknown
 }
 
 // Obtener nombre legible de tipo de herramienta
@@ -215,6 +232,7 @@ window.AppUtils = {
     formatearFecha,
     formatearFechaCorta,
     getBadgeSemaforo,
+    getHexColorSemaforo,
     getNombreTipoHerramienta,
     getNombreTipoOrganizacion,
     mostrarSpinner,
