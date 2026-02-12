@@ -30,17 +30,14 @@ class ReportesController {
             const doc = new PDFDocument({
                 margin: 50,
                 bufferPages: true,
-                autoFirstPage: false // Crucial para evitar páginas en blanco automáticas
+                autoFirstPage: false
             });
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `inline; filename=Informe_${org.nombre.replace(/\s+/g, '_')}.pdf`);
             doc.pipe(res);
 
             // --- PORTADA ---
-            // Agregar página de portada con margen 0 para control total de diseño
             doc.addPage({ margin: 0 });
-
-            // Dibujar fondo de color en la parte superior
             doc.save();
             doc.rect(0, 0, doc.page.width, 150).fill('#003DA5');
             doc.restore();
@@ -65,8 +62,10 @@ class ReportesController {
             doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
 
             // --- CONTENIDO ---
-            // Agregar página de contenido con márgenes estándar
-            doc.addPage({ margin: 50 });
+            // Usamos un margen inferior menor (20) para que el footer a height-30 no dispare una nueva página
+            doc.addPage({
+                margin: { top: 50, bottom: 20, left: 50, right: 50 }
+            });
 
             const drawHeader = () => {
                 doc.save();
@@ -79,7 +78,6 @@ class ReportesController {
             drawHeader();
             doc.moveDown(2);
 
-            // Sección 1: Información General
             doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('1. INFORMACIÓN GENERAL');
             doc.moveDown(1);
 
@@ -92,16 +90,13 @@ class ReportesController {
             doc.fillColor('#334155').fontSize(10).font('Helvetica-Bold');
             doc.text('TITULAR:', 70, infoY + 15);
             doc.font('Helvetica').text(org.titular || 'NO REGISTRADO', 150, infoY + 15);
-
             doc.font('Helvetica-Bold').text('SIGLAS:', 70, infoY + 35);
             doc.font('Helvetica').text(org.siglas || 'N/A', 150, infoY + 35);
-
             doc.font('Helvetica-Bold').text('NATURALEZA:', 70, infoY + 55);
             doc.font('Helvetica').text(org.tipo, 150, infoY + 55);
 
             doc.moveDown(5);
 
-            // Sección 2: Semáforo de Cumplimiento
             doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('2. ESTADO DE CUMPLIMIENTO');
             doc.moveDown(1);
 
@@ -132,10 +127,8 @@ class ReportesController {
 
             tiposAMostrar.forEach((tipo, i) => {
                 const item = herramientas.find(h => h.tipo_herramienta === tipo);
-
                 let status = 'ROJO';
                 let statusColor = '#EF4444';
-
                 if (item && item.fecha_emision) {
                     const año = new Date(item.fecha_emision).getFullYear();
                     if (año >= 2022) {
@@ -146,19 +139,15 @@ class ReportesController {
                         statusColor = '#F59E0B';
                     }
                 }
-
                 if (i % 2 === 0) {
                     doc.save();
                     doc.fillColor('#F1F5F9').rect(50, currentTableY, 500, 25).fill();
                     doc.restore();
                 }
-
                 doc.fillColor('#334155').fontSize(9).font('Helvetica');
                 doc.text(labels[tipo], 60, currentTableY + 8);
-
                 doc.fillColor(statusColor).font('Helvetica-Bold').text(status, 300, currentTableY + 8);
                 doc.fillColor('#64748B').font('Helvetica').text(item?.fecha_actualizacion ? new Date(item.fecha_actualizacion).toLocaleDateString() : 'SIN DATOS', 400, currentTableY + 8);
-
                 currentTableY += 25;
             });
 
@@ -168,14 +157,15 @@ class ReportesController {
                 const expedientes = await Expediente.obtenerTodos({ organizacion_id: id });
                 if (expedientes && expedientes.length > 0) {
                     const exp = expedientes[0];
-                    if (doc.y > 600) { doc.addPage(); drawHeader(); doc.moveDown(2); }
-
+                    if (doc.y > 600) {
+                        doc.addPage({ margin: { top: 50, bottom: 20, left: 50, right: 50 } });
+                        drawHeader();
+                        doc.moveDown(2);
+                    }
                     doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('3. EXPEDIENTE DE SEGUIMIENTO');
                     doc.moveDown(1);
-
                     doc.fillColor('#334155').fontSize(11).font('Helvetica-Bold').text(`TÍTULO: ${exp.titulo || 'SIN TÍTULO'}`);
                     doc.fontSize(10).font('Helvetica').text(`No. Expediente: ${exp.numero_expediente || 'N/A'} | Estatus: ${exp.estatus}`);
-
                     doc.moveDown(0.5);
                     const progX = doc.x;
                     const progY = doc.y;
@@ -184,7 +174,6 @@ class ReportesController {
                     doc.rect(progX, progY, (exp.porcentaje_progreso || 0) * 3, 15).fill('#003DA5');
                     doc.restore();
                     doc.fillColor('#FFFFFF').fontSize(8).text(`${exp.porcentaje_progreso || 0}%`, progX + 140, progY + 4);
-                    doc.moveDown(2);
                 }
             } catch (err) { }
 
@@ -192,9 +181,13 @@ class ReportesController {
             for (let i = 0; i < pages.count; i++) {
                 doc.switchToPage(i);
                 if (i > 0) {
-                    doc.fillColor('#94A3B8').fontSize(8).font('Helvetica').text(
+                    doc.fillColor('#94A3B8').fontSize(8).font('Helvetica');
+                    doc.text(
                         `Página ${i + 1} de ${pages.count} | Generado el ${new Date().toLocaleString()}`,
-                        50, doc.page.height - 30, { align: 'center' }
+                        50, doc.page.height - 30, {
+                        align: 'center',
+                        lineBreak: false
+                    }
                     );
                 }
             }
@@ -215,8 +208,6 @@ class ReportesController {
         try {
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Inventario de Herramientas');
-
-            // Configurar columnas
             worksheet.columns = [
                 { header: 'Organización', key: 'organizacion', width: 40 },
                 { header: 'Tipo Org.', key: 'tipo_org', width: 20 },
@@ -229,24 +220,13 @@ class ReportesController {
                 { header: 'Link POE', key: 'link_poe', width: 50 },
                 { header: 'Versión', key: 'version', width: 10 }
             ];
-
-            // Estilo de encabezado
             worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-            worksheet.getRow(1).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FF003DA5' } // Azul institucional
-            };
-
-            // Obtener datos
+            worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF003DA5' } };
             const organizaciones = await Organizacion.obtenerTodas();
-
             for (const org of organizaciones) {
                 const herramientas = await Herramienta.obtenerPorOrganizacion(org.id);
                 const semaforo = await SemaforoService.calcularEstatus(org.id, org.tipo);
-
                 if (herramientas.length === 0) {
-                    // Agregar fila aunque no tenga herramientas
                     worksheet.addRow({
                         organizacion: org.nombre,
                         tipo_org: org.tipo,
@@ -273,46 +253,22 @@ class ReportesController {
                             link_poe: h.link_publicacion_poe || '-',
                             version: h.version
                         });
-
-                        // Colorear celda de semáforo
                         const semaforoCell = row.getCell('semaforo');
                         if (semaforo.estatus === 'VERDE') {
-                            semaforoCell.fill = {
-                                type: 'pattern',
-                                pattern: 'solid',
-                                fgColor: { argb: 'FF10B981' }
-                            };
+                            semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } };
                         } else if (semaforo.estatus === 'AMARILLO') {
-                            semaforoCell.fill = {
-                                type: 'pattern',
-                                pattern: 'solid',
-                                fgColor: { argb: 'FFF59E0B' }
-                            };
+                            semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF59E0B' } };
                         } else {
-                            semaforoCell.fill = {
-                                type: 'pattern',
-                                pattern: 'solid',
-                                fgColor: { argb: 'FFEF4444' }
-                            };
+                            semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEF4444' } };
                         }
                         semaforoCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
                     });
                 }
             }
-
-            // Configurar respuesta
-            res.setHeader(
-                'Content-Type',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            );
-            res.setHeader(
-                'Content-Disposition',
-                `attachment; filename=inventario-herramientas-${Date.now()}.xlsx`
-            );
-
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename=inventario-herramientas-${Date.now()}.xlsx`);
             await workbook.xlsx.write(res);
             res.end();
-
         } catch (error) {
             console.error('Error al exportar inventario:', error);
             res.status(500).json({ error: 'Error al generar reporte' });
@@ -326,8 +282,6 @@ class ReportesController {
         try {
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Reporte de Semáforo');
-
-            // Configurar columnas
             worksheet.columns = [
                 { header: 'Organización', key: 'organizacion', width: 40 },
                 { header: 'Tipo', key: 'tipo', width: 20 },
@@ -335,22 +289,12 @@ class ReportesController {
                 { header: 'Total Herramientas', key: 'total_herramientas', width: 18 },
                 { header: 'Observaciones', key: 'observaciones', width: 60 }
             ];
-
-            // Estilo de encabezado
             worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-            worksheet.getRow(1).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FF6B4C9A' } // Morado institucional
-            };
-
-            // Obtener datos
+            worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6B4C9A' } };
             const organizaciones = await Organizacion.obtenerTodas();
-
             for (const org of organizaciones) {
                 const herramientas = await Herramienta.obtenerPorOrganizacion(org.id);
                 const semaforo = await SemaforoService.calcularEstatus(org.id, org.tipo);
-
                 const row = worksheet.addRow({
                     organizacion: org.nombre,
                     tipo: org.tipo,
@@ -358,44 +302,20 @@ class ReportesController {
                     total_herramientas: herramientas.length,
                     observaciones: semaforo.detalles.mensaje
                 });
-
-                // Colorear celda de semáforo
                 const semaforoCell = row.getCell('semaforo');
                 if (semaforo.estatus === 'VERDE') {
-                    semaforoCell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FF10B981' }
-                    };
+                    semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } };
                 } else if (semaforo.estatus === 'AMARILLO') {
-                    semaforoCell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFF59E0B' }
-                    };
+                    semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF59E0B' } };
                 } else {
-                    semaforoCell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFEF4444' }
-                    };
+                    semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEF4444' } };
                 }
                 semaforoCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
             }
-
-            // Configurar respuesta
-            res.setHeader(
-                'Content-Type',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            );
-            res.setHeader(
-                'Content-Disposition',
-                `attachment; filename=reporte-semaforo-${Date.now()}.xlsx`
-            );
-
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename=reporte-semaforo-${Date.now()}.xlsx`);
             await workbook.xlsx.write(res);
             res.end();
-
         } catch (error) {
             console.error('Error al exportar semáforo:', error);
             res.status(500).json({ error: 'Error al generar reporte' });
@@ -409,11 +329,8 @@ class ReportesController {
         try {
             const { meses } = req.query;
             const mesesVencimiento = meses ? parseInt(meses) : 12;
-
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Herramientas Próximas a Vencer');
-
-            // Configurar columnas
             worksheet.columns = [
                 { header: 'Organización', key: 'organizacion', width: 40 },
                 { header: 'Tipo Herramienta', key: 'tipo_herramienta', width: 25 },
@@ -422,29 +339,16 @@ class ReportesController {
                 { header: 'Meses Sin Actualizar', key: 'meses', width: 20 },
                 { header: 'Prioridad', key: 'prioridad', width: 12 }
             ];
-
-            // Estilo de encabezado
             worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-            worksheet.getRow(1).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFEF4444' } // Rojo
-            };
-
-            // Obtener datos
+            worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEF4444' } };
             const herramientas = await Herramienta.obtenerProximasAVencer(mesesVencimiento);
-
             herramientas.forEach(h => {
                 const fechaActualizacion = new Date(h.fecha_actualizacion);
                 const hoy = new Date();
-                const mesesSinActualizar = Math.floor(
-                    (hoy - fechaActualizacion) / (1000 * 60 * 60 * 24 * 30.44)
-                );
-
+                const mesesSinActualizar = Math.floor((hoy - fechaActualizacion) / (1000 * 60 * 60 * 24 * 30.44));
                 let prioridad = 'MEDIA';
                 if (mesesSinActualizar > 24) prioridad = 'ALTA';
                 if (mesesSinActualizar > 36) prioridad = 'CRÍTICA';
-
                 const row = worksheet.addRow({
                     organizacion: h.organizacion_nombre,
                     tipo_herramienta: h.tipo_herramienta,
@@ -453,39 +357,19 @@ class ReportesController {
                     meses: mesesSinActualizar,
                     prioridad
                 });
-
-                // Colorear prioridad
                 const prioridadCell = row.getCell('prioridad');
                 if (prioridad === 'CRÍTICA') {
-                    prioridadCell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFEF4444' }
-                    };
+                    prioridadCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEF4444' } };
                     prioridadCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
                 } else if (prioridad === 'ALTA') {
-                    prioridadCell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFF59E0B' }
-                    };
+                    prioridadCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF59E0B' } };
                     prioridadCell.font = { bold: true };
                 }
             });
-
-            // Configurar respuesta
-            res.setHeader(
-                'Content-Type',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            );
-            res.setHeader(
-                'Content-Disposition',
-                `attachment; filename=herramientas-proximas-vencer-${Date.now()}.xlsx`
-            );
-
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename=herramientas-proximas-vencer-${Date.now()}.xlsx`);
             await workbook.xlsx.write(res);
             res.end();
-
         } catch (error) {
             console.error('Error al exportar próximas a vencer:', error);
             res.status(500).json({ error: 'Error al generar reporte' });
@@ -499,11 +383,8 @@ class ReportesController {
         try {
             const { limite } = req.query;
             const limiteRegistros = limite ? parseInt(limite) : 100;
-
             const historial = await Historial.obtenerTodos(limiteRegistros);
-
             res.json({ historial });
-
         } catch (error) {
             console.error('Error al obtener historial:', error);
             res.status(500).json({ error: 'Error en el servidor' });
