@@ -1107,7 +1107,7 @@
     const drilldownTitle = document.getElementById('dashboard-drilldown-title');
 
     // Guardar el tipo actual para la exportación
-    window.AppState.currentSector = tipo;
+    window.AppUtils.AppState.currentSector = tipo;
 
     // Ocultar elementos globales
     if (grid) grid.classList.add('hidden');
@@ -1180,7 +1180,7 @@
 
   // Función para descargar PDF masivo por sector
   window.descargarPDFSector = function () {
-    const tipo = window.AppState.currentSector;
+    const tipo = window.AppUtils.AppState.currentSector;
     if (!tipo) {
       window.AppUtils.mostrarAlerta('No se ha seleccionado un sector', 'error');
       return;
