@@ -196,7 +196,7 @@
                     window.open(url, '_blank');
                 } else {
                     // Fallback
-                    const token = localStorage.getItem('token');
+                    const token = window.AppUtils.AppState.token || localStorage.getItem('token');
                     window.open(`${window.AppUtils.API_URL}/herramientas/${item.id}/descargar?token=${token}`, '_blank');
                 }
 
