@@ -62,14 +62,17 @@ class OrganizacionesController {
             // Obtener herramientas de la organización
             const herramientas = await Herramienta.obtenerPorOrganizacion(id);
 
+            // Recalcular semáforo para asegurar consistencia con las herramientas actuales
+            const semaforoActualizado = await SemaforoService.actualizarCacheSemaforo(id);
+
             res.json({
                 organizacion: {
                     ...organizacion,
                     herramientas,
-                    semaforo: organizacion.semaforo || 'ROJO',
-                    detalles_semaforo: typeof organizacion.detalles_semaforo === 'string'
+                    semaforo: semaforoActualizado ? semaforoActualizado.estatus : (organizacion.semaforo || 'ROJO'),
+                    detalles_semaforo: semaforoActualizado ? semaforoActualizado.detalles : (typeof organizacion.detalles_semaforo === 'string'
                         ? JSON.parse(organizacion.detalles_semaforo)
-                        : organizacion.detalles_semaforo
+                        : organizacion.detalles_semaforo)
                 }
             });
 

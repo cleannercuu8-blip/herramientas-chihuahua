@@ -56,12 +56,11 @@ class SemaforoService {
      * 4 herramientas → AMARILLO
      * 5+ herramientas → VERDE
      */
-    static determinarColorPorCantidad(cantidad) {
-        if (cantidad >= 5) return 'VERDE';
-        if (cantidad === 4) return 'AMARILLO';
-        if (cantidad === 3) return 'NARANJA';
-        if (cantidad === 2) return 'NARANJA'; // Se puede diferenciar en frontend
-        return 'ROJO';
+    static determinarColorPorCantidad(cantidad, totalEsperado) {
+        if (cantidad >= totalEsperado) return 'VERDE';
+        if (cantidad === totalEsperado - 1) return 'AMARILLO';
+        if (cantidad <= 1) return 'ROJO';
+        return 'NARANJA'; // 2 o 3 (o intermedios)
     }
 
     /**
@@ -70,7 +69,7 @@ class SemaforoService {
     static async calcularEstatus(organizacionId, tipoOrganizacion) {
         const resultado = await this.calcularSemaforoCincoPuntos(organizacionId);
 
-        const color = this.determinarColorPorCantidad(resultado.cantidadHerramientas);
+        const color = this.determinarColorPorCantidad(resultado.cantidadHerramientas, resultado.totalEsperado);
 
         return {
             estatus: color,

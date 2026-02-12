@@ -461,6 +461,7 @@
   // Ver herramientas de una dependencia específica (Lado derecho)
   window.verHerramientasPorDependencia = async function (id) {
     idDependenciaSeleccionada = id;
+    window.AppUtils.AppState.currentOrganizacionId = id;
 
     // Actualizar clase active en la lista
     document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
@@ -1003,6 +1004,7 @@
 
   // Ver detalle de Dependencia/Entidad
   window.verDetalleOrganizacion = async function (id) {
+    window.AppUtils.AppState.currentOrganizacionId = id;
     const resultado = await window.OrganizacionesModule.obtenerPorId(id);
     if (resultado.success) {
       const org = resultado.data;
@@ -1181,7 +1183,8 @@
     const grid = document.getElementById('trapecios-grid');
     const mainTitle = document.getElementById('dashboard-main-title');
     const estadoGeneral = document.getElementById('estado-general-card');
-    const proximasVencer = document.getElementById('proximas-vencer-card');
+    const resumenExpedientes = document.getElementById('resumen-expedientes-card');
+    const kpisCard = document.getElementById('kpis-card');
     const drilldownHeader = document.getElementById('dashboard-drilldown-header');
     const drilldownTitle = document.getElementById('dashboard-drilldown-title');
 
@@ -1192,7 +1195,8 @@
     if (grid) grid.classList.add('hidden');
     if (mainTitle) mainTitle.classList.add('hidden');
     if (estadoGeneral) estadoGeneral.classList.add('hidden');
-    if (proximasVencer) proximasVencer.classList.add('hidden');
+    if (resumenExpedientes) resumenExpedientes.classList.add('hidden');
+    if (kpisCard) kpisCard.classList.add('hidden');
 
     // Mostrar header de drilldown
     if (drilldownHeader) drilldownHeader.classList.remove('hidden');
