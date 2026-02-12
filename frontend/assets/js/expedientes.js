@@ -156,13 +156,20 @@ const ExpedientesModule = {
         if (!confirm('¿Desea activar el expediente de seguimiento para esta dependencia?')) return;
 
         try {
+            // Obtener datos de la organización para las siglas
+            const orgData = await window.AppUtils.fetchAPI(`/organizaciones/${organizacionId}`);
+            if (!orgData || !orgData.organizacion) {
+                alert('Error al obtener datos de la organización');
+                return;
+            }
+
+            const siglas = orgData.organizacion.siglas || 'SN';
             const anio = new Date().getFullYear();
-            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
 
             const datos = {
                 organizacion_id: organizacionId,
                 titulo: 'Expediente de Seguimiento General',
-                numero_expediente: `EXP-AUTO-${anio}-${random}`,
+                numero_expediente: `DSIJ-${siglas}-${anio}`,
                 prioridad: 'MEDIA',
                 estatus: 'ABIERTO',
                 descripcion: 'Expediente generado automáticamente para seguimiento.'
@@ -206,6 +213,7 @@ const ExpedientesModule = {
             document.getElementById('detalle-exp-subtitulo').textContent = `${expediente.numero_expediente} | ${expediente.organizacion_nombre}`;
 
             this.renderTimeline(avances || []);
+            this.renderInfoTab(expediente);
 
             const dateInput = document.querySelector('#form-nuevo-avance input[name="fecha"]');
             if (dateInput) dateInput.valueAsDate = new Date();
@@ -241,7 +249,7 @@ const ExpedientesModule = {
         container.innerHTML = avances.map(av => `
             <div class="timeline-item">
                 <div class="timeline-marker ${av.tipo.toLowerCase()}"></div>
-                <div class="timeline-content" style="position: relative;">
+                <div class="timeline-content" style="position: relative; padding-right: 50px;">
                     <button class="btn btn-sm btn-action" 
                             style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.2rem; cursor: pointer;" 
                             onclick="ExpedientesModule.eliminarAvance(${av.id})" 
@@ -261,6 +269,54 @@ const ExpedientesModule = {
                 </div>
             </div>
         `).join('');
+    },
+
+    renderInfoTab(expediente) {
+        const container = document.getElementById('expediente-info-content');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="card bg-light">
+                <h4 style="color: var(--azul-institucional); margin-bottom: 15px;">📋 Información del Expediente</h4>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                    <div>
+                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Número de Expediente</label>
+                        <p style="margin: 0; font-size: 1rem;">${expediente.numero_expediente}</p>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Estado</label>
+                        <p style="margin: 0;"><span class="badge ${expediente.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}">${expediente.estatus}</span></p>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Dependencia/Entidad</label>
+                        <p style="margin: 0; font-size: 1rem;">${expediente.organizacion_nombre}</p>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Prioridad</label>
+                        <p style="margin: 0;"><span class="badge ${expediente.prioridad === 'ALTA' ? 'badge-rojo' : expediente.prioridad === 'MEDIA' ? 'badge-amarillo' : 'badge-verde'}">${expediente.prioridad}</span></p>
+                    </div>
+                    
+                    <div style="grid-column: 1 / -1;">
+                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Descripción</label>
+                        <p style="margin: 0; font-size: 0.95rem; line-height: 1.5;">${expediente.descripcion || 'Sin descripción'}</p>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Fecha de Creación</label>
+                        <p style="margin: 0;">${new Date(expediente.fecha_creacion).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Última Actualización</label>
+                        <p style="margin: 0;">${new Date(expediente.ultima_actualizacion).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    </div>
+                </div>
+            </div>
+        `;
     },
 
     async handleAgregarAvance(event) {
