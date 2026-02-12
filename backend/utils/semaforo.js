@@ -40,7 +40,7 @@ class SemaforoService {
 
             // 5. Manual de Servicios (Condicional)
             const mServ = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_SERVICIOS').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
-            const p5 = mServ ? this.evaluarFecha(mServ) : null;
+            const p5 = (mServ && mServ.nombre_archivo !== 'NO_APLICA') ? this.evaluarFecha(mServ) : null;
 
             return {
                 puntos: [p1, p2, p3, p4, p5].filter(p => p !== null),

@@ -62,7 +62,6 @@ class ReportesController {
             doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
 
             // --- CONTENIDO ---
-            // Usamos un margen inferior menor (20) para que el footer a height-30 no dispare una nueva página
             doc.addPage({
                 margin: { top: 50, bottom: 20, left: 50, right: 50 }
             });
@@ -78,6 +77,7 @@ class ReportesController {
             drawHeader();
             doc.moveDown(2);
 
+            // Sección 1: Información General
             doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('1. INFORMACIÓN GENERAL');
             doc.moveDown(1);
 
@@ -93,19 +93,20 @@ class ReportesController {
             doc.font('Helvetica-Bold').text('SIGLAS:', 70, infoY + 35);
             doc.font('Helvetica').text(org.siglas || 'N/A', 150, infoY + 35);
             doc.font('Helvetica-Bold').text('NATURALEZA:', 70, infoY + 55);
-            doc.font('Helvetica').text(org.tipo, 150, infoY + 55);
+            doc.font('Helvetica').text(org.tipo.replace(/_/g, ' '), 150, infoY + 55);
 
             doc.moveDown(5);
 
+            // Sección 2: Semáforo de Cumplimiento
             doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('2. ESTADO DE CUMPLIMIENTO');
             doc.moveDown(1);
 
             const labels = {
                 'ORGANIGRAMA': 'Organigrama',
-                'REGLAMENTO_ESTATUTO': 'Reglamento Interior / Estatuto Orgánico',
-                'MANUAL_ORGANIZACION': 'Manual de Organización',
-                'MANUAL_PROCEDIMIENTOS': 'Manual de Procedimientos',
-                'MANUAL_SERVICIOS': 'Manual de Servicios'
+                'REGLAMENTO_ESTATUTO': 'Reglamento / Estatuto',
+                'MANUAL_ORGANIZACION': 'Manual de Org.',
+                'MANUAL_PROCEDIMIENTOS': 'Manual de Proc.',
+                'MANUAL_SERVICIOS': 'Manual de Serv.'
             };
 
             const tableTop = doc.y;
@@ -113,41 +114,57 @@ class ReportesController {
             doc.fillColor('#003DA5').rect(50, tableTop, 500, 20).fill();
             doc.restore();
 
-            doc.fillColor('#FFFFFF').fontSize(9).font('Helvetica-Bold');
+            doc.fillColor('#FFFFFF').fontSize(8).font('Helvetica-Bold');
             doc.text('HERRAMIENTA', 60, tableTop + 6);
-            doc.text('ESTATUS', 300, tableTop + 6);
-            doc.text('ÚLTIMA ACTUALIZACIÓN', 400, tableTop + 6);
+            doc.text('ESTATUS', 190, tableTop + 6);
+            doc.text('EMISIÓN', 270, tableTop + 6);
+            doc.text('PUBL. POE', 360, tableTop + 6);
+            doc.text('ACTUALIZACIÓN', 450, tableTop + 6);
 
             let currentTableY = tableTop + 20;
 
-            const tiposBase = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS'];
-            const manualServ = herramientas.find(h => h.tipo_herramienta === 'MANUAL_SERVICIOS');
-            const tiposAMostrar = [...tiposBase];
-            if (manualServ) tiposAMostrar.push('MANUAL_SERVICIOS');
+            // Todos los tipos a mostrar
+            const tiposBase = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'];
 
-            tiposAMostrar.forEach((tipo, i) => {
+            tiposBase.forEach((tipo, i) => {
                 const item = herramientas.find(h => h.tipo_herramienta === tipo);
-                let status = 'ROJO';
+
+                let status = item ? 'CARGADO' : 'PENDIENTE';
+                let statusText = 'ROJO';
                 let statusColor = '#EF4444';
-                if (item && item.fecha_emision) {
-                    const año = new Date(item.fecha_emision).getFullYear();
-                    if (año >= 2022) {
-                        status = 'VERDE';
-                        statusColor = '#10B981';
-                    } else if (año >= 2018) {
-                        status = 'AMARILLO';
-                        statusColor = '#F59E0B';
+
+                if (item) {
+                    if (item.nombre_archivo === 'NO_APLICA') {
+                        statusText = 'NO APLICA';
+                        statusColor = '#64748B'; // Gris
+                    } else {
+                        const año = new Date(item.fecha_emision).getFullYear();
+                        if (año >= 2022) {
+                            statusText = 'VERDE';
+                            statusColor = '#10B981';
+                        } else if (año >= 2018) {
+                            statusText = 'AMARILLO';
+                            statusColor = '#F59E0B';
+                        }
                     }
                 }
+
                 if (i % 2 === 0) {
                     doc.save();
                     doc.fillColor('#F1F5F9').rect(50, currentTableY, 500, 25).fill();
                     doc.restore();
                 }
-                doc.fillColor('#334155').fontSize(9).font('Helvetica');
+
+                doc.fillColor('#334155').fontSize(8).font('Helvetica');
                 doc.text(labels[tipo], 60, currentTableY + 8);
-                doc.fillColor(statusColor).font('Helvetica-Bold').text(status, 300, currentTableY + 8);
-                doc.fillColor('#64748B').font('Helvetica').text(item?.fecha_actualizacion ? new Date(item.fecha_actualizacion).toLocaleDateString() : 'SIN DATOS', 400, currentTableY + 8);
+
+                doc.fillColor(statusColor).font('Helvetica-Bold').text(statusText, 190, currentTableY + 8);
+
+                doc.fillColor('#64748B').font('Helvetica');
+                doc.text(item?.fecha_emision ? new Date(item.fecha_emision).toLocaleDateString() : 'N/A', 270, currentTableY + 8);
+                doc.text(item?.fecha_publicacion_poe ? new Date(item.fecha_publicacion_poe).toLocaleDateString() : 'N/A', 360, currentTableY + 8);
+                doc.text(item?.fecha_actualizacion ? new Date(item.fecha_actualizacion).toLocaleDateString() : 'N/A', 450, currentTableY + 8);
+
                 currentTableY += 25;
             });
 
