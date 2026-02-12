@@ -297,7 +297,16 @@ const ExpedientesModule = {
                     
                     <div>
                         <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Prioridad</label>
-                        <p style="margin: 0;"><span class="badge ${expediente.prioridad === 'ALTA' ? 'badge-rojo' : expediente.prioridad === 'MEDIA' ? 'badge-amarillo' : 'badge-verde'}">${expediente.prioridad}</span></p>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <select id="expediente-prioridad-select" class="form-select" style="max-width: 150px;">
+                                <option value="BAJA" ${expediente.prioridad === 'BAJA' ? 'selected' : ''}>Baja</option>
+                                <option value="MEDIA" ${expediente.prioridad === 'MEDIA' ? 'selected' : ''}>Media</option>
+                                <option value="ALTA" ${expediente.prioridad === 'ALTA' ? 'selected' : ''}>Alta</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary" onclick="window.ExpedientesModule.actualizarPrioridad()" style="padding: 5px 15px;">
+                                💾 Guardar
+                            </button>
+                        </div>
                     </div>
                     
                     <div style="grid-column: 1 / -1;">
@@ -423,9 +432,109 @@ const ExpedientesModule = {
         }
     },
 
+    async actualizarPrioridad() {
+        if (!this.currentExpedienteId) return;
+
+        const select = document.getElementById('expediente-prioridad-select');
+        if (!select) return;
+
+        const nuevaPrioridad = select.value;
+
+        try {
+            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ prioridad: nuevaPrioridad })
+            });
+
+            window.AppUtils.mostrarAlerta('Prioridad actualizada correctamente', 'success');
+
+            // Recargar detalles para reflejar el cambio
+            this.verDetalle(this.currentExpedienteId);
+        } catch (error) {
+            console.error(error);
+            alert('Error al actualizar prioridad');
+        }
+    },
+
     async descargarPDF() {
         if (!this.currentExpedienteId) return;
         window.open(`${window.AppUtils.API_URL}/expedientes/${this.currentExpedienteId}/pdf`);
+    },
+
+    async mostrarReportePrioridades() {
+        try {
+            const data = await window.AppUtils.fetchAPI('/expedientes');
+            const expedientes = data.expedientes || [];
+
+            // Agrupar por prioridad
+            const porPrioridad = {
+                ALTA: expedientes.filter(e => e.prioridad === 'ALTA'),
+                MEDIA: expedientes.filter(e => e.prioridad === 'MEDIA'),
+                BAJA: expedientes.filter(e => e.prioridad === 'BAJA')
+            };
+
+            const container = document.getElementById('reporte-prioridades-content');
+
+            container.innerHTML = `
+                <div style="display: grid; gap: 20px;">
+                    <!-- Alta Prioridad -->
+                    <div class="card" style="border-left: 4px solid #EF4444;">
+                        <h4 style="color: #EF4444; margin-bottom: 15px;">🔴 Alta Prioridad (${porPrioridad.ALTA.length})</h4>
+                        ${porPrioridad.ALTA.length > 0 ? `
+                            <div style="display: grid; gap: 10px;">
+                                ${porPrioridad.ALTA.map(exp => `
+                                    <div style="padding: 10px; background: #FEE2E2; border-radius: 6px; cursor: pointer;" 
+                                         onclick="window.ExpedientesModule.verDetalle(${exp.id})">
+                                        <div style="font-weight: 600;">${exp.numero_expediente}</div>
+                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre}</div>
+                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.titulo}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p class="text-muted">No hay expedientes con alta prioridad</p>'}
+                    </div>
+
+                    <!-- Media Prioridad -->
+                    <div class="card" style="border-left: 4px solid #F59E0B;">
+                        <h4 style="color: #F59E0B; margin-bottom: 15px;">🟡 Media Prioridad (${porPrioridad.MEDIA.length})</h4>
+                        ${porPrioridad.MEDIA.length > 0 ? `
+                            <div style="display: grid; gap: 10px;">
+                                ${porPrioridad.MEDIA.map(exp => `
+                                    <div style="padding: 10px; background: #FEF3C7; border-radius: 6px; cursor: pointer;" 
+                                         onclick="window.ExpedientesModule.verDetalle(${exp.id})">
+                                        <div style="font-weight: 600;">${exp.numero_expediente}</div>
+                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre}</div>
+                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.titulo}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p class="text-muted">No hay expedientes con media prioridad</p>'}
+                    </div>
+
+                    <!-- Baja Prioridad -->
+                    <div class="card" style="border-left: 4px solid #10B981;">
+                        <h4 style="color: #10B981; margin-bottom: 15px;">🟢 Baja Prioridad (${porPrioridad.BAJA.length})</h4>
+                        ${porPrioridad.BAJA.length > 0 ? `
+                            <div style="display: grid; gap: 10px;">
+                                ${porPrioridad.BAJA.map(exp => `
+                                    <div style="padding: 10px; background: #D1FAE5; border-radius: 6px; cursor: pointer;" 
+                                         onclick="window.ExpedientesModule.verDetalle(${exp.id})">
+                                        <div style="font-weight: 600;">${exp.numero_expediente}</div>
+                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre}</div>
+                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.titulo}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p class="text-muted">No hay expedientes con baja prioridad</p>'}
+                    </div>
+                </div>
+            `;
+
+            abrirModal('modal-reporte-prioridades');
+        } catch (error) {
+            console.error(error);
+            alert('Error al cargar reporte de prioridades');
+        }
     }
 };
 

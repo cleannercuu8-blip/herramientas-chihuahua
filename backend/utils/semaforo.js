@@ -12,7 +12,7 @@ const Herramienta = require('../models/Herramienta');
 class SemaforoService {
 
     /**
-     * Calcula puntos y colores para el nuevo tablero de control (5 puntos)
+     * Calcula semáforo basado en el conteo de herramientas registradas
      * @param {number} organizacionId 
      * @returns {Promise<Object>}
      */
@@ -24,35 +24,23 @@ class SemaforoService {
             const orgData = await Organizacion.obtenerPorId(organizacionId);
             const herramientas = await Herramienta.obtenerPorOrganizacion(organizacionId);
 
-            // 1. Organigrama
-            const org = herramientas.find(h => h.tipo_herramienta === 'ORGANIGRAMA');
-            const p1 = this.evaluarFecha(org);
+            // Contar herramientas únicas por tipo
+            const tiposUnicos = new Set();
+            herramientas.forEach(h => {
+                if (h.tipo_herramienta) {
+                    tiposUnicos.add(h.tipo_herramienta);
+                }
+            });
 
-            // 2. Reglamento / Estatuto
-            const reg = herramientas.find(h => h.tipo_herramienta === 'REGLAMENTO_ESTATUTO' || h.tipo_herramienta === 'REGLAMENTO_INTERIOR' || h.tipo_herramienta === 'ESTATUTO_ORGANICO');
-            const p2 = this.evaluarReglamento(reg, org);
+            const cantidadHerramientas = tiposUnicos.size;
 
-            // 3. Manual de Organización
-            const mOrg = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_ORGANIZACION').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
-            const p3 = this.evaluarFecha(mOrg);
-
-            // 4. Manual de Procedimientos
-            const mProc = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_PROCEDIMIENTOS').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
-            const p4 = this.evaluarFecha(mProc);
-
-            // 5. Manual de Servicios (Ahora basado en el flag de la organización)
-            let p5 = null;
-            let tieneServicios = false;
-
-            if (orgData && orgData.requiere_manual_servicios) {
-                const mServ = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_SERVICIOS').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
-                p5 = (mServ && mServ.nombre_archivo !== 'NO_APLICA') ? this.evaluarFecha(mServ) : 'ROJO';
-                tieneServicios = true;
-            }
+            // Determinar total esperado
+            const totalEsperado = (orgData && orgData.requiere_manual_servicios) ? 5 : 4;
 
             return {
-                puntos: [p1, p2, p3, p4, p5].filter(p => p !== null),
-                tieneServicios: tieneServicios
+                cantidadHerramientas,
+                totalEsperado,
+                tieneServicios: orgData && orgData.requiere_manual_servicios
             };
         } catch (error) {
             console.error('Error en calcularSemaforoCincoPuntos:', error);
@@ -61,41 +49,18 @@ class SemaforoService {
     }
 
     /**
-     * Regla General de Fechas:
-     * Verde: >= 2022
-     * Amarillo: 2018 - 2021
-     * Rojo: < 2018 o no existe
+     * Regla de colores basada en cantidad de herramientas:
+     * 1 herramienta → ROJO
+     * 2 herramientas → NARANJA (oscuro)
+     * 3 herramientas → NARANJA (claro)
+     * 4 herramientas → AMARILLO
+     * 5+ herramientas → VERDE
      */
-    static evaluarFecha(herramienta) {
-        if (!herramienta || !herramienta.fecha_emision) return 'ROJO';
-        const año = new Date(herramienta.fecha_emision).getFullYear();
-        if (año >= 2022) return 'VERDE';
-        if (año >= 2018) return 'AMARILLO';
-        return 'ROJO';
-    }
-
-    /**
-     * Regla Especial Reglamento:
-     * Verde: >= 2022
-     * Amarillo: Publicado AND (Fecha Reglamento > Fecha Organigrama)
-     * Naranja: Published, 2018-2021 (Si no cumple amarillo)
-     * Rojo: < 2018 o no existe
-     */
-    static evaluarReglamento(reg, organigrama) {
-        if (!reg || !reg.fecha_emision) return 'ROJO';
-        const añoReg = new Date(reg.fecha_emision).getFullYear();
-
-        if (añoReg >= 2022) return 'VERDE';
-
-        // Lógica de "más actualizado que su organigrama"
-        if (organigrama && organigrama.fecha_emision) {
-            const fReg = new Date(reg.fecha_emision);
-            const fOrg = new Date(organigrama.fecha_emision);
-            if (fReg > fOrg) return 'AMARILLO';
-        }
-
-        if (añoReg >= 2018) return 'NARANJA';
-
+    static determinarColorPorCantidad(cantidad) {
+        if (cantidad >= 5) return 'VERDE';
+        if (cantidad === 4) return 'AMARILLO';
+        if (cantidad === 3) return 'NARANJA';
+        if (cantidad === 2) return 'NARANJA'; // Se puede diferenciar en frontend
         return 'ROJO';
     }
 
@@ -105,19 +70,15 @@ class SemaforoService {
     static async calcularEstatus(organizacionId, tipoOrganizacion) {
         const resultado = await this.calcularSemaforoCincoPuntos(organizacionId);
 
-        // Determinar color global (el peor color manda para el estatus de la lista)
-        const colores = resultado.puntos;
-        let global = 'VERDE';
-        if (colores.includes('ROJO')) global = 'ROJO';
-        else if (colores.includes('NARANJA')) global = 'ROJO'; // Naranja se considera incumplimiento en el global
-        else if (colores.includes('AMARILLO')) global = 'AMARILLO';
+        const color = this.determinarColorPorCantidad(resultado.cantidadHerramientas);
 
         return {
-            estatus: global,
+            estatus: color,
             detalles: {
-                puntos: resultado.puntos,
+                cantidadHerramientas: resultado.cantidadHerramientas,
+                totalEsperado: resultado.totalEsperado,
                 tieneServicios: resultado.tieneServicios,
-                mensaje: `Evaluación de ${resultado.puntos.length} herramientas críticas`
+                mensaje: `${resultado.cantidadHerramientas} de ${resultado.totalEsperado} herramientas registradas`
             }
         };
     }
