@@ -356,7 +356,7 @@ const ExpedientesModule = {
             }
         } catch (error) {
             console.error(error);
-            alert('Error de conexión o permisos');
+            alert('Error: ' + (error.message || 'Error de conexión o permisos'));
         }
     }
 };

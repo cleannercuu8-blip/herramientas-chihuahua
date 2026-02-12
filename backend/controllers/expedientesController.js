@@ -71,7 +71,7 @@ class ExpedientesController {
                 titulo,
                 descripcion,
                 tipo,
-                fecha
+                fecha: fecha || null
             });
 
             // Actualizar fecha de última actualización del expediente
