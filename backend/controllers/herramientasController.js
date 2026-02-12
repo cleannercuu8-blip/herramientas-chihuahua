@@ -79,7 +79,9 @@ class HerramientasController {
                 fecha_emision,
                 fecha_publicacion_poe,
                 link_publicacion_poe,
-                version
+                version,
+                estatus_poe,
+                comentarios
             } = req.body;
 
             // Validaciones
@@ -133,6 +135,8 @@ class HerramientasController {
                 fecha_emision,
                 fecha_publicacion_poe: fecha_publicacion_poe || fecha_emision, // Sincronizar fechas por defecto
                 link_publicacion_poe: finalLink !== 'NO_APLICA' ? finalLink : null,
+                estatus_poe: estatus_poe || null,
+                comentarios: comentarios || null,
                 version: version || '1.0',
                 usuario_registro_id: req.usuario.id
             });

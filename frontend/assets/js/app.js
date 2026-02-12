@@ -947,7 +947,23 @@
     // Form nueva herramienta
     document.getElementById('form-nueva-herramienta').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const formData = new FormData(e.target);
+      const form = e.target;
+      const formData = new FormData(form);
+
+      // Validación manual: requieren al menos link o archivo, excepto si es MANUAL_SERVICIOS y marcaron NO
+      const tipo = formData.get('tipo_herramienta');
+      const link = formData.get('link_publicacion_poe');
+      const archivo = document.getElementById('input-archivo-herramienta').files[0];
+      const reqManual = form.querySelector('input[name="req_manual"]:checked')?.value;
+
+      if (tipo === 'MANUAL_SERVICIOS' && reqManual === 'NO') {
+        // Permitido sin archivos
+      } else {
+        if (!link && !archivo) {
+          window.AppUtils.mostrarAlerta('Debe proporcionar un link o un archivo', 'error');
+          return;
+        }
+      }
 
       // Si estamos en contexto de organización, usar ese ID
       if (window.AppUtils.AppState.currentOrganizacionId) {
@@ -1433,6 +1449,8 @@ function toggleInputsRequired(isRequired) {
   const linkInput = document.getElementById('input-link-herramienta');
   const fechaInput = document.getElementById('input-fecha-herramienta');
 
-  if (linkInput) linkInput.required = isRequired;
+  // El link nunca será estrictamente 'required' por HTML5 si permitimos alternancia con FILE
+  // Pero la fecha SIEMPRE es requerida si 'isRequired' es true
+  if (linkInput) linkInput.required = false; // Manejado por JS en el submit
   if (fechaInput) fechaInput.required = isRequired;
 }

@@ -47,11 +47,11 @@ class Herramienta {
       herramienta.nombre_archivo,
       herramienta.ruta_archivo,
       herramienta.fecha_emision,
-      herramienta.fecha_publicacion_poe,
-      herramienta.link_publicacion_poe,
-      herramienta.estatus_poe,
-      herramienta.comentarios,
-      herramienta.version,
+      herramienta.fecha_publicacion_poe || null,
+      herramienta.link_publicacion_poe || null,
+      herramienta.estatus_poe || null,
+      herramienta.comentarios || null,
+      herramienta.version || '1.0',
       herramienta.usuario_registro_id
     ];
     const { rows } = await db.query(sql, values);
