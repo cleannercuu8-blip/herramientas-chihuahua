@@ -33,31 +33,38 @@ class ReportesController {
             doc.pipe(res);
 
             // --- PORTADA ---
-            doc.rect(0, 0, doc.page.width, doc.page.height).fill('#FFFFFF');
+            // Dibujar fondo de color en la parte superior
+            doc.save();
             doc.rect(0, 0, doc.page.width, 150).fill('#003DA5');
+            doc.restore();
+
             doc.fillColor('#FFFFFF').fontSize(22).font('Helvetica-Bold').text('SISTEMA DE HERRAMIENTAS', 50, 50);
             doc.text('ORGANIZACIONALES', 50, 80);
             doc.fontSize(10).font('Helvetica').text('GOBIERNO DEL ESTADO DE CHIHUAHUA', 50, 115);
 
-            doc.fillColor('#334155').fontSize(14).font('Helvetica-Bold').text('INFORME TÉCNICO DE CUMPLIMIENTO', 50, 280);
-            doc.rect(50, 305, 50, 3).fill('#003DA5');
+            doc.fillColor('#334155').fontSize(14).font('Helvetica-Bold').text('INFORME TÉCNICO DE CUMPLIMIENTO', 50, 240);
+            doc.save();
+            doc.rect(50, 265, 50, 3).fill('#003DA5');
+            doc.restore();
 
-            doc.moveDown(4);
-            doc.fontSize(26).font('Helvetica-Bold').fillColor('#003DA5').text(org.nombre.toUpperCase(), { width: 500 });
+            doc.moveDown(3);
+            doc.fontSize(24).font('Helvetica-Bold').fillColor('#003DA5').text(org.nombre.toUpperCase(), 50, 300, { width: 500 });
 
-            doc.moveDown(1.5);
-            doc.fontSize(12).font('Helvetica').fillColor('#64748B').text(`FECHA DE EMISIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}`);
-            doc.text(`TIPO: ${org.tipo.replace('_', ' ')}`);
+            doc.fontSize(12).font('Helvetica').fillColor('#64748B').text(`FECHA DE EMISIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}`, 50, 380);
+            doc.text(`TIPO: ${org.tipo.replace('_', ' ')}`, 50, 400);
 
+            doc.save();
             doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill('#6B4C9A');
+            doc.restore();
             doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
 
             // --- CONTENIDO ---
             doc.addPage();
 
-            // Función para dibujar encabezado en cada página
             const drawHeader = () => {
+                doc.save();
                 doc.rect(0, 0, doc.page.width, 40).fill('#F1F5F9');
+                doc.restore();
                 doc.fillColor('#475569').fontSize(8).font('Helvetica-Bold').text('SISTEMA DE HERRAMIENTAS ORGANIZACIONALES | GOBIERNO DEL ESTADO DE CHIHUAHUA', 50, 15);
                 doc.strokeColor('#CBD5E1').lineWidth(0.5).moveTo(50, 40).lineTo(doc.page.width - 50, 40).stroke();
             };
@@ -69,22 +76,23 @@ class ReportesController {
             doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('1. INFORMACIÓN GENERAL');
             doc.moveDown(1);
 
-            // Caja de información
-            const startY = doc.y;
-            doc.rect(50, startY, 500, 90).fill('#F8FAFC');
-            doc.strokeColor('#E2E8F0').lineWidth(1).rect(50, startY, 500, 90).stroke();
+            const infoY = doc.y;
+            doc.save();
+            doc.rect(50, infoY, 500, 90).fill('#F8FAFC');
+            doc.strokeColor('#E2E8F0').lineWidth(1).rect(50, infoY, 500, 90).stroke();
+            doc.restore();
 
             doc.fillColor('#334155').fontSize(10).font('Helvetica-Bold');
-            doc.text('TITULAR:', 70, startY + 15);
-            doc.font('Helvetica').text(org.titular || 'NO REGISTRADO', 150, startY + 15);
+            doc.text('TITULAR:', 70, infoY + 15);
+            doc.font('Helvetica').text(org.titular || 'NO REGISTRADO', 150, infoY + 15);
 
-            doc.font('Helvetica-Bold').text('SIGLAS:', 70, startY + 35);
-            doc.font('Helvetica').text(org.siglas || 'N/A', 150, startY + 35);
+            doc.font('Helvetica-Bold').text('SIGLAS:', 70, infoY + 35);
+            doc.font('Helvetica').text(org.siglas || 'N/A', 150, infoY + 35);
 
-            doc.font('Helvetica-Bold').text('NATURALEZA:', 70, startY + 55);
-            doc.font('Helvetica').text(org.tipo, 150, startY + 55);
+            doc.font('Helvetica-Bold').text('NATURALEZA:', 70, infoY + 55);
+            doc.font('Helvetica').text(org.tipo, 150, infoY + 55);
 
-            doc.moveDown(4);
+            doc.moveDown(5);
 
             // Sección 2: Semáforo de Cumplimiento
             doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('2. ESTADO DE CUMPLIMIENTO');
@@ -98,9 +106,11 @@ class ReportesController {
                 'MANUAL_SERVICIOS': 'Manual de Servicios'
             };
 
-            // Dibujar tabla de semáforo
             const tableTop = doc.y;
+            doc.save();
             doc.fillColor('#003DA5').rect(50, tableTop, 500, 20).fill();
+            doc.restore();
+
             doc.fillColor('#FFFFFF').fontSize(9).font('Helvetica-Bold');
             doc.text('HERRAMIENTA', 60, tableTop + 6);
             doc.text('ESTATUS', 300, tableTop + 6);
@@ -108,23 +118,37 @@ class ReportesController {
 
             let currentTableY = tableTop + 20;
 
-            const tipos = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'];
+            const tiposBase = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS'];
+            const manualServ = herramientas.find(h => h.tipo_herramienta === 'MANUAL_SERVICIOS');
+            const tiposAMostrar = [...tiposBase];
+            if (manualServ) tiposAMostrar.push('MANUAL_SERVICIOS');
 
-            tipos.forEach((tipo, i) => {
+            tiposAMostrar.forEach((tipo, i) => {
                 const item = herramientas.find(h => h.tipo_herramienta === tipo);
-                const status = (item?.estatus_semaforo || 'ROJO').toUpperCase();
 
-                // Fondo alternado
-                if (i % 2 === 0) doc.fillColor('#F1F5F9').rect(50, currentTableY, 500, 25).fill();
+                // Lógica de status real basado en fechas (SemaforoService)
+                let status = 'ROJO';
+                let statusColor = '#EF4444';
+
+                if (item && item.fecha_emision) {
+                    const año = new Date(item.fecha_emision).getFullYear();
+                    if (año >= 2022) {
+                        status = 'VERDE';
+                        statusColor = '#10B981';
+                    } else if (año >= 2018) {
+                        status = 'AMARILLO';
+                        statusColor = '#F59E0B';
+                    }
+                }
+
+                if (i % 2 === 0) {
+                    doc.save();
+                    doc.fillColor('#F1F5F9').rect(50, currentTableY, 500, 25).fill();
+                    doc.restore();
+                }
 
                 doc.fillColor('#334155').fontSize(9).font('Helvetica');
                 doc.text(labels[tipo], 60, currentTableY + 8);
-
-                // Color del estatus
-                let statusColor = '#EF4444';
-                if (status === 'VERDE') statusColor = '#10B981';
-                if (status === 'AMARILLO') statusColor = '#F59E0B';
-                if (status === 'NARANJA') statusColor = '#F97316';
 
                 doc.fillColor(statusColor).font('Helvetica-Bold').text(status, 300, currentTableY + 8);
                 doc.fillColor('#64748B').font('Helvetica').text(item?.fecha_actualizacion ? new Date(item.fecha_actualizacion).toLocaleDateString() : 'SIN DATOS', 400, currentTableY + 8);
@@ -134,7 +158,6 @@ class ReportesController {
 
             doc.y = currentTableY + 30;
 
-            // Sección 3: Datos de Expediente
             try {
                 const expedientes = await Expediente.obtenerTodos({ organizacion_id: id });
                 if (expedientes && expedientes.length > 0) {
@@ -147,22 +170,22 @@ class ReportesController {
                     doc.fillColor('#334155').fontSize(11).font('Helvetica-Bold').text(`TÍTULO: ${exp.titulo || 'SIN TÍTULO'}`);
                     doc.fontSize(10).font('Helvetica').text(`No. Expediente: ${exp.numero_expediente || 'N/A'} | Estatus: ${exp.estatus}`);
 
-                    // Barra de progreso
                     doc.moveDown(0.5);
                     const progX = doc.x;
                     const progY = doc.y;
+                    doc.save();
                     doc.rect(progX, progY, 300, 15).fill('#E2E8F0');
                     doc.rect(progX, progY, (exp.porcentaje_progreso || 0) * 3, 15).fill('#003DA5');
+                    doc.restore();
                     doc.fillColor('#FFFFFF').fontSize(8).text(`${exp.porcentaje_progreso || 0}%`, progX + 140, progY + 4);
                     doc.moveDown(2);
                 }
-            } catch (err) { /* Ignorar error de carga secundaria */ }
+            } catch (err) { }
 
-            // Footer con numeración
             const pages = doc.bufferedPageRange();
             for (let i = 0; i < pages.count; i++) {
                 doc.switchToPage(i);
-                if (i > 0) { // No poner footer en la portada
+                if (i > 0) {
                     doc.fillColor('#94A3B8').fontSize(8).font('Helvetica').text(
                         `Página ${i + 1} de ${pages.count} | Generado el ${new Date().toLocaleString()}`,
                         50, doc.page.height - 30, { align: 'center' }
@@ -171,17 +194,10 @@ class ReportesController {
             }
 
             doc.end();
-
         } catch (error) {
             console.error('Error al generar PDF:', error);
-            console.error('Stack:', error.stack);
-
-            // Si ya se empezó a enviar el PDF, no podemos enviar JSON
             if (!res.headersSent) {
-                return res.status(500).json({
-                    error: 'Error al generar el informe PDF',
-                    details: error.message
-                });
+                return res.status(500).json({ error: 'Error al generar el informe PDF' });
             }
         }
     }
