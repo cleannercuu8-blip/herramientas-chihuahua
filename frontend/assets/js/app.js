@@ -884,15 +884,32 @@
 
   // Modal nueva herramienta
   window.mostrarModalNuevaHerramienta = async function () {
-    // Cargar organizaciones en el select
     const resultado = await window.OrganizacionesModule.obtenerTodas();
+    const select = document.getElementById('select-organizacion');
+    const orgFieldGroup = select.closest('.form-group');
+
     if (resultado.success) {
-      const select = document.getElementById('select-organizacion');
+      const organizaciones = resultado.data;
       select.innerHTML = '<option value="">Seleccione...</option>';
-      resultado.data.forEach(org => {
+      organizaciones.forEach(org => {
         select.innerHTML += `<option value="${org.id}">${org.nombre}</option>`;
       });
+
+      // Si estamos en contexto de una organización, ocultar el campo y pre-seleccionar
+      if (window.AppUtils.AppState.currentOrganizacionId) {
+        orgFieldGroup.style.display = 'none';
+        select.value = window.AppUtils.AppState.currentOrganizacionId;
+      } else {
+        orgFieldGroup.style.display = 'block';
+        select.value = '';
+      }
     }
+
+    // Reset form
+    document.getElementById('form-nueva-herramienta').reset();
+    document.getElementById('pregunta-manual-servicios').classList.add('hidden');
+    document.getElementById('campos-herramienta-archivo').classList.remove('hidden');
+
     mostrarModal('modal-nueva-herramienta');
   };
 
@@ -922,16 +939,36 @@
       e.preventDefault();
       const formData = new FormData(e.target);
 
+      // Si estamos en contexto de organización, usar ese ID
+      if (window.AppUtils.AppState.currentOrganizacionId) {
+        formData.set('organizacion_id', window.AppUtils.AppState.currentOrganizacionId);
+      }
+
+      window.AppUtils.mostrarSpinner(true);
       const resultado = await window.HerramientasModule.crear(formData);
 
       if (resultado.success) {
         window.AppUtils.mostrarAlerta('Herramienta creada exitosamente', 'success');
         cerrarModal('modal-nueva-herramienta');
         e.target.reset();
-        refrescarVistaHerramientas();
+
+        // Auto-refresh: actualizar vista actual
+        if (window.AppUtils.AppState.currentOrganizacionId) {
+          // Estamos en detalle de organización, refrescar
+          await window.verHerramientasPorDependencia(window.AppUtils.AppState.currentOrganizacionId);
+        } else {
+          // Estamos en vista general
+          await refrescarVistaHerramientas();
+        }
+
+        // Actualizar dashboard si estamos en esa vista
+        if (window.AppUtils.AppState.currentView === 'dashboard') {
+          await cargarReporteGeneral();
+        }
       } else {
         window.AppUtils.mostrarAlerta(resultado.error, 'error');
       }
+      window.AppUtils.mostrarSpinner(false);
     });
 
     // Form editar organización

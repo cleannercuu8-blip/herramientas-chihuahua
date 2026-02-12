@@ -486,8 +486,8 @@ const ExpedientesModule = {
                                     <div style="padding: 10px; background: #FEE2E2; border-radius: 6px; cursor: pointer;" 
                                          onclick="window.ExpedientesModule.verDetalle(${exp.id})">
                                         <div style="font-weight: 600;">${exp.numero_expediente}</div>
-                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre}</div>
-                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.titulo}</div>
+                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre || 'Sin organización'}</div>
+                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.descripcion || 'Sin descripción'}</div>
                                     </div>
                                 `).join('')}
                             </div>
@@ -503,8 +503,8 @@ const ExpedientesModule = {
                                     <div style="padding: 10px; background: #FEF3C7; border-radius: 6px; cursor: pointer;" 
                                          onclick="window.ExpedientesModule.verDetalle(${exp.id})">
                                         <div style="font-weight: 600;">${exp.numero_expediente}</div>
-                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre}</div>
-                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.titulo}</div>
+                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre || 'Sin organización'}</div>
+                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.descripcion || 'Sin descripción'}</div>
                                     </div>
                                 `).join('')}
                             </div>
@@ -520,8 +520,8 @@ const ExpedientesModule = {
                                     <div style="padding: 10px; background: #D1FAE5; border-radius: 6px; cursor: pointer;" 
                                          onclick="window.ExpedientesModule.verDetalle(${exp.id})">
                                         <div style="font-weight: 600;">${exp.numero_expediente}</div>
-                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre}</div>
-                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.titulo}</div>
+                                        <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre || 'Sin organización'}</div>
+                                        <div style="font-size: 0.85rem; margin-top: 5px;">${exp.descripcion || 'Sin descripción'}</div>
                                     </div>
                                 `).join('')}
                             </div>
