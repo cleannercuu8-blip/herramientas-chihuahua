@@ -18,19 +18,21 @@ class SemaforoService {
      */
     static async calcularSemaforoCincoPuntos(organizacionId) {
         try {
+            const Organizacion = require('../models/Organizacion');
             const Herramienta = require('../models/Herramienta');
+
+            const orgData = await Organizacion.obtenerPorId(organizacionId);
             const herramientas = await Herramienta.obtenerPorOrganizacion(organizacionId);
 
-            // 1. Organigrama (Verde >= 2022, Amarillo 2018-2021, Rojo < 2018)
+            // 1. Organigrama
             const org = herramientas.find(h => h.tipo_herramienta === 'ORGANIGRAMA');
             const p1 = this.evaluarFecha(org);
 
-            // 2. Reglamento / Estatuto (Unificado)
-            // Lógica: Verde >= 2022, Amarillo si Publicado > Organigrama, Naranja 2018-2021, Rojo rest.
+            // 2. Reglamento / Estatuto
             const reg = herramientas.find(h => h.tipo_herramienta === 'REGLAMENTO_ESTATUTO' || h.tipo_herramienta === 'REGLAMENTO_INTERIOR' || h.tipo_herramienta === 'ESTATUTO_ORGANICO');
             const p2 = this.evaluarReglamento(reg, org);
 
-            // 3. Manual de Organización (Buscamos el más reciente si hay múltiples)
+            // 3. Manual de Organización
             const mOrg = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_ORGANIZACION').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
             const p3 = this.evaluarFecha(mOrg);
 
@@ -38,13 +40,19 @@ class SemaforoService {
             const mProc = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_PROCEDIMIENTOS').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
             const p4 = this.evaluarFecha(mProc);
 
-            // 5. Manual de Servicios (Condicional)
-            const mServ = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_SERVICIOS').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
-            const p5 = (mServ && mServ.nombre_archivo !== 'NO_APLICA') ? this.evaluarFecha(mServ) : null;
+            // 5. Manual de Servicios (Ahora basado en el flag de la organización)
+            let p5 = null;
+            let tieneServicios = false;
+
+            if (orgData && orgData.requiere_manual_servicios) {
+                const mServ = herramientas.filter(h => h.tipo_herramienta === 'MANUAL_SERVICIOS').sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision))[0];
+                p5 = (mServ && mServ.nombre_archivo !== 'NO_APLICA') ? this.evaluarFecha(mServ) : 'ROJO';
+                tieneServicios = true;
+            }
 
             return {
                 puntos: [p1, p2, p3, p4, p5].filter(p => p !== null),
-                tieneServicios: !!mServ
+                tieneServicios: tieneServicios
             };
         } catch (error) {
             console.error('Error en calcularSemaforoCincoPuntos:', error);

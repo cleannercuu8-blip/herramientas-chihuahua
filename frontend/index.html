@@ -516,6 +516,19 @@
                             class="form-input" name="titular" id="edit-org-titular"></div>
                     <div class="form-group"><label class="form-label">Decreto (URL)</label><input type="url"
                             class="form-input" name="decreto_creacion" id="edit-org-decreto"></div>
+                    <div class="form-group">
+                        <label class="form-label">¿Requiere Manual de Servicios?</label>
+                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="requiere_manual_servicios" id="edit-org-manual-si"
+                                    value="true" checked> Sí
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="requiere_manual_servicios" id="edit-org-manual-no"
+                                    value="false"> No
+                            </label>
+                        </div>
+                    </div>
                     <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
                         <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar Cambios</button>
                         <button type="button" class="btn btn-secondary" style="flex: 1;"
@@ -554,6 +567,17 @@
                             class="form-input" name="titular"></div>
                     <div class="form-group"><label class="form-label">Decreto (URL)</label><input type="url"
                             class="form-input" name="decreto_creacion"></div>
+                    <div class="form-group">
+                        <label class="form-label">¿Requiere Manual de Servicios?</label>
+                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="requiere_manual_servicios" value="true" checked> Sí
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="requiere_manual_servicios" value="false"> No
+                            </label>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary w-100">Guardar</button>
                 </form>
             </div>

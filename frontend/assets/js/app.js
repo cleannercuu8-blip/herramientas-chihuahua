@@ -252,7 +252,7 @@
 
     let html = '';
     lista.forEach(org => {
-      const dotsHTML = renderizarSemaforoDots(org.detalles_semaforo?.puntos || []);
+      const dotsHTML = renderizarSemaforoDots(org.detalles_semaforo?.puntos || [], org);
       html += `
         <div class="org-row-compact" onclick="verDetalleOrganizacion(${org.id})" style="cursor: pointer;">
           <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -276,7 +276,7 @@
   }
 
   // Utilidad para renderizar los círculos del semáforo (con tooltips)
-  function renderizarSemaforoDots(puntos) {
+  function renderizarSemaforoDots(puntos, org) {
     const labels = [
       'Organigrama',
       'Reglamento Interior / Estatuto Orgánico',
@@ -285,16 +285,21 @@
       'Manual de Servicios'
     ];
 
+    const requiereManual = org ? org.requiere_manual_servicios !== false : true;
+    const count = requiereManual ? 5 : 4;
+
     if (!puntos || puntos.length === 0) {
-      return `
-        <span class="dot dot-vacio" data-tooltip="Sin información"></span>
-        <span class="dot dot-vacio" data-tooltip="Sin información"></span>
-        <span class="dot dot-vacio" data-tooltip="Sin información"></span>
-        <span class="dot dot-vacio" data-tooltip="Sin información"></span>
-      `;
+      let emptyDots = '';
+      for (let i = 0; i < count; i++) {
+        emptyDots += '<span class="dot dot-vacio" data-tooltip="Sin información"></span>';
+      }
+      return emptyDots;
     }
 
-    return puntos.map((color, idx) => {
+    // Filtrar puntos si no requiere manual
+    const puntosMostrar = org.requiere_manual_servicios ? puntos : puntos.slice(0, 4);
+
+    return puntosMostrar.map((color, idx) => {
       const c = (color || 'vacio').toLowerCase();
       const label = labels[idx] || 'Herramienta';
       return `<span class="dot dot-${c}" data-tooltip="${label}: ${color || 'Pendiente'}"></span>`;
@@ -503,7 +508,10 @@
       `;
 
       // Definir tipos de herramientas unificados para asegurar que aparezcan
-      const tiposMostrar = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'];
+      const tiposMostrar = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS'];
+      if (org.requiere_manual_servicios !== false) {
+        tiposMostrar.push('MANUAL_SERVICIOS');
+      }
 
       tiposMostrar.forEach(tipo => {
         // Buscar herramienta: si es REGLAMENTO_ESTATUTO, buscar cualquiera de los 3 posibles valores en DB
@@ -853,6 +861,7 @@
       e.preventDefault();
       const formData = new FormData(e.target);
       const organizacion = Object.fromEntries(formData);
+      organizacion.requiere_manual_servicios = organizacion.requiere_manual_servicios === 'true';
 
       const resultado = await window.OrganizacionesModule.crear(organizacion);
 
@@ -889,6 +898,7 @@
       const formData = new FormData(e.target);
       const id = formData.get('id');
       const organizacion = Object.fromEntries(formData);
+      organizacion.requiere_manual_servicios = organizacion.requiere_manual_servicios === 'true';
       delete organizacion.id;
 
       const resultado = await window.OrganizacionesModule.actualizar(id, organizacion);
@@ -1000,6 +1010,13 @@
       document.getElementById('edit-org-siglas').value = org.siglas || '';
       document.getElementById('edit-org-titular').value = org.titular || '';
       document.getElementById('edit-org-decreto').value = org.decreto_creacion || '';
+
+      // Toggles de manual de servicios
+      if (org.requiere_manual_servicios === false) {
+        document.getElementById('edit-org-manual-no').checked = true;
+      } else {
+        document.getElementById('edit-org-manual-si').checked = true;
+      }
 
       // Mostrar botón de eliminar solo para admins
       const btnEliminar = document.getElementById('btn-eliminar-organizacion');

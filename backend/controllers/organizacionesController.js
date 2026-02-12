@@ -105,7 +105,8 @@ class OrganizacionesController {
                 tipo,
                 siglas: siglas || null,
                 titular: req.body.titular || null,
-                decreto_creacion: req.body.decreto_creacion || null
+                decreto_creacion: req.body.decreto_creacion || null,
+                requiere_manual_servicios: req.body.requiere_manual_servicios !== undefined ? req.body.requiere_manual_servicios : true
             });
 
             res.status(201).json({
@@ -139,7 +140,8 @@ class OrganizacionesController {
                 siglas: siglas !== undefined ? siglas : organizacion.siglas,
                 titular: titular !== undefined ? titular : organizacion.titular,
                 decreto_creacion: decreto_creacion !== undefined ? decreto_creacion : organizacion.decreto_creacion,
-                activo: activo !== undefined ? activo : organizacion.activo
+                activo: activo !== undefined ? activo : organizacion.activo,
+                requiere_manual_servicios: req.body.requiere_manual_servicios !== undefined ? req.body.requiere_manual_servicios : organizacion.requiere_manual_servicios
             });
 
             res.json({

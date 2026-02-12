@@ -27,7 +27,8 @@ class ImportController {
                     tipo: row.getCell(2).text?.trim(),
                     siglas: row.getCell(3).text?.trim(),
                     titular: row.getCell(4).text?.trim(),
-                    decreto_creacion: row.getCell(5).text?.trim()
+                    decreto_creacion: row.getCell(5).text?.trim(),
+                    requiere_manual: row.getCell(6).text?.trim()
                 });
             });
 
@@ -47,6 +48,8 @@ class ImportController {
                     // Buscar si existe
                     const { rows: existentes } = await db.query('SELECT id FROM organizaciones WHERE nombre = $1', [record.nombre]);
 
+                    const requiereManual = record.requiere_manual?.toUpperCase() === 'NO' ? false : true;
+
                     if (existentes.length > 0) {
                         await Organizacion.actualizar(existentes[0].id, {
                             nombre: record.nombre,
@@ -54,7 +57,8 @@ class ImportController {
                             siglas: record.siglas || '',
                             titular: record.titular || '',
                             decreto_creacion: record.decreto_creacion || '',
-                            activo: 1
+                            activo: 1,
+                            requiere_manual_servicios: requiereManual
                         });
                     } else {
                         await Organizacion.crear({
@@ -62,7 +66,8 @@ class ImportController {
                             tipo: tipoNorm,
                             siglas: record.siglas || '',
                             titular: record.titular || '',
-                            decreto_creacion: record.decreto_creacion || ''
+                            decreto_creacion: record.decreto_creacion || '',
+                            requiere_manual_servicios: requiereManual
                         });
                     }
                     procesados++;

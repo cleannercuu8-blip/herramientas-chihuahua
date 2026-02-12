@@ -123,29 +123,26 @@ class ReportesController {
 
             let currentTableY = tableTop + 20;
 
-            // Todos los tipos a mostrar
-            const tiposBase = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'];
+            // Todos los tipos a mostrar (Manual de servicios condicional)
+            const tiposBase = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS'];
+            if (org.requiere_manual_servicios) {
+                tiposBase.push('MANUAL_SERVICIOS');
+            }
 
             tiposBase.forEach((tipo, i) => {
                 const item = herramientas.find(h => h.tipo_herramienta === tipo);
 
-                let status = item ? 'CARGADO' : 'PENDIENTE';
                 let statusText = 'ROJO';
                 let statusColor = '#EF4444';
 
                 if (item) {
-                    if (item.nombre_archivo === 'NO_APLICA') {
-                        statusText = 'NO APLICA';
-                        statusColor = '#64748B'; // Gris
-                    } else {
-                        const año = new Date(item.fecha_emision).getFullYear();
-                        if (año >= 2022) {
-                            statusText = 'VERDE';
-                            statusColor = '#10B981';
-                        } else if (año >= 2018) {
-                            statusText = 'AMARILLO';
-                            statusColor = '#F59E0B';
-                        }
+                    const año = new Date(item.fecha_emision).getFullYear();
+                    if (año >= 2022) {
+                        statusText = 'VERDE';
+                        statusColor = '#10B981';
+                    } else if (año >= 2018) {
+                        statusText = 'AMARILLO';
+                        statusColor = '#F59E0B';
                     }
                 }
 
@@ -243,44 +240,37 @@ class ReportesController {
             for (const org of organizaciones) {
                 const herramientas = await Herramienta.obtenerPorOrganizacion(org.id);
                 const semaforo = await SemaforoService.calcularEstatus(org.id, org.tipo);
-                if (herramientas.length === 0) {
-                    worksheet.addRow({
+
+                // Tipos de herramientas esperados
+                const tiposEsperados = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS'];
+                if (org.requiere_manual_servicios) {
+                    tiposEsperados.push('MANUAL_SERVICIOS');
+                }
+
+                tiposEsperados.forEach(tipo => {
+                    const h = herramientas.find(item => item.tipo_herramienta === tipo);
+                    const row = worksheet.addRow({
                         organizacion: org.nombre,
                         tipo_org: org.tipo,
                         semaforo: semaforo.estatus,
-                        tipo_herramienta: 'SIN HERRAMIENTAS',
-                        nombre_archivo: '-',
-                        fecha_emision: '-',
-                        fecha_actualizacion: '-',
-                        fecha_poe: '-',
-                        link_poe: '-',
-                        version: '-'
+                        tipo_herramienta: tipo,
+                        nombre_archivo: h ? h.nombre_archivo : 'FALTA',
+                        fecha_emision: h ? h.fecha_emision : '-',
+                        fecha_actualizacion: h ? h.fecha_actualizacion : '-',
+                        fecha_poe: h ? (h.fecha_publicacion_poe || '-') : '-',
+                        link_poe: h ? (h.link_publicacion_poe || '-') : '-',
+                        version: h ? h.version : '-'
                     });
-                } else {
-                    herramientas.forEach(h => {
-                        const row = worksheet.addRow({
-                            organizacion: org.nombre,
-                            tipo_org: org.tipo,
-                            semaforo: semaforo.estatus,
-                            tipo_herramienta: h.tipo_herramienta,
-                            nombre_archivo: h.nombre_archivo,
-                            fecha_emision: h.fecha_emision,
-                            fecha_actualizacion: h.fecha_actualizacion,
-                            fecha_poe: h.fecha_publicacion_poe || '-',
-                            link_poe: h.link_publicacion_poe || '-',
-                            version: h.version
-                        });
-                        const semaforoCell = row.getCell('semaforo');
-                        if (semaforo.estatus === 'VERDE') {
-                            semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } };
-                        } else if (semaforo.estatus === 'AMARILLO') {
-                            semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF59E0B' } };
-                        } else {
-                            semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEF4444' } };
-                        }
-                        semaforoCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-                    });
-                }
+                    const semaforoCell = row.getCell('semaforo');
+                    if (semaforo.estatus === 'VERDE') {
+                        semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF10B981' } };
+                    } else if (semaforo.estatus === 'AMARILLO') {
+                        semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF59E0B' } };
+                    } else {
+                        semaforoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEF4444' } };
+                    }
+                    semaforoCell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                });
             }
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', `attachment; filename=inventario-herramientas-${Date.now()}.xlsx`);
@@ -303,20 +293,19 @@ class ReportesController {
                 { header: 'Organización', key: 'organizacion', width: 40 },
                 { header: 'Tipo', key: 'tipo', width: 20 },
                 { header: 'Semáforo', key: 'semaforo', width: 12 },
-                { header: 'Total Herramientas', key: 'total_herramientas', width: 18 },
+                { header: 'Requiere Manual Serv.', key: 'requiere_manual', width: 20 },
                 { header: 'Observaciones', key: 'observaciones', width: 60 }
             ];
             worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
             worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6B4C9A' } };
             const organizaciones = await Organizacion.obtenerTodas();
             for (const org of organizaciones) {
-                const herramientas = await Herramienta.obtenerPorOrganizacion(org.id);
                 const semaforo = await SemaforoService.calcularEstatus(org.id, org.tipo);
                 const row = worksheet.addRow({
                     organizacion: org.nombre,
                     tipo: org.tipo,
                     semaforo: semaforo.estatus,
-                    total_herramientas: herramientas.length,
+                    requiere_manual: org.requiere_manual_servicios ? 'SÍ' : 'NO',
                     observaciones: semaforo.detalles.mensaje
                 });
                 const semaforoCell = row.getCell('semaforo');

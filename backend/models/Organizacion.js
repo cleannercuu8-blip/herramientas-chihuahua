@@ -13,19 +13,29 @@ class Organizacion {
         semaforo TEXT DEFAULT 'ROJO',
         detalles_semaforo JSONB,
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        requiere_manual_servicios BOOLEAN DEFAULT TRUE,
         activo INTEGER DEFAULT 1
       )
     `;
-        return db.query(sql);
+        await db.query(sql);
+        // Garantizar que la columna exista si la tabla ya fue creada antes
+        return db.query('ALTER TABLE organizaciones ADD COLUMN IF NOT EXISTS requiere_manual_servicios BOOLEAN DEFAULT TRUE');
     }
 
     static async crear(organizacion) {
         const sql = `
-      INSERT INTO organizaciones (nombre, tipo, siglas, titular, decreto_creacion)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, nombre, tipo, siglas, titular, decreto_creacion, semaforo, detalles_semaforo, fecha_creacion, activo
+      INSERT INTO organizaciones (nombre, tipo, siglas, titular, decreto_creacion, requiere_manual_servicios)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
     `;
-        const { rows } = await db.query(sql, [organizacion.nombre, organizacion.tipo, organizacion.siglas, organizacion.titular, organizacion.decreto_creacion]);
+        const { rows } = await db.query(sql, [
+            organizacion.nombre,
+            organizacion.tipo,
+            organizacion.siglas,
+            organizacion.titular,
+            organizacion.decreto_creacion,
+            organizacion.requiere_manual_servicios !== undefined ? organizacion.requiere_manual_servicios : true
+        ]);
         return rows[0];
     }
 
@@ -62,10 +72,19 @@ class Organizacion {
     static async actualizar(id, datos) {
         const sql = `
       UPDATE organizaciones 
-      SET nombre = $1, tipo = $2, siglas = $3, titular = $4, decreto_creacion = $5, activo = $6
-      WHERE id = $7
+      SET nombre = $1, tipo = $2, siglas = $3, titular = $4, decreto_creacion = $5, activo = $6, requiere_manual_servicios = $7
+      WHERE id = $8
     `;
-        const result = await db.query(sql, [datos.nombre, datos.tipo, datos.siglas, datos.titular, datos.decreto_creacion, datos.activo, id]);
+        const result = await db.query(sql, [
+            datos.nombre,
+            datos.tipo,
+            datos.siglas,
+            datos.titular,
+            datos.decreto_creacion,
+            datos.activo,
+            datos.requiere_manual_servicios !== undefined ? datos.requiere_manual_servicios : true,
+            id
+        ]);
         return { changes: result.rowCount };
     }
 
