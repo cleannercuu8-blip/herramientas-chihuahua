@@ -792,9 +792,7 @@
       case 'usuarios':
         cargarUsuariosAdmin();
         break;
-      case 'expedientes':
-        window.cargarExpedientes();
-        break;
+      // case 'expedientes' moved/merged to ensure valid call
       case 'cargas':
         cargarCargasTrabajo();
         break;

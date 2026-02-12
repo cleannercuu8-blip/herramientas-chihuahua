@@ -86,3 +86,33 @@ const HerramientasModule = {
 };
 
 window.HerramientasModule = HerramientasModule;
+
+// Funciones globales para la UI de Herramientas
+window.toggleCamposManual = function (tipo) {
+    const manualServiciosSection = document.getElementById('pregunta-manual-servicios');
+    if (!manualServiciosSection) return;
+
+    if (tipo === 'MANUAL_SERVICIOS') {
+        manualServiciosSection.classList.remove('hidden');
+        // Ocultar campos de archivo hasta que respondan SI
+        document.getElementById('campos-herramienta-archivo').classList.add('hidden');
+        // Reset radios
+        document.querySelectorAll('input[name="req_manual"]').forEach(el => el.checked = false);
+    } else {
+        manualServiciosSection.classList.add('hidden');
+        document.getElementById('campos-herramienta-archivo').classList.remove('hidden');
+    }
+};
+
+window.toggleInputsManual = function (requiere) {
+    const camposArchivo = document.getElementById('campos-herramienta-archivo');
+    if (requiere) {
+        camposArchivo.classList.remove('hidden');
+        document.getElementById('input-archivo-herramienta').required = true;
+    } else {
+        camposArchivo.classList.add('hidden');
+        document.getElementById('input-archivo-herramienta').required = false;
+        // Si no requiere, se podría asumir que se guarda vacio o se maneja diferente.
+        // Por ahora solo ocultamos.
+    }
+};

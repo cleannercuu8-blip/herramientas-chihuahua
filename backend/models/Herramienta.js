@@ -8,8 +8,6 @@ class Herramienta {
         organizacion_id INTEGER NOT NULL,
         tipo_herramienta TEXT CHECK(tipo_herramienta IN (
           'ORGANIGRAMA',
-          'REGLAMENTO_INTERIOR',
-          'ESTATUTO_ORGANICO',
           'REGLAMENTO_ESTATUTO',
           'MANUAL_ORGANIZACION',
           'MANUAL_PROCEDIMIENTOS',

@@ -94,7 +94,8 @@ const ExpedientesModule = {
                     <small>${new Date(exp.ultima_actualizacion).toLocaleDateString()}</small>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     },
 
     currentExpedienteId: null,
@@ -207,7 +208,27 @@ const ExpedientesModule = {
                 window.open(`/api/reportes/organizacion/${data.expediente.organizacion_id}/pdf`, '_blank');
             }
         } catch (e) { console.error(e); }
+    },
+    // Función para cargar la lista principal desde el menú
+    async cargarExpedientes() {
+        const container = document.getElementById('expedientes-lista');
+        if (!container) return;
+
+        container.innerHTML = '<div class="spinner"></div>';
+
+        try {
+            const data = await this.obtenerTodos();
+            if (data.expedientes) {
+                this.renderizarLista(data.expedientes);
+            } else {
+                container.innerHTML = '<p class="text-center p-20 text-error">Error al cargar expedientes.</p>';
+            }
+        } catch (error) {
+            console.error('Error al cargar expedientes:', error);
+            container.innerHTML = '<p class="text-center p-20 text-error">Error de conexión.</p>';
+        }
     }
 };
 
 window.ExpedientesModule = ExpedientesModule;
+window.cargarExpedientes = () => ExpedientesModule.cargarExpedientes();

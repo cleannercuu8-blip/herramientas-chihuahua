@@ -35,7 +35,7 @@ class ReportesController {
 
             // Configurar respuesta
             res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=Informe_${org.nombre.replace(/\s+/g, '_')}.pdf`);
+            res.setHeader('Content-Disposition', `inline; filename=Informe_${org.nombre.replace(/\s+/g, '_')}.pdf`);
             doc.pipe(res);
 
             // --- ENCABEZADO ---
