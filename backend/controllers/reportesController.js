@@ -19,45 +19,76 @@ class ReportesController {
     static async exportarOrganizacionPDF(req, res) {
         const { id } = req.params;
         try {
-            // Obtener datos de la organización
             const orgRes = await db.query('SELECT * FROM organizaciones WHERE id = $1', [id]);
             if (orgRes.rows.length === 0) {
                 return res.status(404).json({ error: 'Organización no encontrada' });
             }
             const org = orgRes.rows[0];
-
-            // Obtener herramientas
             const toolsRes = await db.query('SELECT * FROM herramientas WHERE organizacion_id = $1 ORDER BY tipo_herramienta', [id]);
             const herramientas = toolsRes.rows;
 
-            // Crear documento PDF
-            const doc = new PDFDocument({ margin: 50 });
-
-            // Configurar respuesta
+            const doc = new PDFDocument({ margin: 50, bufferPages: true });
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `inline; filename=Informe_${org.nombre.replace(/\s+/g, '_')}.pdf`);
             doc.pipe(res);
 
-            // --- ENCABEZADO ---
-            doc.fillColor('#003DA5').fontSize(20).text('SISTEMA DE HERRAMIENTAS ORGANIZACIONALES', { align: 'center' });
-            doc.fontSize(14).text('Gobierno del Estado de Chihuahua', { align: 'center' });
-            doc.moveDown();
-            doc.strokeColor('#003DA5').lineWidth(2).moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-            doc.moveDown();
+            // --- PORTADA ---
+            doc.rect(0, 0, doc.page.width, doc.page.height).fill('#FFFFFF');
+            doc.rect(0, 0, doc.page.width, 150).fill('#003DA5');
+            doc.fillColor('#FFFFFF').fontSize(22).font('Helvetica-Bold').text('SISTEMA DE HERRAMIENTAS', 50, 50);
+            doc.text('ORGANIZACIONALES', 50, 80);
+            doc.fontSize(10).font('Helvetica').text('GOBIERNO DEL ESTADO DE CHIHUAHUA', 50, 115);
 
-            // --- INFORMACIÓN GENERAL ---
-            doc.fillColor('#333333').fontSize(16).text('Informe Detallado de la Dependencia/Entidad', { underline: true });
-            doc.moveDown(0.5);
-            doc.fontSize(12).fillColor('#000000');
-            doc.text(`Nombre: ${org.nombre}`);
-            doc.text(`Tipo: ${org.tipo}`);
-            doc.text(`Titular: ${org.titular || 'No registrado'}`);
-            doc.text(`Decreto de Creación: ${org.decreto_creacion || 'No registrado'}`);
-            doc.moveDown();
+            doc.fillColor('#334155').fontSize(14).font('Helvetica-Bold').text('INFORME TÉCNICO DE CUMPLIMIENTO', 50, 280);
+            doc.rect(50, 305, 50, 3).fill('#003DA5');
 
-            // --- RESUMEN DE CUMPLIMIENTO (SEMÁFORO) ---
-            doc.fontSize(16).fillColor('#003DA5').text('Situación de Herramientas (Semáforo)');
-            doc.moveDown(0.5);
+            doc.moveDown(4);
+            doc.fontSize(26).font('Helvetica-Bold').fillColor('#003DA5').text(org.nombre.toUpperCase(), { width: 500 });
+
+            doc.moveDown(1.5);
+            doc.fontSize(12).font('Helvetica').fillColor('#64748B').text(`FECHA DE EMISIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}`);
+            doc.text(`TIPO: ${org.tipo.replace('_', ' ')}`);
+
+            doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill('#6B4C9A');
+            doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
+
+            // --- CONTENIDO ---
+            doc.addPage();
+
+            // Función para dibujar encabezado en cada página
+            const drawHeader = () => {
+                doc.rect(0, 0, doc.page.width, 40).fill('#F1F5F9');
+                doc.fillColor('#475569').fontSize(8).font('Helvetica-Bold').text('SISTEMA DE HERRAMIENTAS ORGANIZACIONALES | GOBIERNO DEL ESTADO DE CHIHUAHUA', 50, 15);
+                doc.strokeColor('#CBD5E1').lineWidth(0.5).moveTo(50, 40).lineTo(doc.page.width - 50, 40).stroke();
+            };
+
+            drawHeader();
+            doc.moveDown(2);
+
+            // Sección 1: Información General
+            doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('1. INFORMACIÓN GENERAL');
+            doc.moveDown(1);
+
+            // Caja de información
+            const startY = doc.y;
+            doc.rect(50, startY, 500, 90).fill('#F8FAFC');
+            doc.strokeColor('#E2E8F0').lineWidth(1).rect(50, startY, 500, 90).stroke();
+
+            doc.fillColor('#334155').fontSize(10).font('Helvetica-Bold');
+            doc.text('TITULAR:', 70, startY + 15);
+            doc.font('Helvetica').text(org.titular || 'NO REGISTRADO', 150, startY + 15);
+
+            doc.font('Helvetica-Bold').text('SIGLAS:', 70, startY + 35);
+            doc.font('Helvetica').text(org.siglas || 'N/A', 150, startY + 35);
+
+            doc.font('Helvetica-Bold').text('NATURALEZA:', 70, startY + 55);
+            doc.font('Helvetica').text(org.tipo, 150, startY + 55);
+
+            doc.moveDown(4);
+
+            // Sección 2: Semáforo de Cumplimiento
+            doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('2. ESTADO DE CUMPLIMIENTO');
+            doc.moveDown(1);
 
             const labels = {
                 'ORGANIGRAMA': 'Organigrama',
@@ -67,89 +98,76 @@ class ReportesController {
                 'MANUAL_SERVICIOS': 'Manual de Servicios'
             };
 
-            herramientas.forEach(h => {
-                const label = labels[h.tipo_herramienta] || h.tipo_herramienta;
-                const status = (h.estatus_semaforo || 'rojo').toLowerCase();
+            // Dibujar tabla de semáforo
+            const tableTop = doc.y;
+            doc.fillColor('#003DA5').rect(50, tableTop, 500, 20).fill();
+            doc.fillColor('#FFFFFF').fontSize(9).font('Helvetica-Bold');
+            doc.text('HERRAMIENTA', 60, tableTop + 6);
+            doc.text('ESTATUS', 300, tableTop + 6);
+            doc.text('ÚLTIMA ACTUALIZACIÓN', 400, tableTop + 6);
 
-                doc.fontSize(11).fillColor('#333333').text(`${label}: `, { continued: true });
+            let currentTableY = tableTop + 20;
 
-                let color = '#EF4444';
-                if (status === 'verde') color = '#10B981';
-                if (status === 'amarillo') color = '#F59E0B';
-                if (status === 'naranja') color = '#F97316';
+            const tipos = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO', 'MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'];
 
-                doc.fillColor(color).text(status.toUpperCase(), { continued: true });
-                doc.fillColor('#666666').fontSize(9).text(`  (Act: ${h.fecha_actualizacion ? new Date(h.fecha_actualizacion).toLocaleDateString() : 'N/A'})`);
+            tipos.forEach((tipo, i) => {
+                const item = herramientas.find(h => h.tipo_herramienta === tipo);
+                const status = (item?.estatus_semaforo || 'ROJO').toUpperCase();
+
+                // Fondo alternado
+                if (i % 2 === 0) doc.fillColor('#F1F5F9').rect(50, currentTableY, 500, 25).fill();
+
+                doc.fillColor('#334155').fontSize(9).font('Helvetica');
+                doc.text(labels[tipo], 60, currentTableY + 8);
+
+                // Color del estatus
+                let statusColor = '#EF4444';
+                if (status === 'VERDE') statusColor = '#10B981';
+                if (status === 'AMARILLO') statusColor = '#F59E0B';
+                if (status === 'NARANJA') statusColor = '#F97316';
+
+                doc.fillColor(statusColor).font('Helvetica-Bold').text(status, 300, currentTableY + 8);
+                doc.fillColor('#64748B').font('Helvetica').text(item?.fecha_actualizacion ? new Date(item.fecha_actualizacion).toLocaleDateString() : 'SIN DATOS', 400, currentTableY + 8);
+
+                currentTableY += 25;
             });
 
-            if (herramientas.length === 0) {
-                doc.fillColor('#666666').text('No hay herramientas registradas para esta organización.');
-            }
-            doc.moveDown();
+            doc.y = currentTableY + 30;
 
-            // --- ESTADO DEL EXPEDIENTE ---
-            // Buscar expediente asociado
+            // Sección 3: Datos de Expediente
             try {
                 const expedientes = await Expediente.obtenerTodos({ organizacion_id: id });
                 if (expedientes && expedientes.length > 0) {
-                    const expediente = expedientes[0]; // Tomar el más reciente
-                    const avances = await ExpedienteAvance.obtenerPorExpediente(expediente.id) || [];
+                    const exp = expedientes[0];
+                    if (doc.y > 600) { doc.addPage(); drawHeader(); doc.moveDown(2); }
 
-                    doc.addPage(); // Nueva pagina para el expediente si es muy largo, o solo separar visualmente
+                    doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('3. EXPEDIENTE DE SEGUIMIENTO');
+                    doc.moveDown(1);
 
-                    doc.fontSize(16).fillColor('#003DA5').text('Expediente de Reestructuración');
+                    doc.fillColor('#334155').fontSize(11).font('Helvetica-Bold').text(`TÍTULO: ${exp.titulo || 'SIN TÍTULO'}`);
+                    doc.fontSize(10).font('Helvetica').text(`No. Expediente: ${exp.numero_expediente || 'N/A'} | Estatus: ${exp.estatus}`);
+
+                    // Barra de progreso
                     doc.moveDown(0.5);
-
-                    // Tarjeta de resumen
-                    const startY = doc.y;
-                    doc.rect(50, startY, 500, 70).fillAndStroke('#F3F4F6', '#E5E7EB');
-
-                    doc.fontSize(12).fillColor('#000000').text(expediente.titulo || 'Sin Título', 60, startY + 10);
-                    doc.fontSize(10).fillColor('#666666').text(
-                        `Expediente: ${expediente.numero_expediente || 'S/N'} | Estatus: ${expediente.estatus || 'N/A'} | Prioridad: ${expediente.prioridad || 'Media'}`,
-                        60, startY + 30
-                    );
-                    doc.text(`Progreso: ${expediente.porcentaje_progreso || 0}%`, 450, startY + 30);
-
-                    doc.moveDown(5);
-
-                    if (avances.length > 0) {
-                        doc.fontSize(12).fillColor('#333333').text('Últimos Avances:');
-                        doc.moveDown(0.5);
-
-                        // Listar últimos 5 avances
-                        avances.slice(0, 5).forEach(avance => {
-                            doc.fontSize(10).fillColor('#000000').text(`• [${new Date(avance.fecha).toLocaleDateString()}] ${avance.titulo}`);
-                            if (avance.descripcion) {
-                                doc.fontSize(9).fillColor('#666666').text(`   ${avance.descripcion}`, { indent: 10 });
-                            }
-                            doc.moveDown(0.3);
-                        });
-                    } else {
-                        doc.fontSize(10).fillColor('#666666').text('No hay avances registrados en el expediente.');
-                    }
-                    doc.moveDown();
+                    const progX = doc.x;
+                    const progY = doc.y;
+                    doc.rect(progX, progY, 300, 15).fill('#E2E8F0');
+                    doc.rect(progX, progY, (exp.porcentaje_progreso || 0) * 3, 15).fill('#003DA5');
+                    doc.fillColor('#FFFFFF').fontSize(8).text(`${exp.porcentaje_progreso || 0}%`, progX + 140, progY + 4);
+                    doc.moveDown(2);
                 }
-            } catch (err) {
-                console.error("Error al generar sección de expedientes en PDF:", err);
-                doc.fontSize(10).fillColor('red').text('Error al cargar datos del expediente.');
-            }
+            } catch (err) { /* Ignorar error de carga secundaria */ }
 
-            // --- DETALLE DE ARCHIVOS ---
-            doc.addPage();
-            doc.fontSize(16).fillColor('#003DA5').text('Archivos y Documentación');
-            doc.moveDown(0.5);
-
-            if (herramientas.length > 0) {
-                herramientas.forEach((h, idx) => {
-                    doc.fontSize(11).fillColor('#000000').text(`${idx + 1}. ${labels[h.tipo_herramienta] || h.tipo_herramienta}`);
-                    doc.fontSize(10).fillColor('#666666');
-                    doc.text(`   Archivo: ${h.nombre_archivo || 'N/A'}`);
-                    doc.text(`   POE: ${h.fecha_publicacion_poe ? new Date(h.fecha_publicacion_poe).toLocaleDateString() : 'No publicado'}`);
-                    doc.moveDown(0.3);
-                });
-            } else {
-                doc.fontSize(11).fillColor('#000000').text('No hay herramientas registradas.');
+            // Footer con numeración
+            const pages = doc.bufferedPageRange();
+            for (let i = 0; i < pages.count; i++) {
+                doc.switchToPage(i);
+                if (i > 0) { // No poner footer en la portada
+                    doc.fillColor('#94A3B8').fontSize(8).font('Helvetica').text(
+                        `Página ${i + 1} de ${pages.count} | Generado el ${new Date().toLocaleString()}`,
+                        50, doc.page.height - 30, { align: 'center' }
+                    );
+                }
             }
 
             doc.end();
