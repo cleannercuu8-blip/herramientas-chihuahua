@@ -986,29 +986,42 @@
 
       window.AppUtils.mostrarSpinner(true);
       console.log('DEBUG: Calling HerramientasModule.crear...');
-      const resultado = await window.HerramientasModule.crear(formData);
-      console.log('DEBUG: API Result:', resultado);
 
-      if (resultado.success) {
-        window.AppUtils.mostrarAlerta('Herramienta creada exitosamente', 'success');
-        cerrarModal('modal-nueva-herramienta');
-        e.target.reset();
+      try {
+        const resultado = await window.HerramientasModule.crear(formData);
+        console.log('DEBUG: API Result:', resultado);
 
-        // Auto-refresh: actualizar vista actual
-        if (window.AppUtils.AppState.currentOrganizacionId) {
-          await window.verHerramientasPorDependencia(window.AppUtils.AppState.currentOrganizacionId);
+        if (resultado.success) {
+          window.AppUtils.mostrarAlerta('Herramienta creada exitosamente', 'success');
+          cerrarModal('modal-nueva-herramienta');
+          e.target.reset();
+
+          // Auto-refresh: actualizar vista actual
+          if (window.AppUtils.AppState.currentOrganizacionId) {
+            console.log('DEBUG: Refreshing specific org view...');
+            if (window.verHerramientasPorDependencia) {
+              await window.verHerramientasPorDependencia(window.AppUtils.AppState.currentOrganizacionId);
+            }
+          } else {
+            console.log('DEBUG: Refreshing general tools view...');
+            if (window.refrescarVistaHerramientas) {
+              await window.refrescarVistaHerramientas();
+            }
+          }
+
+          if (window.AppUtils.AppState.currentView === 'dashboard') {
+            await cargarReporteGeneral();
+          }
         } else {
-          await refrescarVistaHerramientas();
+          console.error('DEBUG: Save failed with error:', resultado.error);
+          window.AppUtils.mostrarAlerta('Error del servidor: ' + (resultado.error || 'No se pudo guardar'), 'error');
         }
-
-        if (window.AppUtils.AppState.currentView === 'dashboard') {
-          await cargarReporteGeneral();
-        }
-      } else {
-        console.error('DEBUG: SAVE FAILED:', resultado.error);
-        window.AppUtils.mostrarAlerta(resultado.error, 'error');
+      } catch (error) {
+        console.error('DEBUG: Fatal error in form submission:', error);
+        window.AppUtils.mostrarAlerta('Error de red o conexión: ' + error.message, 'error');
+      } finally {
+        window.AppUtils.mostrarSpinner(false);
       }
-      window.AppUtils.mostrarSpinner(false);
     });
 
     // Form editar organización
