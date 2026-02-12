@@ -945,7 +945,8 @@
     });
 
     // Form nueva herramienta
-    document.getElementById('form-nueva-herramienta').addEventListener('submit', async (e) => {
+    const formNuevaHerramienta = document.getElementById('form-nueva-herramienta');
+    formNuevaHerramienta?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
