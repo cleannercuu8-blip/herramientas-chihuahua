@@ -140,17 +140,19 @@ const ExpedientesModule = {
             if (expedienteActivo) {
                 this.currentExpedienteId = expedienteActivo.id;
                 html += `
-                    <div class="card mb-20" style="border-left: 5px solid var(--verde-cumplimiento); box-shadow: var(--sombra-md);">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h5 style="margin: 0; color: var(--azul-institucional); font-size: 1.1rem; display: flex; align-items:center; gap: 8px;">
-                                    <span style="font-size: 1.3rem;">📂</span> Expediente de Seguimiento Activo
+                    <div class="card mb-20" style="border-left: 6px solid var(--verde-cumplimiento); box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 25px; flex-wrap: wrap; gap: 20px;">
+                            <div style="flex: 1; min-width: 250px;">
+                                <h5 style="margin: 0; color: var(--sfp-azul); font-size: 1rem; display: flex; align-items:center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;">
+                                    <span style="font-size: 1.2rem;">📂</span> Expediente de Seguimiento Activo
                                 </h5>
-                                <p style="margin: 5px 0; font-weight: 700; font-size: 1.2rem;">${expedienteActivo.numero_expediente}</p>
-                                <span class="badge badge-verde">EN PROCESO</span>
-                                <small class="d-block text-muted mt-5">${expedienteActivo.titulo}</small>
+                                <p style="margin: 10px 0; font-weight: 800; font-size: 1.4rem; color: var(--gris-oscuro); line-height: 1.2;">${expedienteActivo.numero_expediente}</p>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="badge badge-verde" style="padding: 5px 12px; font-size: 0.75rem;">EN PROCESO</span>
+                                    <small style="color: var(--gris-medio); font-weight: 500;">${expedienteActivo.titulo}</small>
+                                </div>
                             </div>
-                            <button class="btn btn-primary" onclick="window.ExpedientesModule.verDetalle(${expedienteActivo.id})">
+                            <button class="btn btn-primary" onclick="window.ExpedientesModule.verDetalle(${expedienteActivo.id})" style="padding: 12px 25px; font-size: 1rem; box-shadow: 0 4px 15px rgba(0, 61, 165, 0.3);">
                                 Ver Bitácora y Avances ➔
                             </button>
                         </div>

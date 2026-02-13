@@ -95,7 +95,7 @@ class OrganizacionesController {
                 });
             }
 
-            const tiposValidos = ['DEPENDENCIA', 'ENTIDAD_PARAESTATAL'];
+            const tiposValidos = ['DEPENDENCIA', 'ENTIDAD_PARAESTATAL', 'ORGANISMO_AUTONOMO'];
             if (!tiposValidos.includes(tipo)) {
                 return res.status(400).json({
                     error: 'Tipo inválido',
@@ -208,7 +208,8 @@ class OrganizacionesController {
                 rojo: 0,
                 porTipo: {
                     DEPENDENCIA: { total: 0, verde: 0, amarillo: 0, rojo: 0 },
-                    ENTIDAD_PARAESTATAL: { total: 0, verde: 0, amarillo: 0, rojo: 0 }
+                    ENTIDAD_PARAESTATAL: { total: 0, verde: 0, amarillo: 0, rojo: 0 },
+                    ORGANISMO_AUTONOMO: { total: 0, verde: 0, amarillo: 0, rojo: 0 }
                 }
             };
 
