@@ -530,7 +530,7 @@ const ExpedientesModule = {
                 </div>
             `;
 
-            abrirModal('modal-reporte-prioridades');
+            window.mostrarModal('modal-reporte-prioridades');
         } catch (error) {
             console.error(error);
             alert('Error al cargar reporte de prioridades');
