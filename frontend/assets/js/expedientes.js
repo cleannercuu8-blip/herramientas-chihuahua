@@ -524,8 +524,14 @@ const ExpedientesModule = {
 
             if (response && !response.error) {
                 form.reset();
+                // Ocultar formulario
+                const fc = document.getElementById('form-avance-container');
+                if (fc) fc.style.display = 'none';
+                const wrp = document.getElementById('btn-mostrar-form-avance-wrapper');
+                if (wrp) wrp.style.display = 'block';
+
                 this.verDetalle(this.currentExpedienteId);
-                window.AppUtils.mostrarAlerta('Avance registrado', 'success');
+                window.AppUtils.mostrarAlerta('Avance registrado correctamente', 'success');
             } else {
                 alert('Error: ' + response.error);
             }
