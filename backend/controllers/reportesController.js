@@ -184,7 +184,7 @@ class ReportesController {
         }
 
         // Sección 1: Información General
-        doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('1. INFORMACIÓN GENERAL');
+        doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('1. INFORMACIÓN GENERAL', 50);
         doc.moveDown(1);
 
         const infoY = doc.y;
@@ -204,7 +204,7 @@ class ReportesController {
         doc.moveDown(5);
 
         // Sección 2: Semáforo de Cumplimiento
-        doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('2. ESTADO DE CUMPLIMIENTO');
+        doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('2. ESTADO DE CUMPLIMIENTO', 50);
         doc.moveDown(1);
 
         const labels = {
@@ -284,7 +284,7 @@ class ReportesController {
                 }
 
                 // Título de sección
-                doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('3. EXPEDIENTE DE SEGUIMIENTO');
+                doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('3. EXPEDIENTE DE SEGUIMIENTO', 50);
                 doc.moveDown(1);
 
                 // Info del expediente
