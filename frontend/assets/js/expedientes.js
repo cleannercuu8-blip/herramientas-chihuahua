@@ -554,61 +554,49 @@ const ExpedientesModule = {
         }
     },
 
-    async cerrarExpediente() {
+    async cambiarEstatus(nuevoEstatus) {
         if (!this.currentExpedienteId) return;
 
-        const motivo = prompt('Para cerrar el expediente, por favor indique una razón o conclusión final:');
-        if (motivo === null) return;
+        const isClosing = nuevoEstatus === 'CERRADO';
+        const promptMsg = isClosing
+            ? 'Para cerrar el expediente, por favor indique una razón o conclusión final:'
+            : '¿Por qué se reabre este expediente? (Este comentario quedará registrado):';
 
-        try {
-            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
-                method: 'PUT',
-                body: JSON.stringify({ estatus: 'CERRADO' })
-            });
-
-            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    titulo: 'Expediente Cerrado',
-                    descripcion: motivo || 'Cierre formal del expediente.',
-                    tipo: 'OTRO',
-                    fecha: new Date().toISOString().split('T')[0]
-                })
-            });
-
-            this.verDetalle(this.currentExpedienteId);
-        } catch (error) {
-            console.error(error);
-            alert('Error al cerrar expediente');
+        const motivo = prompt(promptMsg);
+        if (motivo === null || (isClosing && !motivo)) {
+            if (isClosing && motivo === "") alert("Debe indicar un motivo para cerrar el expediente.");
+            return;
         }
-    },
-
-    async reabrirExpediente() {
-        if (!this.currentExpedienteId) return;
-
-        const motivo = prompt('¿Por qué se reabre este expediente? (Este comentario quedará registrado):');
-        if (!motivo) return;
 
         try {
+            window.AppUtils.mostrarSpinner(true);
+
+            // 1. Actualizar estatus del expediente
             await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
                 method: 'PUT',
-                body: JSON.stringify({ estatus: 'ABIERTO' })
+                body: JSON.stringify({ estatus: nuevoEstatus })
             });
 
+            // 2. Registrar el movimiento en la bitácora
             await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    titulo: 'Expediente Reabierto',
+                    titulo: isClosing ? '🔒 Expediente Cerrado' : '🔓 Expediente Reabierto',
                     descripcion: motivo,
                     tipo: 'OTRO',
                     fecha: new Date().toISOString().split('T')[0]
                 })
             });
 
+            // 3. Recargar vista
             this.verDetalle(this.currentExpedienteId);
+            window.AppUtils.mostrarAlerta(`Expediente ${isClosing ? 'cerrado' : 'reabierto'} con éxito`, 'success');
+
         } catch (error) {
             console.error(error);
-            alert('Error al reabrir expediente');
+            alert('Error al actualizar el estatus');
+        } finally {
+            window.AppUtils.mostrarSpinner(false);
         }
     },
 
