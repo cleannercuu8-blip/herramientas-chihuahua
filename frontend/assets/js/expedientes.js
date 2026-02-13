@@ -541,10 +541,10 @@ const ExpedientesModule = {
         // 1. Cerrar el reporte de prioridades
         cerrarModal('modal-reporte-prioridades');
 
-        // 2. Abrir el detalle de la dependencia
+        // 2. Abrir el detalle de la dependencia (esto ahora carga el expediente automáticamente)
         await window.verDetalleOrganizacion(orgId);
 
-        // 3. Scroll suave hacia la sección de expedientes dentro del modal
+        // 3. Esperar a que se renderice el expediente y luego hacer scroll
         setTimeout(() => {
             const section = document.getElementById('detalle-org-expediente-section');
             const modalBody = document.querySelector('#modal-detalle-organizacion .modal-body');
@@ -566,7 +566,7 @@ const ExpedientesModule = {
                     section.style.backgroundColor = '';
                 }, 2000);
             }
-        }, 500);
+        }, 800); // Aumentado de 500ms a 800ms para dar tiempo a que cargue el expediente
     }
 };
 

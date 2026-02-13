@@ -1214,6 +1214,11 @@
         herramientasList.innerHTML = html;
       }
 
+      // Cargar expediente de la organización
+      if (window.ExpedientesModule && window.ExpedientesModule.renderizarEnDetalleOrganizacion) {
+        window.ExpedientesModule.renderizarEnDetalleOrganizacion(id);
+      }
+
       window.mostrarModal('modal-detalle-organizacion');
     } else {
       window.AppUtils.mostrarAlerta(resultado.error, 'error');
