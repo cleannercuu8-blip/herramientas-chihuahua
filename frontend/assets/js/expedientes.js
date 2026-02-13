@@ -484,7 +484,7 @@ const ExpedientesModule = {
                             <div style="display: grid; gap: 10px;">
                                 ${porPrioridad.ALTA.map(exp => `
                                     <div style="padding: 10px; background: #FEE2E2; border-radius: 6px; cursor: pointer;" 
-                                         onclick="window.ExpedientesModule.verDetalle(${exp.id})">
+                                         onclick="window.ExpedientesModule.navegarAExpedienteDesdeReporte(${exp.id}, ${exp.organizacion_id})">
                                         <div style="font-weight: 600;">${exp.numero_expediente}</div>
                                         <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre || 'Sin organización'}</div>
                                         <div style="font-size: 0.85rem; margin-top: 5px;">${exp.descripcion || 'Sin descripción'}</div>
@@ -501,7 +501,7 @@ const ExpedientesModule = {
                             <div style="display: grid; gap: 10px;">
                                 ${porPrioridad.MEDIA.map(exp => `
                                     <div style="padding: 10px; background: #FEF3C7; border-radius: 6px; cursor: pointer;" 
-                                         onclick="window.ExpedientesModule.verDetalle(${exp.id})">
+                                         onclick="window.ExpedientesModule.navegarAExpedienteDesdeReporte(${exp.id}, ${exp.organizacion_id})">
                                         <div style="font-weight: 600;">${exp.numero_expediente}</div>
                                         <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre || 'Sin organización'}</div>
                                         <div style="font-size: 0.85rem; margin-top: 5px;">${exp.descripcion || 'Sin descripción'}</div>
@@ -518,7 +518,7 @@ const ExpedientesModule = {
                             <div style="display: grid; gap: 10px;">
                                 ${porPrioridad.BAJA.map(exp => `
                                     <div style="padding: 10px; background: #D1FAE5; border-radius: 6px; cursor: pointer;" 
-                                         onclick="window.ExpedientesModule.verDetalle(${exp.id})">
+                                         onclick="window.ExpedientesModule.navegarAExpedienteDesdeReporte(${exp.id}, ${exp.organizacion_id})">
                                         <div style="font-weight: 600;">${exp.numero_expediente}</div>
                                         <div style="font-size: 0.9rem; color: #64748b;">${exp.organizacion_nombre || 'Sin organización'}</div>
                                         <div style="font-size: 0.85rem; margin-top: 5px;">${exp.descripcion || 'Sin descripción'}</div>
@@ -535,6 +535,28 @@ const ExpedientesModule = {
             console.error(error);
             alert('Error al cargar reporte de prioridades');
         }
+    },
+
+    async navegarAExpedienteDesdeReporte(expId, orgId) {
+        // 1. Cerrar el reporte de prioridades
+        cerrarModal('modal-reporte-prioridades');
+
+        // 2. Abrir el detalle de la dependencia
+        await window.verDetalleOrganizacion(orgId);
+
+        // 3. Scroll suave hacia la sección de expedientes dentro del modal
+        setTimeout(() => {
+            const section = document.getElementById('detalle-org-expediente-section');
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Efecto visual de resaltado temporal
+                section.style.transition = 'background-color 0.5s ease';
+                section.style.backgroundColor = '#FEF3C7';
+                setTimeout(() => {
+                    section.style.backgroundColor = '';
+                }, 2000);
+            }
+        }, 500);
     }
 };
 
