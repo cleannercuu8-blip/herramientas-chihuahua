@@ -92,6 +92,14 @@ const ExpedientesModule = {
         const container = document.getElementById('expedientes-lista');
         if (!container) return;
 
+        // Mostrar/ocultar botón de nuevo expediente según rol
+        const usuario = window.AuthModule.getUsuario();
+        const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
+        const btnNuevo = document.getElementById('btn-nuevo-expediente');
+        if (btnNuevo) {
+            btnNuevo.style.display = isAdminOrCapturista ? 'block' : 'none';
+        }
+
         container.innerHTML = '<div class="spinner"></div>';
 
         try {
