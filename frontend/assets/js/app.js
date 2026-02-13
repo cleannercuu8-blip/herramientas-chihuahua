@@ -585,7 +585,7 @@
                   `).join('')}
                 </div>
                 <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; text-align: right;">
-                  <button class="btn btn-outline-primary btn-xs" style="font-weight: 600;" onclick="window.hacerNuevaHerramientaConOrg()">+ Agregar otro documento</button>
+                  ${isAdminOrCapturista ? `<button class="btn btn-outline-primary btn-xs" style="font-weight: 600;" onclick="window.hacerNuevaHerramientaConOrg()">+ Agregar otro documento</button>` : ''}
                 </div>
               </div>
             `;

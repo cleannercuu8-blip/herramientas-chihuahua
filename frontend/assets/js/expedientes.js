@@ -218,13 +218,24 @@ const ExpedientesModule = {
             const dateInput = document.querySelector('#form-nuevo-avance input[name="fecha"]');
             if (dateInput) dateInput.valueAsDate = new Date();
 
+            // Mostrar/ocultar formulario de avances según rol
+            const usuario = window.AuthModule.getUsuario();
+            const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
+            const formAvanceContainer = document.getElementById('form-avance-container');
+            if (formAvanceContainer) {
+                formAvanceContainer.style.display = isAdminOrCapturista ? 'block' : 'none';
+            }
+
             const footer = document.querySelector('#modal-detalle-expediente .modal-footer');
             if (footer) {
                 let actionBtn = '';
-                if (expediente.estatus !== 'CERRADO') {
-                    actionBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cerrarExpediente()" style="margin-right: auto;">🔒 Cerrar Expediente</button>`;
-                } else {
-                    actionBtn = `<button class="btn btn-warning" onclick="window.ExpedientesModule.reabrirExpediente()" style="margin-right: auto; background-color: #f59e0b; color: white;">↩️ Reabrir Expediente</button>`;
+                // Solo mostrar botones de cerrar/reabrir para ADMINISTRADOR y CAPTURISTA
+                if (isAdminOrCapturista) {
+                    if (expediente.estatus !== 'CERRADO') {
+                        actionBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cerrarExpediente()" style="margin-right: auto;">🔒 Cerrar Expediente</button>`;
+                    } else {
+                        actionBtn = `<button class="btn btn-warning" onclick="window.ExpedientesModule.reabrirExpediente()" style="margin-right: auto; background-color: #f59e0b; color: white;">↩️ Reabrir Expediente</button>`;
+                    }
                 }
 
                 footer.innerHTML = `
@@ -237,7 +248,7 @@ const ExpedientesModule = {
             console.error(error);
             alert('Error al cargar expediente');
         }
-    },
+    }
 
     renderTimeline(avances) {
         const container = document.getElementById('expediente-timeline');
