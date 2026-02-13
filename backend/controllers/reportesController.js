@@ -106,6 +106,10 @@ class ReportesController {
 
             doc.fontSize(12).font('Helvetica').fillColor('#64748B').text(`FECHA DE EMISIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}`, 50, 380);
 
+            doc.save();
+            doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill('#6B4C9A');
+            doc.restore();
+
 
             for (const org of organizaciones) {
                 const toolsRes = await db.query('SELECT * FROM herramientas WHERE organizacion_id = $1 ORDER BY tipo_herramienta', [org.id]);
@@ -149,6 +153,10 @@ class ReportesController {
         doc.fontSize(12).font('Helvetica').fillColor('#64748B').text(`FECHA DE EMISIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}`, 50, 380);
         doc.text(`TIPO: ${tipoOrg.replace('_', ' ')}`, 50, 400);
 
+        doc.save();
+        doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill('#6B4C9A');
+        doc.restore();
+
     }
 
     static async _generarContenidoReporte(doc, org, herramientas, incluirTitulo = false) {
@@ -177,7 +185,10 @@ class ReportesController {
 
         // Sección 1: Información General
         doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('1. INFORMACIÓN GENERAL', 50);
-        doc.moveDown(1);
+        doc.save();
+        doc.rect(50, doc.y + 2, 80, 2).fill('#003DA5');
+        doc.restore();
+        doc.moveDown(1.5);
 
         const infoY = doc.y;
         doc.save();
@@ -197,7 +208,10 @@ class ReportesController {
 
         // Sección 2: Semáforo de Cumplimiento
         doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('2. ESTADO DE CUMPLIMIENTO', 50);
-        doc.moveDown(1);
+        doc.save();
+        doc.rect(50, doc.y + 2, 80, 2).fill('#003DA5');
+        doc.restore();
+        doc.moveDown(1.5);
 
         const labels = {
             'ORGANIGRAMA': 'Organigrama',
@@ -277,7 +291,10 @@ class ReportesController {
 
                 // Título de sección
                 doc.fillColor('#003DA5').fontSize(16).font('Helvetica-Bold').text('3. EXPEDIENTE DE SEGUIMIENTO', 50);
-                doc.moveDown(1);
+                doc.save();
+                doc.rect(50, doc.y + 2, 80, 2).fill('#003DA5');
+                doc.restore();
+                doc.moveDown(1.5);
 
                 // Info del expediente
                 doc.save();
