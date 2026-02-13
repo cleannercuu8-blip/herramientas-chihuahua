@@ -1252,7 +1252,9 @@
 
       // Mostrar botón de eliminar solo para admins
       const btnEliminar = document.getElementById('btn-eliminar-organizacion');
-      if (btnEliminar) btnEliminar.style.display = 'block';
+      if (btnEliminar) {
+        btnEliminar.style.display = usuario.rol === 'ADMINISTRADOR' ? 'block' : 'none';
+      }
 
       window.mostrarModal('modal-editar-organizacion');
     } else {
