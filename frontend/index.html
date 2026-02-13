@@ -634,39 +634,53 @@
                             <option value="">Cargando...</option>
                         </select>
                     </div>
-                    </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Nombre específico (Opcional)</label>
-                <input type="text" class="form-input" name="nombre_personalizado" id="input-nombre-personalizado"
-                    placeholder="Ej: Buen Gobierno, Fiscalización...">
-            </div>
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Herramienta</label>
+                        <select class="form-select" name="tipo_herramienta" id="select-tipo-herramienta" required
+                            onchange="window.handleTipoHerramientaChange(this.value)">
+                            <option value="">Seleccione...</option>
+                            <option value="ORGANIGRAMA">Organigrama</option>
+                            <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
+                            <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
+                            <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
+                            <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
+                        </select>
+                    </div>
 
-            <!-- Pregunta condicional para Manual de Servicios -->
-            <div class="form-group hidden" id="pregunta-manual-servicios">
-                <label class="form-label">¿Requiere Manual de Servicios?</label>
-                <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
-                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                        <input type="radio" name="req_manual" value="SI" onchange="window.toggleInputsManual(true)"> Sí
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                        <input type="radio" name="req_manual" value="NO" onchange="window.toggleInputsManual(false)"> No
-                    </label>
-                </div>
-            </div>
+                    <div class="form-group hidden" id="group-nombre-personalizado">
+                        <label class="form-label">Nombre específico (Obligatorio para Manuales)</label>
+                        <input type="text" class="form-input" name="nombre_personalizado"
+                            id="input-nombre-personalizado" placeholder="Ej: Buen Gobierno, Fiscalización...">
+                    </div>
 
-            <div id="campos-herramienta-archivo">
-                <div class="form-group"><label class="form-label">Link</label><input type="url" class="form-input"
-                        name="link_publicacion_poe" id="input-link-herramienta" placeholder="https://..."></div>
-                <div class="form-group"><label class="form-label">Archivo (Opcional)</label><input type="file"
-                        class="form-input" name="archivo" id="input-archivo-herramienta"></div>
-                <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input"
-                        name="fecha_emision" id="input-fecha-herramienta" required></div>
+                    <!-- Pregunta condicional para Manual de Servicios -->
+                    <div class="form-group hidden" id="pregunta-manual-servicios">
+                        <label class="form-label">¿Requiere Manual de Servicios?</label>
+                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="req_manual" value="SI"
+                                    onchange="window.toggleInputsManual(true)"> Sí
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="req_manual" value="NO"
+                                    onchange="window.toggleInputsManual(false)"> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="campos-herramienta-archivo">
+                        <div class="form-group"><label class="form-label">Link</label><input type="url"
+                                class="form-input" name="link_publicacion_poe" id="input-link-herramienta"
+                                placeholder="https://..."></div>
+                        <div class="form-group"><label class="form-label">Archivo (Opcional)</label><input type="file"
+                                class="form-input" name="archivo" id="input-archivo-herramienta"></div>
+                        <div class="form-group"><label class="form-label">Fecha</label><input type="date"
+                                class="form-input" name="fecha_emision" id="input-fecha-herramienta" required></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Guardar</button>
-            </form>
         </div>
-    </div>
     </div>
 
     <!-- Modal Editar Herramienta -->
@@ -685,45 +699,58 @@
                             <!-- Inyectado por JS -->
                         </select>
                     </div>
-                    </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Nombre específico (Opcional)</label>
-                <input type="text" class="form-input" name="nombre_personalizado"
-                    id="edit-herramienta-nombre-personalizado" placeholder="Ej: Buen Gobierno, Fiscalización...">
-            </div>
-            <div class="form-group"><label class="form-label">Link</label><input type="url" class="form-input"
-                    name="link_publicacion_poe" id="edit-herramienta-link" placeholder="https://..."></div>
-            <div class="form-group"><label class="form-label">Archivo</label><input type="file" class="form-input"
-                    name="archivo" id="edit-herramienta-archivo"></div>
-            <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input"
-                    name="fecha_emision" id="edit-herramienta-fecha" required></div>
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Herramienta</label>
+                        <select class="form-select" name="tipo_herramienta" id="edit-herramienta-tipo" required
+                            onchange="window.handleTipoHerramientaChangeEdit(this.value)">
+                            <option value="ORGANIGRAMA">Organigrama</option>
+                            <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
+                            <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
+                            <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
+                            <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
+                        </select>
+                    </div>
 
-            <div class="form-group">
-                <label class="form-label">Estatus POE</label>
-                <input type="text" class="form-input" name="estatus_poe" id="edit-herramienta-estatus"
-                    placeholder="Ej. Publicado, En trámite">
-            </div>
+                    <div class="form-group" id="edit-group-nombre-personalizado">
+                        <label class="form-label">Nombre específico</label>
+                        <input type="text" class="form-input" name="nombre_personalizado"
+                            id="edit-herramienta-nombre-personalizado"
+                            placeholder="Ej: Buen Gobierno, Fiscalización...">
+                    </div>
+                    <div class="form-group"><label class="form-label">Link</label><input type="url" class="form-input"
+                            name="link_publicacion_poe" id="edit-herramienta-link" placeholder="https://..."></div>
+                    <div class="form-group"><label class="form-label">Archivo</label><input type="file"
+                            class="form-input" name="archivo" id="edit-herramienta-archivo"></div>
+                    <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input"
+                            name="fecha_emision" id="edit-herramienta-fecha" required></div>
 
-            <div class="form-group">
-                <label class="form-label">Versión</label>
-                <input type="text" class="form-input" name="version" id="edit-herramienta-version" placeholder="1.0">
-            </div>
+                    <div class="form-group">
+                        <label class="form-label">Estatus POE</label>
+                        <input type="text" class="form-input" name="estatus_poe" id="edit-herramienta-estatus"
+                            placeholder="Ej. Publicado, En trámite">
+                    </div>
 
-            <div class="form-group">
-                <label class="form-label">Comentarios</label>
-                <textarea class="form-input" name="comentarios" id="edit-herramienta-comentarios" rows="3"></textarea>
+                    <div class="form-group">
+                        <label class="form-label">Versión</label>
+                        <input type="text" class="form-input" name="version" id="edit-herramienta-version"
+                            placeholder="1.0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Comentarios</label>
+                        <textarea class="form-input" name="comentarios" id="edit-herramienta-comentarios"
+                            rows="3"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">Actualizar</button>
+                        <button type="button" class="btn btn-secondary" style="flex: 1;"
+                            onclick="cerrarModal('modal-editar-herramienta')">Cancelar</button>
+                        <button type="button" class="btn btn-danger" style="flex: 1;"
+                            onclick="borrarHerramientaDefinitivamente()">Eliminar</button>
+                    </div>
+                </form>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button type="submit" class="btn btn-primary" style="flex: 1;">Actualizar</button>
-                <button type="button" class="btn btn-secondary" style="flex: 1;"
-                    onclick="cerrarModal('modal-editar-herramienta')">Cancelar</button>
-                <button type="button" class="btn btn-danger" style="flex: 1;"
-                    onclick="borrarHerramientaDefinitivamente()">Eliminar</button>
-            </div>
-            </form>
         </div>
-    </div>
     </div>
 
     <!-- Modal Nuevo Expediente -->

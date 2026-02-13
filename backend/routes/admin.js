@@ -89,14 +89,24 @@ router.post('/clear-database', async (req, res) => {
         console.log('🧹 Limpiando y recreando base de datos...');
 
         // Eliminar tablas en orden inverso de dependencia
+        await db.query('DROP TABLE IF EXISTS expediente_avances CASCADE');
+        await db.query('DROP TABLE IF EXISTS expediente_etapas CASCADE');
+        await db.query('DROP TABLE IF EXISTS expedientes CASCADE');
         await db.query('DROP TABLE IF EXISTS historial CASCADE');
         await db.query('DROP TABLE IF EXISTS herramientas CASCADE');
         await db.query('DROP TABLE IF EXISTS organizaciones CASCADE');
 
         // Recrear tablas usando los modelos actuales
+        const Expediente = require('../models/Expediente');
+        const EtapaExpediente = require('../models/EtapaExpediente');
+        const ExpedienteAvance = require('../models/ExpedienteAvance');
+
         await Organizacion.crearTabla();
         await Herramienta.crearTabla();
         await Historial.crearTabla();
+        await Expediente.crearTabla();
+        await EtapaExpediente.crearTabla();
+        await ExpedienteAvance.crearTabla();
 
         console.log('✅ Base de datos limpiada y esquema recreado exitosamente');
 

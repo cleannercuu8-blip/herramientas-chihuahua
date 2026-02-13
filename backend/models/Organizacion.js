@@ -108,16 +108,31 @@ class Organizacion {
         try {
             await client.query('BEGIN');
 
-            // 1. Borrar historial de las herramientas de esta organización
+            // 1. Borrar avances de expedientes vinculados a esta organización
+            await client.query(`
+                DELETE FROM expediente_avances 
+                WHERE expediente_id IN (SELECT id FROM expedientes WHERE organizacion_id = $1)
+            `, [id]);
+
+            // 2. Borrar etapas de expedientes vinculados
+            await client.query(`
+                DELETE FROM expediente_etapas 
+                WHERE expediente_id IN (SELECT id FROM expedientes WHERE organizacion_id = $1)
+            `, [id]);
+
+            // 3. Borrar expedientes
+            await client.query('DELETE FROM expedientes WHERE organizacion_id = $1', [id]);
+
+            // 4. Borrar historial de las herramientas de esta organización
             await client.query(`
                 DELETE FROM historial 
                 WHERE herramienta_id IN (SELECT id FROM herramientas WHERE organizacion_id = $1)
             `, [id]);
 
-            // 2. Borrar herramientas de esta organización
+            // 5. Borrar herramientas de esta organización
             await client.query('DELETE FROM herramientas WHERE organizacion_id = $1', [id]);
 
-            // 3. Borrar la organización
+            // 6. Borrar la organización
             const result = await client.query('DELETE FROM organizaciones WHERE id = $1', [id]);
 
             await client.query('COMMIT');

@@ -645,12 +645,51 @@
     if (!idDependenciaSeleccionada) return;
 
     // Abrir modal normal
-    await mostrarModalNuevaHerramienta();
+    await window.mostrarModalNuevaHerramienta();
 
     // Seleccionar la dependencia en el select
     const select = document.getElementById('select-organizacion');
     if (select) {
       select.value = idDependenciaSeleccionada;
+    }
+  };
+
+  // Manejador de cambio de tipo en Nueva Herramienta
+  window.handleTipoHerramientaChange = function (tipo) {
+    const groupNombre = document.getElementById('group-nombre-personalizado');
+    const inputNombre = document.getElementById('input-nombre-personalizado');
+    const esManual = ['MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'].includes(tipo);
+
+    if (esManual) {
+      groupNombre.classList.remove('hidden');
+      inputNombre.required = true;
+    } else {
+      groupNombre.classList.add('hidden');
+      inputNombre.required = false;
+      inputNombre.value = '';
+    }
+
+    // Lógica especial para Manual de Servicios
+    const preguntaManual = document.getElementById('pregunta-manual-servicios');
+    if (tipo === 'MANUAL_SERVICIOS') {
+      preguntaManual.classList.remove('hidden');
+    } else {
+      preguntaManual.classList.add('hidden');
+    }
+  };
+
+  // Manejador de cambio de tipo en Editar Herramienta
+  window.handleTipoHerramientaChangeEdit = function (tipo) {
+    const groupNombre = document.getElementById('edit-group-nombre-personalizado');
+    const inputNombre = document.getElementById('edit-herramienta-nombre-personalizado');
+    const esManual = ['MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'].includes(tipo);
+
+    if (esManual) {
+      groupNombre.classList.remove('hidden');
+      inputNombre.required = true;
+    } else {
+      groupNombre.classList.add('hidden');
+      inputNombre.required = false;
     }
   };
 
@@ -684,6 +723,9 @@
         document.getElementById('edit-herramienta-comentarios').value = h.comentarios || '';
         document.getElementById('edit-herramienta-nombre-personalizado').value = h.nombre_personalizado || '';
         document.getElementById('edit-herramienta-version').value = h.version || '1.0';
+
+        // Disparar lógica de visibilidad inicial
+        window.handleTipoHerramientaChangeEdit(h.tipo_herramienta);
 
         // Mostrar/Ocultar botón de eliminar herramienta segun rol
         const btnEliminarTool = document.querySelector('#modal-editar-herramienta .btn-danger');
@@ -968,7 +1010,8 @@
 
     // Reset form
     document.getElementById('form-nueva-herramienta').reset();
-    document.getElementById('pregunta-manual-servicios').classList.add('hidden');
+    document.getElementById('select-tipo-herramienta').value = '';
+    window.handleTipoHerramientaChange(''); // Ocultar campos condicionales
     document.getElementById('campos-herramienta-archivo').classList.remove('hidden');
 
     mostrarModal('modal-nueva-herramienta');
