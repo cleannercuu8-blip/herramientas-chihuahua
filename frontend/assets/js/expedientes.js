@@ -268,30 +268,73 @@ const ExpedientesModule = {
         const usuario = window.AuthModule.getUsuario();
         const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
 
-        container.innerHTML = avances.map(av => `
-            <div class="timeline-item">
-                <div class="timeline-marker ${av.tipo.toLowerCase()}"></div>
-                <div class="timeline-content" style="position: relative; padding-right: 50px;">
-                    ${isAdminOrCapturista ? `
-                    <button class="btn btn-sm btn-action" 
-                            style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.2rem; cursor: pointer;" 
-                            onclick="ExpedientesModule.eliminarAvance(${av.id})" 
-                            title="Eliminar registro">
-                        🗑️
-                    </button>` : ''}
-                    
-                    <div class="timeline-header">
-                        <span class="timeline-date">${new Date(av.fecha).toLocaleDateString()}</span>
-                        <span class="timeline-type badge badge-${av.tipo.toLowerCase()}">${av.tipo}</span>
+        // Ordenar por fecha descendente (más reciente primero)
+        avances.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        container.innerHTML = avances.map(av => {
+            // Iconos según tipo
+            let icon = '📌'; // Default
+            if (av.tipo === 'AVANCE') icon = '📈';
+            if (av.tipo === 'REUNION') icon = '👥';
+            if (av.tipo === 'OFICIO') icon = '📄';
+
+            // Formato de fecha
+            const fechaObj = new Date(av.fecha);
+            const dia = fechaObj.getDate();
+            const mes = fechaObj.toLocaleString('es-MX', { month: 'short' }).toUpperCase();
+            const anio = fechaObj.getFullYear();
+
+            return `
+            <div class="timeline-item" style="display: flex; gap: 20px; margin-bottom: 25px; position: relative;">
+                <!-- Línea conectora -->
+                <div style="position: absolute; left: 24px; top: 50px; bottom: -30px; width: 2px; background: #e2e8f0; z-index: 0;"></div>
+                
+                <!-- Columna Fecha/Icono -->
+                <div style="display: flex; flex-direction: column; align-items: center; min-width: 50px; z-index: 1;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: white; border: 2px solid var(--azul-institucional); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        ${icon}
                     </div>
-                    <h5 class="timeline-title">${av.titulo}</h5>
-                    ${av.descripcion ? `<p>${av.descripcion}</p>` : ''}
-                    <small class="text-muted" style="display: block; margin-top: 5px;">
-                        Por: <strong>${av.usuario_nombre || 'Desconocido'}</strong>
-                    </small>
+                    <div style="margin-top: 5px; text-align: center; line-height: 1;">
+                        <span style="font-weight: 800; font-size: 1.2rem; color: #334155; display: block;">${dia}</span>
+                        <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">${mes}</span>
+                        <span style="font-size: 0.7rem; color: #94a3b8; display: block;">${anio}</span>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Contenido -->
+                <div class="timeline-content card" style="flex: 1; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); border-radius: 12px; transition: transform 0.2s; position: relative; overflow: hidden;">
+                    <!-- Barra lateral de color según tipo -->
+                    <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px;" class="bg-${av.tipo.toLowerCase()}"></div>
+                    
+                    <div style="padding: 15px 20px;">
+                        ${isAdminOrCapturista ? `
+                        <button class="btn btn-sm btn-action" 
+                                style="position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ef4444; transition: background 0.2s;" 
+                                onclick="ExpedientesModule.eliminarAvance(${av.id})" 
+                                title="Eliminar registro">
+                            🗑️
+                        </button>` : ''}
+                        
+                        <div style="margin-bottom: 8px;">
+                            <span class="badge badge-${av.tipo.toLowerCase()}" style="font-size: 0.7rem; letter-spacing: 0.5px;">${av.tipo}</span>
+                        </div>
+                        
+                        <h5 style="margin: 0 0 10px 0; color: var(--azul-institucional); font-size: 1.1rem; padding-right: 30px;">${av.titulo}</h5>
+                        
+                        ${av.descripcion ? `
+                        <p style="color: #475569; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; background: #f8fafc; padding: 10px; border-radius: 6px;">
+                            ${av.descripcion}
+                        </p>` : ''}
+                        
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                            <span>👤 Registrado por:</span>
+                            <strong style="color: #64748b;">${av.usuario_nombre || 'Sistema'}</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     },
 
     renderInfoTab(expediente) {

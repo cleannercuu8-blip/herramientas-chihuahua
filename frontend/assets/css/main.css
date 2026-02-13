@@ -1350,35 +1350,50 @@ body {
   margin-bottom: 25px;
 }
 
-.timeline-marker {
-  position: absolute;
-  left: -26px;
-  top: 0;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--azul-institucional);
-  border: 2px solid white;
-  box-shadow: 0 0 0 2px var(--gris-claro);
+/* Timeline Styles Refined */
+.expediente-timeline {
+  padding: 20px 0;
 }
 
-.timeline-content {
-  background: #f8fafc;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: var(--sombra-sm);
+.timeline-item:last-child .timeline-connector {
+  display: none;
 }
 
-.timeline-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
+/* Badge colors for timeline types */
+.badge-avance {
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
 
-.timeline-date {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--azul-institucional);
+.badge-reunion {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+.badge-oficio {
+  background-color: #f0fdf4;
+  color: #15803d;
+}
+
+.badge-otro {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.bg-avance {
+  background-color: #0369a1;
+}
+
+.bg-reunion {
+  background-color: #be185d;
+}
+
+.bg-oficio {
+  background-color: #15803d;
+}
+
+.bg-otro {
+  background-color: #9ca3af;
 }
 
 .timeline-title {
