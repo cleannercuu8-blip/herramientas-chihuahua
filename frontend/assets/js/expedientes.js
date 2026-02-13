@@ -248,7 +248,7 @@ const ExpedientesModule = {
             console.error(error);
             alert('Error al cargar expediente');
         }
-    }
+    },
 
     renderTimeline(avances) {
         const container = document.getElementById('expediente-timeline');
