@@ -271,9 +271,9 @@
     lista.forEach(org => {
       const dotsHTML = renderizarSemaforoDots(org.detalles_semaforo?.puntos || [], org);
       html += `
-        <div class="org-row-compact" onclick="verDetalleOrganizacion(${org.id})" style="cursor: pointer;">
+        <div class="org-row-compact" onclick="verDetalleOrganizacion(${org.id})" style="cursor: pointer; padding: 15px 20px; border-bottom: 1px solid var(--gris-claro); transition: background 0.2s;">
           <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div class="org-name-compact dependency-name" title="${org.nombre}">${org.nombre}</div>
+            <div class="org-name-compact dependency-name" style="font-size: 1.1rem; color: var(--sfp-azul);">${org.nombre}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="dot-container">
                 ${dotsHTML}

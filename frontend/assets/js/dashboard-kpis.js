@@ -2,30 +2,30 @@
 
 // Cargar resumen de expedientes por prioridad
 async function cargarResumenExpedientes() {
-    try {
-        const data = await window.AppUtils.fetchAPI('/expedientes');
-        const expedientes = data.expedientes || [];
+  try {
+    const data = await window.AppUtils.fetchAPI('/expedientes');
+    const expedientes = data.expedientes || [];
 
-        const porPrioridad = {
-            ALTA: expedientes.filter(e => e.prioridad === 'ALTA' && e.estatus === 'ABIERTO'),
-            MEDIA: expedientes.filter(e => e.prioridad === 'MEDIA' && e.estatus === 'ABIERTO'),
-            BAJA: expedientes.filter(e => e.prioridad === 'BAJA' && e.estatus === 'ABIERTO')
-        };
+    const porPrioridad = {
+      ALTA: expedientes.filter(e => e.prioridad === 'ALTA' && e.estatus === 'ABIERTO'),
+      MEDIA: expedientes.filter(e => e.prioridad === 'MEDIA' && e.estatus === 'ABIERTO'),
+      BAJA: expedientes.filter(e => e.prioridad === 'BAJA' && e.estatus === 'ABIERTO')
+    };
 
-        const totalAbiertos = expedientes.filter(e => e.estatus === 'ABIERTO').length;
-        const totalCerrados = expedientes.filter(e => e.estatus === 'CERRADO').length;
+    const totalAbiertos = expedientes.filter(e => e.estatus === 'ABIERTO').length;
+    const totalCerrados = expedientes.filter(e => e.estatus === 'CERRADO').length;
 
-        const container = document.getElementById('resumen-expedientes-content');
-        container.innerHTML = `
-      <div style="display: grid; gap: 15px;">
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-          <div style="text-align: center; padding: 15px; background: #EFF6FF; border-radius: 8px;">
-            <div style="font-size: 2rem; font-weight: 700; color: #3B82F6;">${totalAbiertos}</div>
-            <div style="font-size: 0.85rem; color: #64748b;">Abiertos</div>
+    const container = document.getElementById('resumen-expedientes-content');
+    container.innerHTML = `
+      <div style="display: grid; gap: 20px; padding: 10px;">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+          <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.4);">
+            <div style="font-size: 2.2rem; font-weight: 800; color: #1E40AF; font-family: 'Outfit', sans-serif;">${totalAbiertos}</div>
+            <div style="font-size: 0.9rem; font-weight: 600; color: #1E40AF; text-transform: uppercase; letter-spacing: 1px;">Abiertos</div>
           </div>
-          <div style="text-align: center; padding: 15px; background: #F1F5F9; border-radius: 8px;">
-            <div style="font-size: 2rem; font-weight: 700; color: #64748b;">${totalCerrados}</div>
-            <div style="font-size: 0.85rem; color: #64748b;">Cerrados</div>
+          <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.4);">
+            <div style="font-size: 2.2rem; font-weight: 800; color: #475569; font-family: 'Outfit', sans-serif;">${totalCerrados}</div>
+            <div style="font-size: 0.9rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 1px;">Cerrados</div>
           </div>
         </div>
         <div style="border-top: 1px solid #E2E8F0; padding-top: 15px;">
@@ -57,59 +57,60 @@ async function cargarResumenExpedientes() {
         </button>
       </div>
     `;
-    } catch (error) {
-        console.error('Error al cargar resumen de expedientes:', error);
-        const container = document.getElementById('resumen-expedientes-content');
-        container.innerHTML = '<p class="text-center text-muted">Error al cargar datos</p>';
-    }
+  } catch (error) {
+    console.error('Error al cargar resumen de expedientes:', error);
+    const container = document.getElementById('resumen-expedientes-content');
+    container.innerHTML = '<p class="text-center text-muted">Error al cargar datos</p>';
+  }
 }
 
 // Cargar indicadores clave (KPIs)
 async function cargarKPIs() {
-    try {
-        const [orgData, expData] = await Promise.all([
-            window.AppUtils.fetchAPI('/organizaciones'),
-            window.AppUtils.fetchAPI('/expedientes')
-        ]);
+  try {
+    const [orgData, expData] = await Promise.all([
+      window.AppUtils.fetchAPI('/organizaciones'),
+      window.AppUtils.fetchAPI('/expedientes')
+    ]);
 
-        const organizaciones = orgData.organizaciones || [];
-        const expedientes = expData.expedientes || [];
+    const organizaciones = orgData.organizaciones || [];
+    const expedientes = expData.expedientes || [];
 
-        const totalOrgs = organizaciones.length;
-        const orgsVerde = organizaciones.filter(o => o.semaforo === 'VERDE').length;
-        const tasaCumplimiento = totalOrgs > 0 ? Math.round((orgsVerde / totalOrgs) * 100) : 0;
+    const totalOrgs = organizaciones.length;
+    const orgsVerde = organizaciones.filter(o => o.semaforo === 'VERDE').length;
+    const tasaCumplimiento = totalOrgs > 0 ? Math.round((orgsVerde / totalOrgs) * 100) : 0;
 
-        const orgsRojo = organizaciones.filter(o => o.semaforo === 'ROJO').length;
-        const orgsSinExpediente = organizaciones.filter(o => {
-            return !expedientes.some(e => e.organizacion_id === o.id);
-        }).length;
+    const orgsRojo = organizaciones.filter(o => o.semaforo === 'ROJO').length;
+    const orgsSinExpediente = organizaciones.filter(o => {
+      return !expedientes.some(e => e.organizacion_id === o.id);
+    }).length;
 
-        const expedientesActivos = expedientes.filter(e => e.estatus === 'ABIERTO').length;
+    const expedientesActivos = expedientes.filter(e => e.estatus === 'ABIERTO').length;
 
-        const container = document.getElementById('kpis-content');
-        container.innerHTML = `
-      <div style="display: grid; gap: 12px;">
-        <div style="padding: 15px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 8px; color: white;">
-          <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">Tasa de Cumplimiento</div>
-          <div style="font-size: 2.5rem; font-weight: 700;">${tasaCumplimiento}%</div>
-          <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 5px;">${orgsVerde} de ${totalOrgs} organizaciones</div>
+    const container = document.getElementById('kpis-content');
+    container.innerHTML = `
+      <div style="display: grid; gap: 15px; padding: 10px;">
+        <div style="padding: 25px; background: linear-gradient(135deg, #0d9488 0%, #065F46 100%); border-radius: 12px; color: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
+          <div style="position: absolute; top: -20px; right: -20px; font-size: 5rem; opacity: 0.1;">🎯</div>
+          <div style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Tasa de Cumplimiento</div>
+          <div style="font-size: 3rem; font-weight: 800; font-family: 'Outfit', sans-serif;">${tasaCumplimiento}%</div>
+          <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 5px;">${orgsVerde} de ${totalOrgs} instituciones en verde</div>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-          <div style="padding: 12px; background: #FEE2E2; border-radius: 6px; text-align: center;">
-            <div style="font-size: 1.8rem; font-weight: 700; color: #991B1B;">${orgsRojo}</div>
-            <div style="font-size: 0.75rem; color: #991B1B; margin-top: 3px;">Incumplimiento</div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+          <div style="padding: 15px; background: white; border-radius: 10px; text-align: center; border-bottom: 4px solid #EF4444; box-shadow: 0 4px 6px rgba(0,0,0,0.04);">
+            <div style="font-size: 2rem; font-weight: 800; color: #B91C1C; font-family: 'Outfit', sans-serif;">${orgsRojo}</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: #B91C1C; text-transform: uppercase;">Incumpliendo</div>
           </div>
-          <div style="padding: 12px; background: #DBEAFE; border-radius: 6px; text-align: center;">
-            <div style="font-size: 1.8rem; font-weight: 700; color: #1E40AF;">${expedientesActivos}</div>
-            <div style="font-size: 0.75rem; color: #1E40AF; margin-top: 3px;">Expedientes Activos</div>
+          <div style="padding: 15px; background: white; border-radius: 10px; text-align: center; border-bottom: 4px solid #3B82F6; box-shadow: 0 4px 6px rgba(0,0,0,0.04);">
+            <div style="font-size: 2rem; font-weight: 800; color: #1E40AF; font-family: 'Outfit', sans-serif;">${expedientesActivos}</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: #1E40AF; text-transform: uppercase;">Activos</div>
           </div>
-          <div style="padding: 12px; background: #FEF3C7; border-radius: 6px; text-align: center;">
-            <div style="font-size: 1.8rem; font-weight: 700; color: #92400E;">${orgsSinExpediente}</div>
-            <div style="font-size: 0.75rem; color: #92400E; margin-top: 3px;">Sin Expediente</div>
+          <div style="padding: 15px; background: white; border-radius: 10px; text-align: center; border-bottom: 4px solid #F59E0B; box-shadow: 0 4px 6px rgba(0,0,0,0.04);">
+            <div style="font-size: 2rem; font-weight: 800; color: #92400E; font-family: 'Outfit', sans-serif;">${orgsSinExpediente}</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: #92400E; text-transform: uppercase;">Sin Exp.</div>
           </div>
-          <div style="padding: 12px; background: #E0E7FF; border-radius: 6px; text-align: center;">
-            <div style="font-size: 1.8rem; font-weight: 700; color: #4338CA;">${totalOrgs}</div>
-            <div style="font-size: 0.75rem; color: #4338CA; margin-top: 3px;">Total Organizaciones</div>
+          <div style="padding: 15px; background: white; border-radius: 10px; text-align: center; border-bottom: 4px solid #6366F1; box-shadow: 0 4px 6px rgba(0,0,0,0.04);">
+            <div style="font-size: 2rem; font-weight: 800; color: #4338CA; font-family: 'Outfit', sans-serif;">${totalOrgs}</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: #4338CA; text-transform: uppercase;">Total</div>
           </div>
         </div>
         <div style="margin-top: 10px;">
@@ -123,9 +124,9 @@ async function cargarKPIs() {
         </div>
       </div>
     `;
-    } catch (error) {
-        console.error('Error al cargar KPIs:', error);
-        const container = document.getElementById('kpis-content');
-        container.innerHTML = '<p class="text-center text-muted">Error al cargar datos</p>';
-    }
+  } catch (error) {
+    console.error('Error al cargar KPIs:', error);
+    const container = document.getElementById('kpis-content');
+    container.innerHTML = '<p class="text-center text-muted">Error al cargar datos</p>';
+  }
 }
