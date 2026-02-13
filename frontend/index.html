@@ -802,12 +802,12 @@
     <div id="vista-expediente" class="hidden">
         <div class="view-header"
             style="border-bottom: 2px solid var(--azul-institucional); padding: 20px 40px; background: white; position: sticky; top: 0; z-index: 100;">
-            <div
-                style="display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; width: 100%;">
-                <button class="btn-back" onclick="window.ExpedientesModule.regresarAVistaAnterior()"
-                    style="font-weight: 600;">
-                    ⬅️ Regresar a Herramientas
-                </button>
+            <div style="display: flex; align-items: center; max-width: 1200px; margin: 0 auto; width: 100%;">
+                <div style="width: 250px;">
+                    <button class="btn-back" onclick="window.ExpedientesModule.regresarAVistaAnterior()">
+                        ⬅️ Regresar a Herramientas
+                    </button>
+                </div>
                 <div style="flex: 1; text-align: center;">
                     <h2 class="card-title" id="detalle-exp-titulo"
                         style="font-size: 1.8rem; color: var(--azul-institucional); margin: 0;">Detalle del Expediente
@@ -815,11 +815,7 @@
                     <p id="detalle-exp-subtitulo" class="text-muted" style="font-size: 1.1rem; margin: 5px 0 0 0;">
                         Cargando...</p>
                 </div>
-                <div style="width: 200px; text-align: right;">
-                    <button class="btn btn-outline-primary btn-sm" onclick="window.ExpedientesModule.toggleInfoPanel()">
-                        ℹ️ Ver Información General
-                    </button>
-                </div>
+                <div style="width: 250px;"></div>
             </div>
         </div>
 

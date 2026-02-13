@@ -140,31 +140,33 @@ const ExpedientesModule = {
             if (expedienteActivo) {
                 this.currentExpedienteId = expedienteActivo.id;
                 html += `
-                    <div class="card mb-20" style="border-left: 5px solid var(--verde-cumplimiento);">
+                    <div class="card mb-20" style="border-left: 5px solid var(--verde-cumplimiento); box-shadow: var(--sombra-md);">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <h5 style="margin: 0; color: var(--azul-institucional); font-size: 1.1rem;">📂 Expediente Activo</h5>
-                                <p style="margin: 5px 0; font-weight: 600;">${expedienteActivo.numero_expediente}</p>
-                                <span class="badge badge-verde">ABIERTO</span>
+                                <h5 style="margin: 0; color: var(--azul-institucional); font-size: 1.1rem; display: flex; align-items:center; gap: 8px;">
+                                    <span style="font-size: 1.3rem;">📂</span> Expediente de Seguimiento Activo
+                                </h5>
+                                <p style="margin: 5px 0; font-weight: 700; font-size: 1.2rem;">${expedienteActivo.numero_expediente}</p>
+                                <span class="badge badge-verde">EN PROCESO</span>
                                 <small class="d-block text-muted mt-5">${expedienteActivo.titulo}</small>
                             </div>
                             <button class="btn btn-primary" onclick="window.ExpedientesModule.verDetalle(${expedienteActivo.id})">
-                                Ver Bitácora Actual
+                                Ver Bitácora y Avances ➔
                             </button>
                         </div>
                     </div>
                 `;
-            } else {
-                // Si no hay activo, mostrar opción para crear uno nuevo
-                html += `
-                    <div class="text-center p-20 mb-20" style="background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                        <p class="mb-10 text-muted">No hay expediente de seguimiento activo.</p>
-                        <button class="btn btn-secondary" onclick="window.ExpedientesModule.crearAutomatico(${organizacionId}, '${containerId}')">
-                             ✨ Activar Nuevo Expediente ${new Date().getFullYear()}
-                        </button>
-                    </div>
-                `;
             }
+
+            // Botón para Crear Nuevo Siempre visible (como historial)
+            html += `
+                <div class="text-center p-15 mb-20" style="background: #f1f5f9; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                    <p class="mb-10 text-muted" style="font-size: 0.9rem;">¿Necesita iniciar un nuevo seguimiento independiente? (ej. Nuevo Ejercicio Fiscal)</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="window.ExpedientesModule.crearAutomatico(${organizacionId}, '${containerId}')">
+                         + Iniciar Nuevo Expediente de Seguimiento
+                    </button>
+                </div>
+            `;
 
             // 2. Mostrar Historial (si hay expedientes anteriores)
             if (historial.length > 0) {
@@ -323,26 +325,19 @@ const ExpedientesModule = {
                 }
             }
 
-            // 4. Actualizar Footer Actions
-            const footer = document.querySelector(`#${modalId} .modal-footer`);
+            // 4. Actualizar Footer Actions (Ya no usamos el modal footer, usamos el del SPA view)
+            const footer = document.getElementById('expediente-admin-actions');
             if (footer) {
                 let actionBtn = '';
                 if (isAdminOrCapturista) {
                     if (this.currentExpediente.estatus === 'ABIERTO') {
                         actionBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cambiarEstatus('CERRADO')">🔒 Cerrar Expediente</button>`;
                     } else {
-                        actionBtn = `<button class="btn btn-warning btn-sm" onclick="window.ExpedientesModule.cambiarEstatus('ABIERTO')">🔓 Reabrir Expediente</button>`;
+                        actionBtn = `<button class="btn btn-warning" onclick="window.ExpedientesModule.cambiarEstatus('ABIERTO')">🔓 Reabrir Expediente</button>`;
                     }
                 }
 
-                footer.innerHTML = `
-                    <div style="flex: 1;">${actionBtn}</div>
-                    <button class="btn btn-secondary" onclick="window.ExpedientesModule.descargarPDF()">📄 Descargar PDF</button>
-                    <button class="btn btn-primary" onclick="cerrarModal('${modalId}')">Cerrar</button>
-                `;
-                footer.style.display = 'flex';
-                footer.style.justifyContent = 'space-between';
-                footer.style.alignItems = 'center';
+                footer.innerHTML = actionBtn;
             }
 
         } catch (error) {

@@ -1452,3 +1452,53 @@ body {
   background: var(--azul-institucional);
   color: #fff;
 }
+
+/* Botón de Regresar Estilo Institucional */
+.btn-back {
+  background: white !important;
+  color: var(--azul-institucional) !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 10px 18px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: var(--sombra-sm) !important;
+}
+
+.btn-back:hover {
+  background: #f8fafc !important;
+  border-color: var(--azul-institucional) !important;
+  transform: translateX(-3px);
+  box-shadow: var(--sombra-md) !important;
+}
+
+/* Ajustes para la vista de página completa */
+#vista-expediente {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.view-header {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.timeline-item {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
