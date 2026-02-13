@@ -265,16 +265,20 @@ const ExpedientesModule = {
             return;
         }
 
+        const usuario = window.AuthModule.getUsuario();
+        const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
+
         container.innerHTML = avances.map(av => `
             <div class="timeline-item">
                 <div class="timeline-marker ${av.tipo.toLowerCase()}"></div>
                 <div class="timeline-content" style="position: relative; padding-right: 50px;">
+                    ${isAdminOrCapturista ? `
                     <button class="btn btn-sm btn-action" 
                             style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.2rem; cursor: pointer;" 
                             onclick="ExpedientesModule.eliminarAvance(${av.id})" 
                             title="Eliminar registro">
                         🗑️
-                    </button>
+                    </button>` : ''}
                     
                     <div class="timeline-header">
                         <span class="timeline-date">${new Date(av.fecha).toLocaleDateString()}</span>
@@ -294,55 +298,81 @@ const ExpedientesModule = {
         const container = document.getElementById('expediente-info-content');
         if (!container) return;
 
+        const usuario = window.AuthModule.getUsuario();
+        const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
+
         container.innerHTML = `
-            <div class="card bg-light">
-                <h4 style="color: var(--azul-institucional); margin-bottom: 15px;">📋 Información del Expediente</h4>
+            <div class="card bg-light" style="border-left: 5px solid var(--azul-institucional); background: #fdfdfd;">
+                <h4 style="color: var(--azul-institucional); margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                    📋 Información General del Expediente
+                </h4>
                 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-                    <div>
-                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Número de Expediente</label>
-                        <p style="margin: 0; font-size: 1rem;">${expediente.numero_expediente}</p>
-                    </div>
-                    
-                    <div>
-                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Estado</label>
-                        <p style="margin: 0;"><span class="badge ${expediente.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}">${expediente.estatus}</span></p>
-                    </div>
-                    
-                    <div>
-                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Dependencia/Entidad</label>
-                        <p style="margin: 0; font-size: 1rem;">${expediente.organizacion_nombre}</p>
-                    </div>
-                    
-                    <div>
-                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Prioridad</label>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <select id="expediente-prioridad-select" class="form-select" style="max-width: 150px;">
-                                <option value="BAJA" ${expediente.prioridad === 'BAJA' ? 'selected' : ''}>Baja</option>
-                                <option value="MEDIA" ${expediente.prioridad === 'MEDIA' ? 'selected' : ''}>Media</option>
-                                <option value="ALTA" ${expediente.prioridad === 'ALTA' ? 'selected' : ''}>Alta</option>
-                            </select>
-                            <button class="btn btn-sm btn-primary" onclick="window.ExpedientesModule.actualizarPrioridad()" style="padding: 5px 15px;">
-                                💾 Guardar
-                            </button>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label class="form-label text-muted" style="font-size: 0.85rem;">Número de Expediente</label>
+                            <div style="font-weight: 600; font-size: 1.1rem;">${expediente.numero_expediente}</div>
                         </div>
                     </div>
-                    
-                    <div style="grid-column: 1 / -1;">
-                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Descripción</label>
-                        <p style="margin: 0; font-size: 0.95rem; line-height: 1.5;">${expediente.descripcion || 'Sin descripción'}</p>
-                    </div>
-                    
-                    <div>
-                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Fecha de Creación</label>
-                        <p style="margin: 0;">${new Date(expediente.fecha_creacion).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    </div>
-                    
-                    <div>
-                        <label style="font-weight: 600; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 5px;">Última Actualización</label>
-                        <p style="margin: 0;">${new Date(expediente.ultima_actualizacion).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <div class="col">
+                        <div class="form-group">
+                            <label class="form-label text-muted" style="font-size: 0.85rem;">Estado</label>
+                            <div><span class="badge ${expediente.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}">${expediente.estatus}</span></div>
+                        </div>
                     </div>
                 </div>
+
+                <div class="row mt-10">
+                    <div class="col">
+                        <div class="form-group">
+                            <label class="form-label text-muted" style="font-size: 0.85rem;">Dependencia/Entidad</label>
+                            <div style="font-weight: 500;">${expediente.organizacion_nombre}</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label class="form-label text-muted" style="font-size: 0.85rem;">Prioridad</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <select class="form-select" id="select-prioridad-expediente" style="width: auto;" ${!isAdminOrCapturista ? 'disabled' : ''}>
+                                    <option value="BAJA" ${expediente.prioridad === 'BAJA' ? 'selected' : ''}>Baja</option>
+                                    <option value="MEDIA" ${expediente.prioridad === 'MEDIA' ? 'selected' : ''}>Media</option>
+                                    <option value="ALTA" ${expediente.prioridad === 'ALTA' ? 'selected' : ''}>Alta</option>
+                                    <option value="URGENTE" ${expediente.prioridad === 'URGENTE' ? 'selected' : ''}>Urgente</option>
+                                </select>
+                                ${isAdminOrCapturista ? `
+                                <button class="btn btn-primary btn-sm" onclick="window.ExpedientesModule.guardarPrioridad()">
+                                    💾 Guardar
+                                </button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-20">
+                    <div class="form-group">
+                        <label class="form-label text-muted" style="font-size: 0.85rem;">Descripción</label>
+                        <p style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
+                            ${expediente.descripcion || 'Sin descripción'}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row mt-20" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+                    <div class="col">
+                        <small class="text-muted">Fecha de Creación</small>
+                        <div>${new Date(expediente.fecha_creacion).toLocaleDateString()}</div>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted">Última Actualización</small>
+                        <div>${new Date(expediente.ultima_actualizacion).toLocaleDateString()}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-20 mb-10">
+                 <span style="display: inline-block; padding: 5px 15px; background: #e2e8f0; border-radius: 20px; color: #475569; font-size: 0.85rem; font-weight: 600;">
+                    ⬇️ Bitácora de Actividades ⬇️
+                 </span>
             </div>
         `;
     },

@@ -620,7 +620,7 @@
               <div><strong>Estado:</strong> <span class="badge" style="background: #ccc; color: white;">✗ Pendiente</span></div>
               <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">No se ha cargado documento para esta categoría.</div>
               <div style="margin-top: 10px; text-align: right;">
-                <button class="btn btn-primary btn-xs" onclick="window.hacerNuevaHerramientaConOrg()">Registrar</button>
+                ${isAdminOrCapturista ? `<button class="btn btn-primary btn-xs" onclick="window.hacerNuevaHerramientaConOrg()">Registrar</button>` : ''}
               </div>
             </div>
           `;
