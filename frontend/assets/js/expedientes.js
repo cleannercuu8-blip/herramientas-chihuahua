@@ -244,7 +244,12 @@ const ExpedientesModule = {
 
     async verDetalle(id) {
         this.currentExpedienteId = id;
-        const modalId = 'modal-detalle-expediente';
+
+        // Guardar de dónde venimos para poder regresar
+        this.vistaPrevia = window.AppState?.currentView || 'herramientas';
+
+        // Cambiar a la vista de expediente (SPA)
+        window.mostrarVista('expediente');
 
         // Limpiar contenido previo y mostrar spinner en áreas de contenido
         const timelineContainer = document.getElementById('expediente-timeline');
@@ -260,8 +265,6 @@ const ExpedientesModule = {
         // Remover botón de "Agregar Avance" previo si existe para evitar duplicados
         const prevBtn = document.getElementById('btn-mostrar-form-avance-wrapper');
         if (prevBtn) prevBtn.remove();
-
-        window.mostrarModal(modalId);
 
         try {
             const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
@@ -749,7 +752,6 @@ const ExpedientesModule = {
 
     toggleInfoPanel() {
         const tabBitacora = document.getElementById('tab-bitacora');
-        const tabInfo = document.getElementById('tab-info');
 
         // Si bitacora está activa, cambiar a info
         if (tabBitacora && tabBitacora.classList.contains('active')) {
@@ -758,6 +760,12 @@ const ExpedientesModule = {
             // Si no, volver a bitacora
             this.switchTab(null, 'tab-bitacora');
         }
+    },
+
+    regresarAVistaAnterior() {
+        // Regresar a la vista donde el usuario estaba antes (Dashboard o Herramientas)
+        const vista = this.vistaPrevia || 'herramientas';
+        window.mostrarVista(vista);
     }
 };
 

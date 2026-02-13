@@ -100,7 +100,6 @@
       const statsGrid = document.getElementById('stats-grid');
 
       if (!statsGrid) {
-        console.warn('Elemento stats-grid no encontrado en el DOM');
         return;
       }
 
