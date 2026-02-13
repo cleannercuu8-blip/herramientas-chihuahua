@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Herramientas Organizacionales - SFP</title>
+    <title>Sistema de Herramientas Organizacionales</title>
     <link rel="stylesheet" href="assets/css/main.css?v=2.4">
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -22,10 +22,8 @@
         <div class="header">
             <div class="header-container">
                 <div class="header-titles">
-                    <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8;">SFP |
-                        Chihuahua</span>
-                    <h1 style="font-weight: 800; margin-top: 5px;">Sistema de Herramientas Organizacionales</h1>
-                    <p style="font-weight: 500; opacity: 0.9;">Secretaría de la Función Pública</p>
+                    <h1>🏛️ Sistema de Herramientas Organizacionales</h1>
+                    <p>Gobierno del Estado de Chihuahua</p>
                 </div>
 
 
@@ -78,10 +76,8 @@
                 </button>
             </div>
 
-            <h2 id="dashboard-main-title" class="card-title mb-20 text-center"
-                style="font-weight: 800; color: var(--sfp-azul);">
-                Tablero de Control Organizacional
-            </h2>
+            <h2 id="dashboard-main-title" class="card-title mb-20 text-center">Tablero de Control - Herramientas
+                Organizacionales</h2>
 
             <!-- Bloques Principales (Trapecios) -->
             <div class="dashboard-trapecios-grid" id="trapecios-grid">

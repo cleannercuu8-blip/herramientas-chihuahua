@@ -1,40 +1,28 @@
 ﻿:root {
-  /* Colores Institucionales - SFP / Gobierno de Chihuahua */
-  --sfp-azul: #003DA5;
-  --sfp-morado: #6B4C9A;
-  /* Toque institucional del logo */
-  --sfp-azul-oscuro: #002D7A;
-  --sfp-azul-claro: #4A90E2;
+  /* Colores institucionales - Gobierno de Chihuahua */
+  --azul-institucional: #003DA5;
+  --azul-claro: #4A90E2;
+  --azul-cielo: #7CB9E8;
+  --morado-institucional: #6B4C9A;
+  --morado-claro: #9B7EBD;
 
-  /* Gradientes Premium */
-  --gradiente-premium: linear-gradient(135deg, var(--sfp-azul) 0%, var(--sfp-morado) 100%);
-  --gradiente-soft: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-
-  /* Semáforo (Refinado) */
+  /* SemÃ¡foro */
   --verde-cumplimiento: #10B981;
   --amarillo-advertencia: #F59E0B;
   --rojo-incumplimiento: #EF4444;
-  --naranja-claro: #fb923c;
-  --naranja-fuerte: #ea580c;
 
   /* Neutrales */
-  --gris-oscuro: #334155;
-  --gris-medio: #64748b;
-  --gris-claro: #f1f5f9;
+  --gris-oscuro: #1F2937;
+  --gris-medio: #6B7280;
+  --gris-claro: #F3F4F6;
   --blanco: #FFFFFF;
 
-  /* Glassmorphism Defaults */
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-
-  /* Sombras Modernas */
-  --sombra-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* Sombras */
+  --sombra-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --sombra-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --sombra-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  --sombra-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --sombra-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 
 * {
   margin: 0;
@@ -43,21 +31,10 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, var(--azul-cielo) 0%, var(--morado-claro) 100%);
   min-height: 100vh;
   color: var(--gris-oscuro);
-  -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3,
-h4,
-.card-title,
-.nav-btn,
-.btn {
-  font-family: 'Outfit', sans-serif;
 }
 
 /* Contenedor principal */
@@ -69,26 +46,25 @@ h4,
 
 /* Header */
 .header {
-  background: var(--gradiente-premium);
+  background: linear-gradient(135deg, var(--azul-institucional) 0%, var(--morado-institucional) 100%);
   color: var(--blanco);
-  padding: 40px;
-  border-radius: 24px;
-  box-shadow: var(--sombra-lg);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: var(--sombra-xl);
   margin-bottom: 30px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.header::after {
+.header::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><g fill="%23fff" fill-opacity="0.05" fill-rule="evenodd"><circle cx="3" cy="3" r="3"/></g></svg>');
-  opacity: 0.3;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
 }
 
 .header h1 {
@@ -105,71 +81,59 @@ h4,
   z-index: 1;
 }
 
-/* Navegación */
+/* NavegaciÃ³n */
 .nav {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 12px 20px;
-  box-shadow: var(--glass-shadow);
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 15px 25px;
+  box-shadow: var(--sombra-md);
   margin-bottom: 30px;
   display: flex;
-  gap: 12px;
+  gap: 15px;
   flex-wrap: wrap;
   align-items: center;
-  border: 1px solid var(--glass-border);
 }
 
 .nav-btn {
-  padding: 10px 20px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--gris-oscuro);
-  font-size: 0.95rem;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-institucional) 100%);
+  color: var(--blanco);
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
+  box-shadow: var(--sombra-sm);
 }
 
 .nav-btn:hover {
-  background: rgba(0, 61, 165, 0.05);
-  color: var(--sfp-azul);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-md);
 }
 
 .nav-btn.active {
-  background: var(--sfp-azul);
-  color: var(--blanco);
-  box-shadow: 0 4px 12px rgba(0, 61, 165, 0.2);
+  background: linear-gradient(135deg, var(--morado-institucional) 0%, var(--morado-claro) 100%);
 }
 
 .nav-btn.logout {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--rojo-incumplimiento);
+  background: linear-gradient(135deg, var(--rojo-incumplimiento) 0%, #DC2626 100%);
   margin-left: auto;
-}
-
-.nav-btn.logout:hover {
-  background: var(--rojo-incumplimiento);
-  color: var(--blanco);
 }
 
 /* Tarjetas */
 .card {
   background: var(--blanco);
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: var(--sombra-md);
-  margin-bottom: 24px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid var(--gris-claro);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: var(--sombra-lg);
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--sombra-lg);
-  border-color: var(--sfp-azul-claro);
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-xl);
 }
 
 .card-header {
@@ -189,40 +153,43 @@ h4,
 
 /* Botones */
 .btn {
-  padding: 10px 24px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 12px;
-  font-size: 0.95rem;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: var(--sombra-sm);
 }
 
 .btn-primary {
-  background: var(--sfp-azul);
+  background: linear-gradient(135deg, var(--azul-claro) 0%, var(--azul-institucional) 100%);
   color: var(--blanco);
-  box-shadow: 0 4px 12px rgba(0, 61, 165, 0.2);
-}
-
-.btn-primary:hover {
-  background: var(--sfp-azul-oscuro);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 61, 165, 0.3);
 }
 
 .btn-secondary {
-  background: white;
-  color: var(--sfp-azul);
-  border: 1px solid var(--sfp-azul);
+  background: linear-gradient(135deg, var(--morado-claro) 0%, var(--morado-institucional) 100%);
+  color: var(--blanco);
 }
 
-.btn-secondary:hover {
-  background: rgba(0, 61, 165, 0.05);
+.btn-success {
+  background: linear-gradient(135deg, #34D399 0%, var(--verde-cumplimiento) 100%);
+  color: var(--blanco);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #F87171 0%, var(--rojo-incumplimiento) 100%);
+  color: var(--blanco);
+}
+
+.btn:hover {
   transform: translateY(-2px);
+  box-shadow: var(--sombra-md);
+}
+
+.btn:active {
+  transform: translateY(0);
 }
 
 /* Formularios */
@@ -264,41 +231,34 @@ h4,
 /* Tabla */
 .table-container {
   overflow-x: auto;
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: var(--sombra-md);
-  border: 1px solid var(--gris-claro);
-  background: var(--blanco);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  background: var(--blanco);
 }
 
 .table thead {
-  background: #f8fafc;
-  color: var(--gris-oscuro);
+  background: linear-gradient(135deg, var(--azul-institucional) 0%, var(--morado-institucional) 100%);
+  color: var(--blanco);
 }
 
-.table th {
-  padding: 16px 20px;
-  text-align: left;
-  font-weight: 700;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 2px solid var(--gris-claro);
-}
-
+.table th,
 .table td {
-  padding: 16px 20px;
+  padding: 15px;
+  text-align: left;
   border-bottom: 1px solid var(--gris-claro);
-  font-size: 0.95rem;
-  color: #475569;
+}
+
+.table tbody tr {
+  transition: all 0.2s ease;
 }
 
 .table tbody tr:hover {
-  background: #f1f5f9;
+  background: var(--gris-claro);
 }
 
 /* Badges de semÃ¡foro */
@@ -370,35 +330,39 @@ h4,
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
   z-index: 1000;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
 .modal.active {
   display: flex;
-  opacity: 1;
 }
 
 .modal-content {
   background: var(--blanco);
-  border-radius: 24px;
-  padding: 40px;
-  max-width: 700px;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 600px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  transform: scale(0.95);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: var(--sombra-xl);
+  animation: modalSlideIn 0.3s ease;
 }
 
-.modal.active .modal-content {
-  transform: scale(1);
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
@@ -805,29 +769,27 @@ h4,
 }
 
 .trapecio-card {
-  height: 260px;
+  height: 250px;
   position: relative;
-  clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+  clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  /* Subtle roundness even with clip-path */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
 .trapecio-azul {
-  background: linear-gradient(135deg, #2563eb 0%, #003DA5 100%);
+  background: linear-gradient(135deg, #0056D2 0%, #003DA5 100%);
 }
 
 .trapecio-morado {
-  background: linear-gradient(135deg, #a855f7 0%, #6B4C9A 100%);
+  background: linear-gradient(135deg, #8D6EBF 0%, #6B4C9A 100%);
 }
 
 .trapecio-oscuro {
-  background: linear-gradient(135deg, #475569 0%, #0f172a 100%);
+  background: linear-gradient(135deg, #4B5563 0%, #1F2937 100%);
 }
 
 .trapecio-content {
