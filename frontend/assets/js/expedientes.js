@@ -547,8 +547,18 @@ const ExpedientesModule = {
         // 3. Scroll suave hacia la sección de expedientes dentro del modal
         setTimeout(() => {
             const section = document.getElementById('detalle-org-expediente-section');
-            if (section) {
-                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const modalBody = document.querySelector('#modal-detalle-organizacion .modal-body');
+
+            if (section && modalBody) {
+                // Calcular la posición del expediente relativa al modal-body
+                const sectionTop = section.offsetTop;
+
+                // Scroll del contenedor del modal
+                modalBody.scrollTo({
+                    top: sectionTop - 20, // 20px de margen superior
+                    behavior: 'smooth'
+                });
+
                 // Efecto visual de resaltado temporal
                 section.style.transition = 'background-color 0.5s ease';
                 section.style.backgroundColor = '#FEF3C7';
