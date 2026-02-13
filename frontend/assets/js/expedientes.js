@@ -286,11 +286,12 @@ const ExpedientesModule = {
             this.renderTimeline(this.avances);
             this.renderInfoTab(this.currentExpediente);
 
-            // 3. Manejo del Formulario de Nuevo Avance (Toggle)
+            // 3. Manejo del Formulario de Nuevo Avance (Solo si está ABIERTO)
             const usuario = window.AuthModule.getUsuario();
             const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
+            const isAbierto = this.currentExpediente.estatus === 'ABIERTO';
 
-            if (isAdminOrCapturista && formContainer) {
+            if (isAdminOrCapturista && isAbierto && formContainer) {
                 // Insertar botón para mostrar formulario antes del contenedor del formulario
                 const btnWrapper = document.createElement('div');
                 btnWrapper.id = 'btn-mostrar-form-avance-wrapper';
@@ -302,27 +303,6 @@ const ExpedientesModule = {
                 `;
                 // Insertar antes del formContainer
                 formContainer.parentNode.insertBefore(btnWrapper, formContainer);
-
-                // Agregar botón cancelar dentro del formulario si no existe
-                let formHeader = formContainer.querySelector('.form-header-actions');
-                if (!formHeader) {
-                    // Solo si no se ha inyectado antes
-                    // Podríamos inyectar un botón de cancelar simple
-                    const closeBtn = document.createElement('button');
-                    closeBtn.type = 'button';
-                    closeBtn.className = 'btn btn-sm btn-outline-secondary';
-                    closeBtn.style.float = 'right';
-                    closeBtn.innerHTML = '✖ Cancelar';
-                    closeBtn.onclick = function () {
-                        formContainer.style.display = 'none';
-                        const wrapper = document.getElementById('btn-mostrar-form-avance-wrapper');
-                        if (wrapper) wrapper.style.display = 'block';
-                    };
-
-                    // Insertar al principio del formulario o antes del primer input
-                    const formNode = formContainer.querySelector('form');
-                    if (formNode) formNode.insertBefore(closeBtn, formNode.firstChild);
-                }
             }
 
             // 4. Actualizar Footer Actions (Ya no usamos el modal footer, usamos el del SPA view)
@@ -511,6 +491,10 @@ const ExpedientesModule = {
         const data = Object.fromEntries(formData.entries());
 
         if (!this.currentExpedienteId) return;
+        if (this.currentExpediente?.estatus !== 'ABIERTO') {
+            alert('No se pueden agregar avances a un expediente cerrado/finalizado.');
+            return;
+        }
 
         try {
             const response = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
