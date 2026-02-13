@@ -130,6 +130,25 @@ class HerramientasController {
                 });
             }
 
+            // Singleton Rule: For Organigram and Regulation, only ONE active record should exist.
+            const singletonTypes = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO'];
+            if (singletonTypes.includes(tipo_herramienta)) {
+                console.log(`DEBUG: Singleton detected (${tipo_herramienta}). Checking for existing record...`);
+                const existentes = await Herramienta.obtenerPorOrganizacion(organizacion_id);
+                const actual = existentes.find(h => h.tipo_herramienta === tipo_herramienta && h.vigente === 1);
+
+                if (actual) {
+                    console.log(`DEBUG: Existing singleton found (ID: ${actual.id}). Soft-deleting...`);
+                    await Herramienta.eliminar(actual.id);
+                    await Historial.registrar({
+                        herramienta_id: actual.id,
+                        usuario_id: req.usuario.id,
+                        accion: 'ACTUALIZACION',
+                        descripcion: `Sustitución automática por nueva versión de ${tipo_herramienta}`
+                    });
+                }
+            }
+
             // Crear herramienta
             console.log('DEBUG: Persistiendo en DB...');
             const nuevaHerramienta = await Herramienta.crear({

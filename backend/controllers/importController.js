@@ -186,17 +186,23 @@ class ImportController {
                         usuario_registro_id: adminId
                     };
 
-                    // BUSCAR SI YA EXISTE ESTE TIPO DE HERRAMIENTA VIGENTE PARA ESTA ORGANIZACIÓN
-                    const { rows: existentes } = await db.query(
-                        'SELECT id FROM herramientas WHERE organizacion_id = $1 AND tipo_herramienta = $2 AND vigente = 1',
-                        [orgId, tipoFinal]
-                    );
+                    // Singleton Rule: For Organigram and Regulation, only ONE active record should exist.
+                    const singletonTypes = ['ORGANIGRAMA', 'REGLAMENTO_ESTATUTO'];
 
-                    if (existentes.length > 0) {
-                        // ACTUALIZAR EXISTENTE
-                        await Herramienta.actualizar(existentes[0].id, datosHerramienta);
+                    if (singletonTypes.includes(tipoFinal)) {
+                        // BUSCAR SI YA EXISTE PARA ACTUALIZAR (SINGLETON)
+                        const { rows: existentes } = await db.query(
+                            'SELECT id FROM herramientas WHERE organizacion_id = $1 AND tipo_herramienta = $2 AND vigente = 1',
+                            [orgId, tipoFinal]
+                        );
+
+                        if (existentes.length > 0) {
+                            await Herramienta.actualizar(existentes[0].id, datosHerramienta);
+                        } else {
+                            await Herramienta.crear(datosHerramienta);
+                        }
                     } else {
-                        // CREAR NUEVO
+                        // MANUALES: Siempre crear nuevo registro para permitir múltiples
                         await Herramienta.crear(datosHerramienta);
                     }
                     procesados++;

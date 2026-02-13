@@ -532,32 +532,40 @@
       }
 
       tiposMostrar.forEach(tipo => {
-        // Buscar herramienta: si es REGLAMENTO_ESTATUTO, buscar cualquiera de los 3 posibles valores en DB
-        let herramienta;
+        // Buscar herramientas: si es REGLAMENTO_ESTATUTO, buscar variantes
+        let herramientasFiltradas = [];
         if (tipo === 'REGLAMENTO_ESTATUTO') {
-          herramienta = org.herramientas.find(h =>
+          herramientasFiltradas = org.herramientas.filter(h =>
             h.tipo_herramienta === 'REGLAMENTO_ESTATUTO' ||
             h.tipo_herramienta === 'REGLAMENTO_INTERIOR' ||
             h.tipo_herramienta === 'ESTATUTO_ORGANICO'
           );
         } else {
-          herramienta = org.herramientas.find(h => h.tipo_herramienta === tipo);
+          herramientasFiltradas = org.herramientas.filter(h => h.tipo_herramienta === tipo);
         }
 
-        if (herramienta) {
-          html += `
-            <div class="tool-item-card">
-              <div class="tool-card-header">
-                <div class="tool-card-title">${AppUtils.getNombreTipoHerramienta(herramienta.tipo_herramienta)}</div>
+        if (herramientasFiltradas.length > 0) {
+          // Ordenar por fecha_emision desc para que la más reciente esté primera
+          herramientasFiltradas.sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision));
+
+          herramientasFiltradas.forEach(herramienta => {
+            html += `
+              <div class="tool-item-card">
+                <div class="tool-card-header">
+                  <div class="tool-card-title">${AppUtils.getNombreTipoHerramienta(herramienta.tipo_herramienta)}</div>
+                </div>
+                <div><strong>Estado:</strong> <span class="badge badge-verde">✓ Registrado</span></div>
+                <div><strong>Fecha:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
+                <div style="font-size: 0.8rem; color: #666; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${herramienta.comentarios || ''}">
+                  ${herramienta.comentarios || ''}
+                </div>
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                  <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 2; text-align: center;" target="_blank">Ver 🔗</a>
+                  ${(isAdminOrCapturista && herramienta.id) ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
+                </div>
               </div>
-              <div><strong>Estado:</strong> <span class="badge badge-verde">✓ Registrado</span></div>
-              <div><strong>Fecha de publicación:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
-              <div style="display: flex; gap: 5px; margin-top: 10px;">
-                <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 2; text-align: center;" target="_blank">Ver Documento 🔗</a>
-                ${(isAdminOrCapturista && herramienta.id) ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
-              </div>
-            </div>
-          `;
+            `;
+          });
         } else {
           html += `
             <div class="tool-item-card" style="opacity: 0.6; background: #f9f9f9;">
