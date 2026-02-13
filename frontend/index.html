@@ -812,13 +812,15 @@
             <div class="modal-body">
                 <!-- Tabs sutiles (Texto en lugar de botones) -->
                 <div class="tabs-subtle">
-                    <button class="tab-link active" onclick="switchTab(event, 'tab-avances')">Bitácora de
+                    <button class="tab-link active"
+                        onclick="window.ExpedientesModule.switchTab(event, 'tab-bitacora')">Bitácora de
                         Avances</button>
-                    <button class="tab-link" onclick="switchTab(event, 'tab-info')">Información General</button>
+                    <button class="tab-link" onclick="window.ExpedientesModule.switchTab(event, 'tab-info')">Información
+                        General</button>
                 </div>
 
                 <!-- Tab Avances -->
-                <div id="tab-avances" class="tab-content active">
+                <div id="tab-bitacora" class="tab-content active">
                     <!-- Formulario Nuevo Avance -->
                     <div id="form-avance-container" class="card bg-light mb-20" style="display: none;">
                         <form id="form-nuevo-avance" onsubmit="window.ExpedientesModule.handleAgregarAvance(event)">

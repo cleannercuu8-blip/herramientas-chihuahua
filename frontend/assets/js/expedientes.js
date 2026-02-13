@@ -725,6 +725,26 @@ const ExpedientesModule = {
 
         // 2. Abrir directamente el modal de detalle del expediente con su bitácora
         await this.verDetalle(expId);
+    },
+
+    switchTab(event, tabId) {
+        // 1. Ocultar todos los contenidos de tabs
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+
+        // 2. Desactivar todos los links
+        const links = document.querySelectorAll('.tab-link');
+        links.forEach(link => link.classList.remove('active'));
+
+        // 3. Mostrar el contenido seleccionado
+        const selectedContent = document.getElementById(tabId);
+        if (selectedContent) selectedContent.classList.add('active');
+
+        // 4. Activar el link clickeado
+        // Si se pasa el evento, usar currentTarget, si no, buscar por texto u otro medio si fuera necesario
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
     }
 };
 
