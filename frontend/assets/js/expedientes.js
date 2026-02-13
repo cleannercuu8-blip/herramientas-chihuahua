@@ -158,15 +158,16 @@ const ExpedientesModule = {
                 `;
             }
 
-            // Botón para Crear Nuevo Siempre visible (como historial)
-            html += `
-                <div class="text-center p-15 mb-20" style="background: #f1f5f9; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                    <p class="mb-10 text-muted" style="font-size: 0.9rem;">¿Necesita iniciar un nuevo seguimiento independiente? (ej. Nuevo Ejercicio Fiscal)</p>
-                    <button class="btn btn-outline-primary btn-sm" onclick="window.ExpedientesModule.crearAutomatico(${organizacionId}, '${containerId}')">
-                         + Iniciar Nuevo Expediente de Seguimiento
-                    </button>
-                </div>
-            `;
+            // 2. Botón para Crear Nuevo - SOLO si no hay uno activo
+            if (!expedienteActivo) {
+                html += `
+                    <div class="text-center p-15 mb-20" style="background: #f1f5f9; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                        <button class="btn btn-outline-primary" onclick="window.ExpedientesModule.crearAutomatico(${organizacionId}, '${containerId}')">
+                             ➕ Iniciar Nuevo Expediente de Seguimiento
+                        </button>
+                    </div>
+                `;
+            }
 
             // 2. Mostrar Historial (si hay expedientes anteriores)
             if (historial.length > 0) {
@@ -181,7 +182,9 @@ const ExpedientesModule = {
                                     <div>
                                         <span style="font-weight: 600; color: #475569;">${exp.numero_expediente}</span>
                                         <span class="badge ${exp.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}" style="font-size: 0.7rem; margin-left: 10px;">${exp.estatus}</span>
-                                        <div style="font-size: 0.8rem; color: #94a3b8;">${new Date(exp.fecha_creacion).toLocaleDateString()} - ${exp.titulo}</div>
+                                        <div style="font-size: 0.8rem; color: #94a3b8;">
+                                            ${exp.fecha_creacion ? new Date(exp.fecha_creacion).toLocaleDateString() : 'Fecha no registrada'} - ${exp.titulo}
+                                        </div>
                                     </div>
                                     <button class="btn btn-outline-primary btn-sm" onclick="window.ExpedientesModule.verDetalle(${exp.id})" style="padding: 2px 10px; font-size: 0.8rem;">
                                         Consultar
@@ -215,13 +218,10 @@ const ExpedientesModule = {
             const siglas = orgData.organizacion.siglas || 'SN';
             const anio = new Date().getFullYear();
 
-            // Generar número aleatorio corto para evitar duplicados si se crean varios en el mismo año
-            const randomSuffix = Math.floor(Math.random() * 1000);
-
             const datos = {
                 organizacion_id: organizacionId,
                 titulo: `Expediente de Seguimiento ${anio}`,
-                numero_expediente: `DSIJ-${siglas}-${anio}-${randomSuffix}`,
+                numero_expediente: `DSIJ-${siglas}-${anio}`,
                 prioridad: 'MEDIA',
                 estatus: 'ABIERTO',
                 descripcion: 'Expediente generado automáticamente para seguimiento.'
@@ -500,10 +500,6 @@ const ExpedientesModule = {
                 </div>
             </div>
             
-            <div class="text-center mt-20 mb-10">
-                 <span style="display: inline-block; padding: 5px 15px; background: #e2e8f0; border-radius: 20px; color: #475569; font-size: 0.85rem; font-weight: 600;">
-                    ⬇️ Bitácora de Actividades ⬇️
-                 </span>
             </div>
         `;
     },
@@ -628,11 +624,6 @@ const ExpedientesModule = {
             console.error(error);
             alert('Error al actualizar prioridad');
         }
-    },
-
-    async descargarPDF() {
-        if (!this.currentExpedienteId) return;
-        window.open(`${window.AppUtils.API_URL}/expedientes/${this.currentExpedienteId}/pdf`);
     },
 
     async mostrarReportePrioridades() {
