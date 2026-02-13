@@ -166,26 +166,39 @@ class ImportController {
                     }
 
                     // Si no hay link, el registro falla a menos que sea MANUAL_SERVICIOS? 
-                    // El controller de creación ya tiene esa lógica, pero aquí lo forzamos si viene en blanco el link
-                    if (!item.link) {
-                        if (tipoFinal !== 'MANUAL_SERVICIOS') {
-                            omitidos.push(`Fila ${filaActual}: Link faltante para ${tipoFinal}`);
-                            continue;
-                        }
+                    if (!item.link && tipoFinal !== 'MANUAL_SERVICIOS') {
+                        omitidos.push(`Fila ${filaActual}: Link faltante para ${tipoFinal}`);
+                        continue;
                     }
 
-                    await Herramienta.crear({
+                    const datosHerramienta = {
                         organizacion_id: orgId,
                         tipo_herramienta: tipoFinal,
                         nombre_archivo: `Importación: ${item.orgName} - ${tipoFinal}`,
                         ruta_archivo: item.link || 'NO_APLICA',
                         fecha_emision: item.fecha ? new Date(item.fecha) : new Date(),
                         estatus_poe: item.estatusPoe || 'SIN REGISTRO',
+                        fecha_publicacion_poe: null,
                         link_publicacion_poe: item.linkPoe || item.link || null,
+                        estatus_poe: item.estatusPoe || 'SIN REGISTRO',
                         comentarios: item.comentarios || 'Cargado vía importación masiva',
                         version: '1.0',
                         usuario_registro_id: adminId
-                    });
+                    };
+
+                    // BUSCAR SI YA EXISTE ESTE TIPO DE HERRAMIENTA VIGENTE PARA ESTA ORGANIZACIÓN
+                    const { rows: existentes } = await db.query(
+                        'SELECT id FROM herramientas WHERE organizacion_id = $1 AND tipo_herramienta = $2 AND vigente = 1',
+                        [orgId, tipoFinal]
+                    );
+
+                    if (existentes.length > 0) {
+                        // ACTUALIZAR EXISTENTE
+                        await Herramienta.actualizar(existentes[0].id, datosHerramienta);
+                    } else {
+                        // CREAR NUEVO
+                        await Herramienta.crear(datosHerramienta);
+                    }
                     procesados++;
                 } catch (e) {
                     console.error(`Error en fila ${filaActual}:`, e);
