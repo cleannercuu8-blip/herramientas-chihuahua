@@ -99,6 +99,11 @@
       const resultado = await window.OrganizacionesModule.obtenerEstadisticas();
       const statsGrid = document.getElementById('stats-grid');
 
+      if (!statsGrid) {
+        console.warn('Elemento stats-grid no encontrado en el DOM');
+        return;
+      }
+
       if (resultado.success) {
         const stats = resultado.data;
         statsGrid.innerHTML = `
@@ -124,7 +129,10 @@
       }
     } catch (error) {
       console.error('Error al cargar estadísticas:', error);
-      document.getElementById('stats-grid').innerHTML = '<p class="text-error">Error al cargar estadísticas. Por favor, reintente.</p>';
+      const statsGrid = document.getElementById('stats-grid');
+      if (statsGrid) {
+        statsGrid.innerHTML = '<p class="text-error">Error al cargar estadísticas. Por favor, reintente.</p>';
+      }
     }
   }
 
