@@ -5,6 +5,8 @@ const { verificarToken } = require('../middleware/auth');
 
 // Rutas públicas
 router.post('/login', AuthController.login);
+router.post('/solicitar-recuperacion', AuthController.solicitarRecuperacion);
+router.post('/restablecer-password', AuthController.restablecerPassword);
 
 // Rutas protegidas
 router.get('/perfil', verificarToken, AuthController.obtenerPerfil);

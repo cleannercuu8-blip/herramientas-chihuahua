@@ -1139,6 +1139,16 @@ h4,
   }
 }
 
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
 .main-layout {
   display: flex;
   flex-direction: column;

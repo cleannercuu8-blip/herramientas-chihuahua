@@ -45,6 +45,32 @@ const AuthModule = {
     // Obtener usuario actual del AppUtils
     getUsuario() {
         return window.AppUtils.AppState.usuario;
+    },
+
+    // Solicitar recuperación de contraseña
+    async solicitarRecuperacion(email) {
+        try {
+            const data = await window.AppUtils.fetchAPI('/auth/solicitar-recuperacion', {
+                method: 'POST',
+                body: JSON.stringify({ email })
+            });
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Restablecer contraseña
+    async restablecerPassword(email, codigo, nuevoPassword) {
+        try {
+            const data = await window.AppUtils.fetchAPI('/auth/restablecer-password', {
+                method: 'POST',
+                body: JSON.stringify({ email, codigo, nuevoPassword })
+            });
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
     }
 };
 

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Herramientas Organizacionales - SFP</title>
-  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/main.css?v=3.1">
   <style>
     body {
       background: #EBF5FF;
@@ -220,7 +220,7 @@
         <p>Sistema Organizacional</p>
       </div>
 
-      <div class="login-card">
+      <div class="login-card" id="login-section">
         <div id="alert-container"></div>
 
         <form id="login-form">
@@ -240,25 +240,96 @@
         </form>
 
         <div class="help-links">
-          Si no tienes correo Institucional, puedes solicitarlo dando <a href="#">clic aquí</a>
-          <br><br>
-          Si no te has registrado en la plataforma, puedes hacerlo dando <a href="#">clic aquí</a>
+          <a href="#" onclick="mostrarSeccionRecuperacion()">¿Olvidaste tu contraseña?</a>
         </div>
 
         <div id="spinner" class="hidden">
           <div class="spinner"></div>
         </div>
       </div>
+
+      <!-- Sección de Recuperación (Oculta por defecto) -->
+      <div class="login-card hidden" id="recovery-section">
+        <h3 style="color: #003DA5; margin-bottom: 20px;">Recuperar Contraseña</h3>
+        <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 20px;">
+          Ingresa tu correo institucional para recibir un código de seguridad.
+        </p>
+
+        <form id="recovery-form">
+          <div class="form-group">
+            <label for="recovery-email">Correo Electrónico</label>
+            <input type="email" id="recovery-email" class="form-input" placeholder="ejemplo@chihuahua.gob.mx" required>
+          </div>
+
+          <button type="submit" class="btn-login">
+            Enviar Código
+          </button>
+
+          <div class="help-links" style="margin-top: 15px;">
+            <a href="#" onclick="mostrarSeccionLogin()" style="color: #64748B;">Volver al Inicio</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Sección de Reset (Oculta por defecto) -->
+      <div class="login-card hidden" id="reset-section">
+        <h3 style="color: #003DA5; margin-bottom: 20px;">Restablecer Contraseña</h3>
+        <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 20px;" id="reset-info">
+          Se ha enviado un código a su correo.
+        </p>
+
+        <form id="reset-form">
+          <div class="form-group">
+            <label for="reset-code">Código de Seguridad</label>
+            <input type="text" id="reset-code" class="form-input" placeholder="CÓDIGO (6 dígitos)" required>
+          </div>
+
+          <div class="form-group">
+            <label for="new-password">Nueva Contraseña</label>
+            <input type="password" id="new-password" class="form-input" placeholder="MÍNIMO 6 CARACTERES" required
+              minlength="6">
+          </div>
+
+          <button type="submit" class="btn-login">
+            Actualizar Contraseña
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
-  <script src="../assets/js/utils.js"></script>
-  <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/utils.js?v=3.1"></script>
+  <script src="../assets/js/auth.js?v=3.1"></script>
   <script>
-    if (window.AppUtils.AppState.token) {
+    if (window.AppUtils && window.AppUtils.AppState.token) {
       window.location.href = '/';
     }
 
+    const loginSection = document.getElementById('login-section');
+    const recoverySection = document.getElementById('recovery-section');
+    const resetSection = document.getElementById('reset-section');
+
+    function mostrarSeccionRecuperacion() {
+      loginSection.classList.add('hidden');
+      recoverySection.classList.remove('hidden');
+      resetSection.classList.add('hidden');
+    }
+
+    function mostrarSeccionLogin() {
+      loginSection.classList.remove('hidden');
+      recoverySection.classList.add('hidden');
+      resetSection.classList.add('hidden');
+    }
+
+    function mostrarSeccionReset(email) {
+      loginSection.classList.add('hidden');
+      recoverySection.classList.add('hidden');
+      resetSection.classList.remove('hidden');
+      document.getElementById('reset-info').textContent = `Se ha enviado un código a: ${email}`;
+      window.currentRecoveryEmail = email;
+    }
+
+    // Login Form
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
@@ -270,9 +341,50 @@
         window.AppUtils.mostrarAlerta('¡Bienvenido al sistema!', 'success');
         setTimeout(() => { window.location.href = '/'; }, 1000);
       } else {
-        window.AppUtils.mostrarAlerta(resultado.error, 'error');
+        window.AppUtils.mostrarAlerta(resultado.error || 'Credenciales inválidas', 'error');
       }
     });
+
+    // Recovery Form
+    document.getElementById('recovery-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('recovery-email').value;
+      window.AppUtils.mostrarSpinner(true);
+      const res = await window.AuthModule.solicitarRecuperacion(email);
+      window.AppUtils.mostrarSpinner(false);
+
+      if (res.success) {
+        window.AppUtils.mostrarAlerta('Si el correo es válido, recibirás un código.', 'success');
+        // En un caso real, el código se envía por mail. Para fines de este ejercicio/demo:
+        if (res.data.demo_codigo) {
+          console.log("DEMO CODE:", res.data.demo_codigo);
+          alert("CÓDIGO DE RECUPERACIÓN (DEMO): " + res.data.demo_codigo);
+        }
+        setTimeout(() => mostrarSeccionReset(email), 1500);
+      } else {
+        window.AppUtils.mostrarAlerta(res.error, 'error');
+      }
+    });
+
+    // Reset Form
+    document.getElementById('reset-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = window.currentRecoveryEmail;
+      const codigo = document.getElementById('reset-code').value;
+      const newPassword = document.getElementById('new-password').value;
+
+      window.AppUtils.mostrarSpinner(true);
+      const res = await window.AuthModule.restablecerPassword(email, codigo, newPassword);
+      window.AppUtils.mostrarSpinner(false);
+
+      if (res.success) {
+        window.AppUtils.mostrarAlerta('Contraseña actualizada correctamente.', 'success');
+        setTimeout(() => mostrarSeccionLogin(), 2000);
+      } else {
+        window.AppUtils.mostrarAlerta(res.error, 'error');
+      }
+    });
+
   </script>
 </body>
 

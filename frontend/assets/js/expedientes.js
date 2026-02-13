@@ -433,30 +433,30 @@ const ExpedientesModule = {
                 
                 <div class="row">
                     <div class="col">
-                        <div class="form-group">
-                            <label class="form-label text-muted" style="font-size: 0.85rem;">Número de Expediente</label>
-                            <div style="font-weight: 600; font-size: 1.1rem;">${expediente.numero_expediente}</div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="form-label text-muted" style="font-size: 0.85rem; display: block; margin-bottom: 5px;">Número de Expediente</label>
+                            <div style="font-weight: 800; font-size: 1.2rem; color: var(--sfp-azul);">${expediente.numero_expediente}</div>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="form-group">
-                            <label class="form-label text-muted" style="font-size: 0.85rem;">Estado</label>
-                            <div><span class="badge ${expediente.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}">${expediente.estatus}</span></div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="form-label text-muted" style="font-size: 0.85rem; display: block; margin-bottom: 5px;">Estado</label>
+                            <div><span class="badge ${expediente.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}" style="padding: 6px 15px; font-weight: 700;">${expediente.estatus}</span></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="row mt-10">
                     <div class="col">
-                        <div class="form-group">
-                            <label class="form-label text-muted" style="font-size: 0.85rem;">Dependencia/Entidad</label>
-                            <div style="font-weight: 500;">${expediente.organizacion_nombre}</div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="form-label text-muted" style="font-size: 0.85rem; display: block; margin-bottom: 5px;">Dependencia/Entidad</label>
+                            <div style="font-weight: 700; color: var(--gris-oscuro); font-size: 1rem;">${expediente.organizacion_nombre}</div>
                         </div>
                     </div>
                     ${expediente.estatus === 'ABIERTO' ? `
                     <div class="col">
-                        <div class="form-group">
-                            <label class="form-label text-muted" style="font-size: 0.85rem;">Prioridad</label>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="form-label text-muted" style="font-size: 0.85rem; display: block; margin-bottom: 5px;">Prioridad</label>
                             <div style="display: flex; gap: 10px; align-items: center;">
                                 <select class="form-select" id="select-prioridad-expediente" style="width: auto;" ${!isAdminOrCapturista ? 'disabled' : ''}>
                                     <option value="BAJA" ${expediente.prioridad === 'BAJA' ? 'selected' : ''}>Baja</option>
@@ -474,8 +474,8 @@ const ExpedientesModule = {
                 </div>
 
                 <div class="mt-20">
-                    <div class="form-group">
-                        <label class="form-label text-muted" style="font-size: 0.85rem;">Descripción</label>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label text-muted" style="font-size: 0.85rem; display: block; margin-bottom: 8px;">Descripción</label>
                         <p style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #eee;">
                             ${expediente.descripcion || 'Sin descripción'}
                         </p>

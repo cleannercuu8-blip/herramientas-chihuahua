@@ -254,6 +254,102 @@ class AuthController {
             res.status(500).json({ error: 'Error en el servidor' });
         }
     }
+
+    /**
+     * Solicitar recuperación de contraseña
+     */
+    static async solicitarRecuperacion(req, res) {
+        try {
+            const { email } = req.body;
+
+            if (!email) {
+                return res.status(400).json({ error: 'Email es requerido' });
+            }
+
+            const usuario = await Usuario.buscarPorEmail(email);
+
+            if (!usuario) {
+                // Por seguridad, no revelamos si el email existe
+                return res.json({ mensaje: 'Si el correo está registrado, recibirás un código' });
+            }
+
+            // Generar código de 6 dígitos
+            const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // Guardar código en la DB (expira en 30 minutos)
+            // Aseguramos que la tabla existe
+            await db.query(`
+                CREATE TABLE IF NOT EXISTS recovery_codes (
+                    email TEXT PRIMARY KEY,
+                    codigo TEXT NOT NULL,
+                    expiracion TIMESTAMP NOT NULL
+                )
+            `);
+
+            await db.query(`
+                INSERT INTO recovery_codes (email, codigo, expiracion)
+                VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '30 minutes')
+                ON CONFLICT (email) DO UPDATE SET codigo = $2, expiracion = CURRENT_TIMESTAMP + INTERVAL '30 minutes'
+            `, [email, codigo]);
+
+            // En un entorno real, enviaríamos el correo aquí. 
+            // Para el usuario, lo simulamos o imprimimos en consola para que pueda verlo
+            console.log(`CÓDIGO DE RECUPERACIÓN PARA ${email}: ${codigo}`);
+
+            res.json({
+                mensaje: 'Si el correo está registrado, recibirás un código',
+                demo_codigo: codigo // SOLO PARA DEMO/DESARROLLO si el usuario lo pide ver
+            });
+
+        } catch (error) {
+            console.error('Error en solicitarRecuperacion:', error);
+            res.status(500).json({ error: 'Error en el servidor' });
+        }
+    }
+
+    /**
+     * Restablecer contraseña con código
+     */
+    static async restablecerPassword(req, res) {
+        try {
+            const { email, codigo, nuevoPassword } = req.body;
+
+            if (!email || !codigo || !nuevoPassword) {
+                return res.status(400).json({ error: 'Todos los campos son requeridos' });
+            }
+
+            // Verificar código
+            const { rows } = await db.query(
+                'SELECT * FROM recovery_codes WHERE email = $1 AND codigo = $2 AND expiracion > CURRENT_TIMESTAMP',
+                [email, codigo]
+            );
+
+            if (rows.length === 0) {
+                return res.status(400).json({ error: 'Código inválido o expirado' });
+            }
+
+            // Buscar usuario
+            const usuario = await Usuario.buscarPorEmail(email);
+            if (!usuario) {
+                return res.status(404).json({ error: 'Usuario no encontrado' });
+            }
+
+            // Hash de la nueva contraseña
+            const nuevoPasswordHash = await bcrypt.hash(nuevoPassword, 10);
+
+            // Actualizar contraseña
+            await db.query('UPDATE usuarios SET password_hash = $1 WHERE id = $2', [nuevoPasswordHash, usuario.id]);
+
+            // Eliminar código usado
+            await db.query('DELETE FROM recovery_codes WHERE email = $1', [email]);
+
+            res.json({ mensaje: 'Contraseña restablecida exitosamente' });
+
+        } catch (error) {
+            console.error('Error en restablecerPassword:', error);
+            res.status(500).json({ error: 'Error en el servidor' });
+        }
+    }
 }
 
 module.exports = AuthController;
