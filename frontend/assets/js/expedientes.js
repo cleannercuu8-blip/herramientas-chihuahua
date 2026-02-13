@@ -126,42 +126,81 @@ const ExpedientesModule = {
             const data = await window.AppUtils.fetchAPI(`/expedientes?organizacion_id=${organizacionId}`);
             const expedientes = data.expedientes || [];
 
-            if (expedientes.length > 0) {
-                const expediente = expedientes[0];
-                this.currentExpedienteId = expediente.id;
+            // Ordenar por ID descendente (más recientes primero)
+            expedientes.sort((a, b) => b.id - a.id);
 
-                container.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                        <div>
-                            <h5 style="margin: 0; color: var(--azul-institucional); font-size: 1rem;">${expediente.numero_expediente}</h5>
-                            <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #64748b;">${expediente.titulo}</p>
-                            <div style="margin-top: 5px;">
-                                <span class="badge ${expediente.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}">${expediente.estatus}</span>
+            // Buscar expediente ACTIVO (ABIERTO)
+            const expedienteActivo = expedientes.find(e => e.estatus === 'ABIERTO');
+            // El resto son historial
+            const historial = expedientes.filter(e => e.id !== (expedienteActivo ? expedienteActivo.id : -1));
+
+            let html = '';
+
+            // 1. Mostrar Expediente Activo (si existe)
+            if (expedienteActivo) {
+                this.currentExpedienteId = expedienteActivo.id;
+                html += `
+                    <div class="card mb-20" style="border-left: 5px solid var(--verde-cumplimiento);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h5 style="margin: 0; color: var(--azul-institucional); font-size: 1.1rem;">📂 Expediente Activo</h5>
+                                <p style="margin: 5px 0; font-weight: 600;">${expedienteActivo.numero_expediente}</p>
+                                <span class="badge badge-verde">ABIERTO</span>
+                                <small class="d-block text-muted mt-5">${expedienteActivo.titulo}</small>
                             </div>
+                            <button class="btn btn-primary" onclick="window.ExpedientesModule.verDetalle(${expedienteActivo.id})">
+                                Ver Bitácora Actual
+                            </button>
                         </div>
-                        <button class="btn btn-primary" onclick="window.ExpedientesModule.verDetalle(${expediente.id})">
-                            📂 Ver Bitácora
-                        </button>
                     </div>
                 `;
             } else {
-                container.innerHTML = `
-                    <div class="text-center p-20" style="background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                        <p class="mb-10 text-muted">No hay expediente de seguimiento activo para esta dependencia.</p>
+                // Si no hay activo, mostrar opción para crear uno nuevo
+                html += `
+                    <div class="text-center p-20 mb-20" style="background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                        <p class="mb-10 text-muted">No hay expediente de seguimiento activo.</p>
                         <button class="btn btn-secondary" onclick="window.ExpedientesModule.crearAutomatico(${organizacionId}, '${containerId}')">
-                            ✨ Activar Expediente
+                             ✨ Activar Nuevo Expediente ${new Date().getFullYear()}
                         </button>
                     </div>
                 `;
             }
+
+            // 2. Mostrar Historial (si hay expedientes anteriores)
+            if (historial.length > 0) {
+                html += `
+                    <div class="mt-20">
+                        <h6 style="color: #64748b; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+                            📜 Historial de Expedientes Cerrados
+                        </h6>
+                        <div class="list-group">
+                            ${historial.map(exp => `
+                                <div class="list-group-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <span style="font-weight: 600; color: #475569;">${exp.numero_expediente}</span>
+                                        <span class="badge ${exp.estatus === 'ABIERTO' ? 'badge-verde' : 'badge-rojo'}" style="font-size: 0.7rem; margin-left: 10px;">${exp.estatus}</span>
+                                        <div style="font-size: 0.8rem; color: #94a3b8;">${new Date(exp.fecha_creacion).toLocaleDateString()} - ${exp.titulo}</div>
+                                    </div>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="window.ExpedientesModule.verDetalle(${exp.id})" style="padding: 2px 10px; font-size: 0.8rem;">
+                                        Consultar
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+
         } catch (error) {
             console.error('Error:', error);
-            container.innerHTML = '<p class="text-error">Error al cargar expediente.</p>';
+            container.innerHTML = '<p class="text-error">Error al cargar expedientes.</p>';
         }
     },
 
     async crearAutomatico(organizacionId, containerId) {
-        if (!confirm('¿Desea activar el expediente de seguimiento para esta dependencia?')) return;
+        if (!confirm('¿Desea activar un NUEVO expediente para esta dependencia?')) return;
 
         try {
             // Obtener datos de la organización para las siglas
@@ -174,10 +213,13 @@ const ExpedientesModule = {
             const siglas = orgData.organizacion.siglas || 'SN';
             const anio = new Date().getFullYear();
 
+            // Generar número aleatorio corto para evitar duplicados si se crean varios en el mismo año
+            const randomSuffix = Math.floor(Math.random() * 1000);
+
             const datos = {
                 organizacion_id: organizacionId,
-                titulo: 'Expediente de Seguimiento General',
-                numero_expediente: `DSIJ-${siglas}-${anio}`,
+                titulo: `Expediente de Seguimiento ${anio}`,
+                numero_expediente: `DSIJ-${siglas}-${anio}-${randomSuffix}`,
                 prioridad: 'MEDIA',
                 estatus: 'ABIERTO',
                 descripcion: 'Expediente generado automáticamente para seguimiento.'
@@ -190,7 +232,7 @@ const ExpedientesModule = {
 
             if (response && !response.error) {
                 this.renderizarEnDetalleOrganizacion(organizacionId, containerId);
-                window.AppUtils.mostrarAlerta('Expediente activado correctamente', 'success');
+                window.AppUtils.mostrarAlerta('Nuevo expediente activado exitosamente', 'success');
             } else {
                 alert('Error al crear: ' + (response.error || 'Desconocido'));
             }
@@ -202,59 +244,125 @@ const ExpedientesModule = {
 
     async verDetalle(id) {
         this.currentExpedienteId = id;
+        const container = document.getElementById('modal-expediente-body');
+        container.innerHTML = '<div class="spinner"></div>';
 
-        const modal = document.getElementById('modal-detalle-expediente');
-        const modalContent = modal.querySelector('.modal-content');
-        if (modalContent) modalContent.style.maxWidth = '95%';
+        // Poner numero de expediente en titulo modal si es posible
+        const tituloModal = document.querySelector('#modal-expediente h3');
+        if (tituloModal) tituloModal.textContent = 'Expediente de Seguimiento';
 
-        window.mostrarModal('modal-detalle-expediente');
-        const timelineContainer = document.getElementById('expediente-timeline');
-        timelineContainer.innerHTML = '<p class="text-center">Cargando...</p>';
+        window.mostrarModal('modal-expediente');
 
         try {
             const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
             if (data.error) throw new Error(data.error);
 
-            const { expediente, avances } = data;
+            this.currentExpediente = data.expediente;
+            this.avances = data.avances || [];
 
-            document.getElementById('detalle-exp-titulo').textContent = expediente.titulo;
-            document.getElementById('detalle-exp-subtitulo').textContent = `${expediente.numero_expediente} | ${expediente.organizacion_nombre}`;
+            // Actualizar titulo con info real
+            if (tituloModal) tituloModal.innerHTML = `
+                ${data.expediente.titulo} 
+                <span style="display:block; font-size: 0.9rem; color: #cbd5e1; font-weight: normal; margin-top: 5px;">
+                    ${data.expediente.numero_expediente} | ${data.expediente.organizacion_nombre}
+                </span>
+            `;
 
-            this.renderTimeline(avances || []);
-            this.renderInfoTab(expediente);
+            // Renderizar Tabs
+            container.innerHTML = `
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="window.ExpedientesModule.switchTab('bitacora')">Bitácora de Avances</button>
+                    <button class="tab-btn" onclick="window.ExpedientesModule.switchTab('info')">Información General</button>
+                </div>
 
-            const dateInput = document.querySelector('#form-nuevo-avance input[name="fecha"]');
-            if (dateInput) dateInput.valueAsDate = new Date();
+                <div id="tab-bitacora" class="tab-content active">
+                    <!-- Botón para mostrar formulario (solo Admin/Capturista) -->
+                    <div id="btn-mostrar-form-avance-container" class="mb-20 text-right"></div>
+
+                    <!-- Formulario de Nuevo Avance (Oculto por defecto) -->
+                    <div class="card mb-20 bg-light hidden" id="form-nuevo-avance-card" style="border: 1px solid #e2e8f0; box-shadow: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h5 style="margin: 0; color: var(--azul-institucional);">Nuevo Movimiento</h5>
+                            <button class="btn btn-sm btn-outline-primary" style="border: none;" onclick="document.getElementById('form-nuevo-avance-card').classList.add('hidden'); document.getElementById('btn-mostrar-form-avance').classList.remove('hidden');">
+                                ✖ Cancelar
+                            </button>
+                        </div>
+                        <form id="form-nuevo-avance" onsubmit="window.ExpedientesModule.guardarAvance(event)">
+                            <div class="form-group">
+                                <input type="text" class="form-input" name="titulo" placeholder="Título del avance (ej. Reunión con Director)" required>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <select class="form-select" name="tipo" required>
+                                            <option value="AVANCE">Avance General</option>
+                                            <option value="REUNION">Reunión</option>
+                                            <option value="OFICIO">Oficio / Documento</option>
+                                            <option value="OTRO">Otro</option>
+                                        </select>
+                                    </div>
+                                }
+                                <div class="col">
+                                    <div class="form-group">
+                                        <input type="date" class="form-input" name="fecha" value="${new Date().toISOString().split('T')[0]}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-textarea" name="descripcion" placeholder="Detalles adicionales..." rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Registrar Avance</button>
+                        </form>
+                    </div>
+
+                    <div id="expediente-timeline" class="expediente-timeline"></div>
+                </div>
+
+                <div id="tab-info" class="tab-content">
+                    <div id="expediente-info-content"></div>
+                </div>
+                
+                <!-- Footer Actions -->
+                <div class="modal-footer" style="padding-top: 20px; border-top: 1px solid #eee; margin-top: 20px; display: flex; justify-content: space-between;">
+                     <button class="btn btn-secondary" onclick="window.cerrarModal('modal-expediente')">Cerrar Ventana</button>
+                     <div id="expediente-actions"></div>
+                </div>
+            `;
 
             // Mostrar/ocultar formulario de avances según rol
             const usuario = window.AuthModule.getUsuario();
             const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
-            const formAvanceContainer = document.getElementById('form-avance-container');
-            if (formAvanceContainer) {
-                formAvanceContainer.style.display = isAdminOrCapturista ? 'block' : 'none';
-            }
 
-            const footer = document.querySelector('#modal-detalle-expediente .modal-footer');
-            if (footer) {
-                let actionBtn = '';
-                // Solo mostrar botones de cerrar/reabrir para ADMINISTRADOR y CAPTURISTA
-                if (isAdminOrCapturista) {
-                    if (expediente.estatus !== 'CERRADO') {
-                        actionBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cerrarExpediente()" style="margin-right: auto;">🔒 Cerrar Expediente</button>`;
-                    } else {
-                        actionBtn = `<button class="btn btn-warning" onclick="window.ExpedientesModule.reabrirExpediente()" style="margin-right: auto; background-color: #f59e0b; color: white;">↩️ Reabrir Expediente</button>`;
-                    }
-                }
-
-                footer.innerHTML = `
-                    ${actionBtn}
-                    <button class="btn btn-secondary" onclick="window.ExpedientesModule.descargarPDF()">📄 Descargar Reporte PDF</button>
-                    <button class="btn btn-primary" onclick="cerrarModal('modal-detalle-expediente')">Cerrar Ventana</button>
+            const btnContainer = document.getElementById('btn-mostrar-form-avance-container');
+            if (isAdminOrCapturista && btnContainer) {
+                btnContainer.innerHTML = `
+                    <button id="btn-mostrar-form-avance" class="btn btn-primary btn-sm" onclick="document.getElementById('form-nuevo-avance-card').classList.remove('hidden'); this.classList.add('hidden');">
+                        ➕ Agregar Avance
+                    </button>
                 `;
             }
+
+            // Renderizar Timeline y Info
+            this.renderTimeline(this.avances);
+            this.renderInfoTab(this.currentExpediente);
+
+            // Botones de acción footer (Cerrar/Reabrir Expediente)
+            const actionsContainer = document.getElementById('expediente-actions');
+            if (actionsContainer && isAdminOrCapturista) {
+                if (this.currentExpediente.estatus === 'ABIERTO') {
+                    actionsContainer.innerHTML = `
+                        <button class="btn btn-danger" onclick="window.ExpedientesModule.cambiarEstatus('CERRADO')">Cerrar Expediente</button>
+                    `;
+                } else {
+                    actionsContainer.innerHTML = `
+                        <button class="btn btn-success" onclick="window.ExpedientesModule.cambiarEstatus('ABIERTO')">Reabrir Expediente</button>
+                    `;
+                }
+            }
+
         } catch (error) {
             console.error(error);
-            alert('Error al cargar expediente');
+            container.innerHTML = '<p class="text-error">Error al cargar detalle del expediente.</p>';
         }
     },
 

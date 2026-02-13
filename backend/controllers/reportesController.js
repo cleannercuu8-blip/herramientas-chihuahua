@@ -282,7 +282,14 @@ class ReportesController {
         try {
             const expedientes = await Expediente.obtenerTodos({ organizacion_id: org.id });
             if (expedientes && expedientes.length > 0) {
-                const exp = expedientes[0];
+                // Seleccionar el expediente ACTIVO (ABIERTO) o el más reciente
+                // Ordenar por fecha descendente (asumiendo que ID más alto es más reciente o usar fecha_creacion)
+                expedientes.sort((a, b) => b.id - a.id);
+
+                let exp = expedientes.find(e => e.estatus === 'ABIERTO');
+                if (!exp) {
+                    exp = expedientes[0]; // Si no hay abiertos, tomar el más reciente
+                }
                 if (doc.y > 600) {
                     doc.addPage({ margin: { top: 50, bottom: 20, left: 50, right: 50 } });
                     drawHeader();
