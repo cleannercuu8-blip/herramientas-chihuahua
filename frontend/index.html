@@ -800,19 +800,21 @@
 
     <!-- Modal Detalle Expediente -->
     <div id="modal-detalle-expediente" class="modal">
-        <div class="modal-content modal-lg">
+        <div class="modal-content modal-xl-custom">
             <div class="modal-header">
                 <div>
-                    <h3 class="card-title" id="detalle-exp-titulo">Detalle del Expediente</h3>
-                    <small id="detalle-exp-subtitulo" class="text-muted">Cargando...</small>
+                    <h3 class="card-title" id="detalle-exp-titulo" style="font-size: 1.5rem;">Detalle del Expediente
+                    </h3>
+                    <small id="detalle-exp-subtitulo" class="text-muted" style="font-size: 1rem;">Cargando...</small>
                 </div>
                 <button class="modal-close" onclick="cerrarModal('modal-detalle-expediente')">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab(event, 'tab-avances')">Bitácora de
+                <!-- Tabs sutiles (Texto en lugar de botones) -->
+                <div class="tabs-subtle">
+                    <button class="tab-link active" onclick="switchTab(event, 'tab-avances')">Bitácora de
                         Avances</button>
-                    <button class="tab-btn" onclick="switchTab(event, 'tab-info')">Información General</button>
+                    <button class="tab-link" onclick="switchTab(event, 'tab-info')">Información General</button>
                 </div>
 
                 <!-- Tab Avances -->

@@ -1,0 +1,45 @@
+/* Modal Extra Grande para Expedientes */
+.modal-xl-custom {
+    max-width: 95vw !important;
+    width: 95vw !important;
+    height: 90vh !important;
+    max-height: 90vh !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-xl-custom .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 20px 20px;
+}
+
+/* Tabs sutiles estilo texto */
+.tabs-subtle {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0;
+}
+
+.tab-link {
+    background: none;
+    border: none;
+    padding: 10px 5px;
+    font-size: 0.95rem;
+    color: #64748b;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab-link:hover {
+    color: var(--azul-institucional);
+}
+
+.tab-link.active {
+    color: var(--azul-institucional);
+    border-bottom-color: var(--azul-institucional);
+    font-weight: 600;
+}
