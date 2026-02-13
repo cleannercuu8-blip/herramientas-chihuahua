@@ -106,10 +106,6 @@ class ReportesController {
 
             doc.fontSize(12).font('Helvetica').fillColor('#64748B').text(`FECHA DE EMISIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}`, 50, 380);
 
-            doc.save();
-            doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill('#6B4C9A');
-            doc.restore();
-            doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
 
             for (const org of organizaciones) {
                 const toolsRes = await db.query('SELECT * FROM herramientas WHERE organizacion_id = $1 ORDER BY tipo_herramienta', [org.id]);
@@ -153,10 +149,6 @@ class ReportesController {
         doc.fontSize(12).font('Helvetica').fillColor('#64748B').text(`FECHA DE EMISIÓN: ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}`, 50, 380);
         doc.text(`TIPO: ${tipoOrg.replace('_', ' ')}`, 50, 400);
 
-        doc.save();
-        doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill('#6B4C9A');
-        doc.restore();
-        doc.fillColor('#FFFFFF').fontSize(10).text('COORDINACIÓN DE MODERNIZACIÓN ADMINISTRATIVA', 50, doc.page.height - 45);
     }
 
     static async _generarContenidoReporte(doc, org, herramientas, incluirTitulo = false) {
@@ -178,7 +170,7 @@ class ReportesController {
         if (incluirTitulo) {
             doc.fillColor('#003DA5').fontSize(18).font('Helvetica-Bold').text(org.nombre.toUpperCase());
             doc.save();
-            doc.rect(50, doc.y + 2, 80, 2).fill('#6B4C9A');
+            doc.rect(50, doc.y + 2, 80, 2).fill('#003DA5');
             doc.restore();
             doc.moveDown(2);
         }
