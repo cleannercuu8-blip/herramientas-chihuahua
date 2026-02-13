@@ -800,23 +800,32 @@
 
     <!-- Modal Detalle Expediente -->
     <div id="modal-detalle-expediente" class="modal">
-        <div class="modal-content modal-xl-custom">
-            <div class="modal-header">
-                <div>
-                    <h3 class="card-title" id="detalle-exp-titulo" style="font-size: 1.5rem;">Detalle del Expediente
-                    </h3>
-                    <small id="detalle-exp-subtitulo" class="text-muted" style="font-size: 1rem;">Cargando...</small>
+        <div class="modal-content modal-fullscreen">
+            <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding: 20px 40px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div>
+                        <h3 class="card-title" id="detalle-exp-titulo"
+                            style="font-size: 1.8rem; color: var(--azul-institucional);">Detalle del Expediente</h3>
+                        <small id="detalle-exp-subtitulo" class="text-muted"
+                            style="font-size: 1.1rem;">Cargando...</small>
+                    </div>
                 </div>
-                <button class="modal-close" onclick="cerrarModal('modal-detalle-expediente')">&times;</button>
+                <div style="display: flex; align-items: center;">
+                    <button class="btn-info-toggle" onclick="window.ExpedientesModule.toggleInfoPanel()"
+                        title="Ver Información General">
+                        ℹ️
+                    </button>
+                    <button class="modal-close" onclick="cerrarModal('modal-detalle-expediente')"
+                        style="font-size: 2.5rem;">&times;</button>
+                </div>
             </div>
             <div class="modal-body">
-                <!-- Tabs sutiles (Texto en lugar de botones) -->
-                <div class="tabs-subtle">
-                    <button class="tab-link active"
-                        onclick="window.ExpedientesModule.switchTab(event, 'tab-bitacora')">Bitácora de
-                        Avances</button>
-                    <button class="tab-link" onclick="window.ExpedientesModule.switchTab(event, 'tab-info')">Información
-                        General</button>
+                <!-- Tabs ocultos -->
+                <div class="tabs-subtle hidden">
+                    <button id="tab-link-bitacora" class="tab-link active"
+                        onclick="window.ExpedientesModule.switchTab(event, 'tab-bitacora')">Bitácora</button>
+                    <button id="tab-link-info" class="tab-link"
+                        onclick="window.ExpedientesModule.switchTab(event, 'tab-info')">Información</button>
                 </div>
 
                 <!-- Tab Avances -->

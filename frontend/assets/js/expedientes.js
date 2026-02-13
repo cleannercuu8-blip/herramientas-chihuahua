@@ -745,6 +745,19 @@ const ExpedientesModule = {
         if (event && event.currentTarget) {
             event.currentTarget.classList.add('active');
         }
+    },
+
+    toggleInfoPanel() {
+        const tabBitacora = document.getElementById('tab-bitacora');
+        const tabInfo = document.getElementById('tab-info');
+
+        // Si bitacora está activa, cambiar a info
+        if (tabBitacora && tabBitacora.classList.contains('active')) {
+            this.switchTab(null, 'tab-info');
+        } else {
+            // Si no, volver a bitacora
+            this.switchTab(null, 'tab-bitacora');
+        }
     }
 };
 
