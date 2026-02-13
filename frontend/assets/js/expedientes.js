@@ -239,139 +239,142 @@ const ExpedientesModule = {
         } catch (e) {
             console.error(e);
             alert('Error de conexión');
+        }
+    },
+
     async verDetalle(id) {
-                this.currentExpedienteId = id;
-                const modalId = 'modal-detalle-expediente';
+        this.currentExpedienteId = id;
+        const modalId = 'modal-detalle-expediente';
 
-                // Limpiar contenido previo y mostrar spinner en áreas de contenido
-                const timelineContainer = document.getElementById('expediente-timeline');
-                const infoContainer = document.getElementById('expediente-info-content');
+        // Limpiar contenido previo y mostrar spinner en áreas de contenido
+        const timelineContainer = document.getElementById('expediente-timeline');
+        const infoContainer = document.getElementById('expediente-info-content');
 
-                if (timelineContainer) timelineContainer.innerHTML = '<div class="spinner"></div>';
-                if (infoContainer) infoContainer.innerHTML = '<div class="spinner"></div>';
+        if (timelineContainer) timelineContainer.innerHTML = '<div class="spinner"></div>';
+        if (infoContainer) infoContainer.innerHTML = '<div class="spinner"></div>';
 
-                // Resetear formulario de avance si existe
-                const formContainer = document.getElementById('form-avance-container');
-                if (formContainer) formContainer.style.display = 'none';
+        // Resetear formulario de avance si existe
+        const formContainer = document.getElementById('form-avance-container');
+        if (formContainer) formContainer.style.display = 'none';
 
-                // Remover botón de "Agregar Avance" previo si existe para evitar duplicados
-                const prevBtn = document.getElementById('btn-mostrar-form-avance-wrapper');
-                if (prevBtn) prevBtn.remove();
+        // Remover botón de "Agregar Avance" previo si existe para evitar duplicados
+        const prevBtn = document.getElementById('btn-mostrar-form-avance-wrapper');
+        if (prevBtn) prevBtn.remove();
 
-                window.mostrarModal(modalId);
+        window.mostrarModal(modalId);
 
-                try {
-                    const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
-                    if (data.error) throw new Error(data.error);
+        try {
+            const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
+            if (data.error) throw new Error(data.error);
 
-                    this.currentExpediente = data.expediente;
-                    this.avances = data.avances || [];
+            this.currentExpediente = data.expediente;
+            this.avances = data.avances || [];
 
-                    // 1. Actualizar Header
-                    const tituloEl = document.getElementById('detalle-exp-titulo');
-                    const subEl = document.getElementById('detalle-exp-subtitulo');
+            // 1. Actualizar Header
+            const tituloEl = document.getElementById('detalle-exp-titulo');
+            const subEl = document.getElementById('detalle-exp-subtitulo');
 
-                    if (tituloEl) tituloEl.textContent = data.expediente.titulo;
-                    if (subEl) subEl.textContent = `${data.expediente.numero_expediente} | ${data.expediente.organizacion_nombre}`;
+            if (tituloEl) tituloEl.textContent = data.expediente.titulo;
+            if (subEl) subEl.textContent = `${data.expediente.numero_expediente} | ${data.expediente.organizacion_nombre}`;
 
-                    // 2. Renderizar Contenido Tabs
-                    this.renderTimeline(this.avances);
-                    this.renderInfoTab(this.currentExpediente);
+            // 2. Renderizar Contenido Tabs
+            this.renderTimeline(this.avances);
+            this.renderInfoTab(this.currentExpediente);
 
-                    // 3. Manejo del Formulario de Nuevo Avance (Toggle)
-                    const usuario = window.AuthModule.getUsuario();
-                    const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
+            // 3. Manejo del Formulario de Nuevo Avance (Toggle)
+            const usuario = window.AuthModule.getUsuario();
+            const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
 
-                    if (isAdminOrCapturista && formContainer) {
-                        // Insertar botón para mostrar formulario antes del contenedor del formulario
-                        const btnWrapper = document.createElement('div');
-                        btnWrapper.id = 'btn-mostrar-form-avance-wrapper';
-                        btnWrapper.className = 'mb-20 text-right';
-                        btnWrapper.innerHTML = `
+            if (isAdminOrCapturista && formContainer) {
+                // Insertar botón para mostrar formulario antes del contenedor del formulario
+                const btnWrapper = document.createElement('div');
+                btnWrapper.id = 'btn-mostrar-form-avance-wrapper';
+                btnWrapper.className = 'mb-20 text-right';
+                btnWrapper.innerHTML = `
                     <button class="btn btn-primary btn-sm" onclick="document.getElementById('form-avance-container').style.display = 'block'; this.parentElement.style.display = 'none';">
                         ➕ Agregar Avance
                     </button>
                 `;
-                        // Insertar antes del formContainer
-                        formContainer.parentNode.insertBefore(btnWrapper, formContainer);
+                // Insertar antes del formContainer
+                formContainer.parentNode.insertBefore(btnWrapper, formContainer);
 
-                        // Agregar botón cancelar dentro del formulario si no existe
-                        let formHeader = formContainer.querySelector('.form-header-actions');
-                        if (!formHeader) {
-                            // Solo si no se ha inyectado antes
-                            // Podríamos inyectar un botón de cancelar simple
-                            const closeBtn = document.createElement('button');
-                            closeBtn.type = 'button';
-                            closeBtn.className = 'btn btn-sm btn-outline-secondary';
-                            closeBtn.style.float = 'right';
-                            closeBtn.innerHTML = '✖ Cancelar';
-                            closeBtn.onclick = function () {
-                                formContainer.style.display = 'none';
-                                const wrapper = document.getElementById('btn-mostrar-form-avance-wrapper');
-                                if (wrapper) wrapper.style.display = 'block';
-                            };
+                // Agregar botón cancelar dentro del formulario si no existe
+                let formHeader = formContainer.querySelector('.form-header-actions');
+                if (!formHeader) {
+                    // Solo si no se ha inyectado antes
+                    // Podríamos inyectar un botón de cancelar simple
+                    const closeBtn = document.createElement('button');
+                    closeBtn.type = 'button';
+                    closeBtn.className = 'btn btn-sm btn-outline-secondary';
+                    closeBtn.style.float = 'right';
+                    closeBtn.innerHTML = '✖ Cancelar';
+                    closeBtn.onclick = function () {
+                        formContainer.style.display = 'none';
+                        const wrapper = document.getElementById('btn-mostrar-form-avance-wrapper');
+                        if (wrapper) wrapper.style.display = 'block';
+                    };
 
-                            // Insertar al principio del formulario o antes del primer input
-                            const formNode = formContainer.querySelector('form');
-                            if (formNode) formNode.insertBefore(closeBtn, formNode.firstChild);
-                        }
+                    // Insertar al principio del formulario o antes del primer input
+                    const formNode = formContainer.querySelector('form');
+                    if (formNode) formNode.insertBefore(closeBtn, formNode.firstChild);
+                }
+            }
+
+            // 4. Actualizar Footer Actions
+            const footer = document.querySelector(`#${modalId} .modal-footer`);
+            if (footer) {
+                let actionBtn = '';
+                if (isAdminOrCapturista) {
+                    if (this.currentExpediente.estatus === 'ABIERTO') {
+                        actionBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cambiarEstatus('CERRADO')">🔒 Cerrar Expediente</button>`;
+                    } else {
+                        actionBtn = `<button class="btn btn-warning btn-sm" onclick="window.ExpedientesModule.cambiarEstatus('ABIERTO')">🔓 Reabrir Expediente</button>`;
                     }
+                }
 
-                    // 4. Actualizar Footer Actions
-                    const footer = document.querySelector(`#${modalId} .modal-footer`);
-                    if (footer) {
-                        let actionBtn = '';
-                        if (isAdminOrCapturista) {
-                            if (this.currentExpediente.estatus === 'ABIERTO') {
-                                actionBtn = `<button class="btn btn-danger" onclick="window.ExpedientesModule.cambiarEstatus('CERRADO')">🔒 Cerrar Expediente</button>`;
-                            } else {
-                                actionBtn = `<button class="btn btn-warning btn-sm" onclick="window.ExpedientesModule.cambiarEstatus('ABIERTO')">🔓 Reabrir Expediente</button>`;
-                            }
-                        }
-
-                        footer.innerHTML = `
+                footer.innerHTML = `
                     <div style="flex: 1;">${actionBtn}</div>
                     <button class="btn btn-secondary" onclick="window.ExpedientesModule.descargarPDF()">📄 Descargar PDF</button>
                     <button class="btn btn-primary" onclick="cerrarModal('${modalId}')">Cerrar</button>
                 `;
-                        footer.style.display = 'flex';
-                        footer.style.justifyContent = 'space-between';
-                        footer.style.alignItems = 'center';
-                    }
+                footer.style.display = 'flex';
+                footer.style.justifyContent = 'space-between';
+                footer.style.alignItems = 'center';
+            }
 
-                } catch (error) {
-                    console.error(error);
-                    if (timelineContainer) timelineContainer.innerHTML = '<p class="text-error text-center">Error al cargar datos.</p>';
-                }
-            },
+        } catch (error) {
+            console.error(error);
+            if (timelineContainer) timelineContainer.innerHTML = '<p class="text-error text-center">Error al cargar datos.</p>';
+        }
+    },
 
-            renderTimeline(avances) {
-                const container = document.getElementById('expediente-timeline');
-                if (!avances || avances.length === 0) {
-                    container.innerHTML = '<p class="text-center text-muted p-20">No hay avances registrados.</p>';
-                    return;
-                }
+    renderTimeline(avances) {
+        const container = document.getElementById('expediente-timeline');
+        if (!avances || avances.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted p-20">No hay avances registrados.</p>';
+            return;
+        }
 
-                const usuario = window.AuthModule.getUsuario();
-                const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
+        const usuario = window.AuthModule.getUsuario();
+        const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
 
-                // Ordenar por fecha descendente (más reciente primero)
-                avances.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        // Ordenar por fecha descendente (más reciente primero)
+        avances.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-                container.innerHTML = avances.map(av => {
-                    // Iconos según tipo
-                    let icon = '📌'; // Default
-                    if (av.tipo === 'AVANCE') icon = '📈';
-                    if (av.tipo === 'REUNION') icon = '👥';
-                    if (av.tipo === 'OFICIO') icon = '📄';
+        container.innerHTML = avances.map(av => {
+            // Iconos según tipo
+            let icon = '📌'; // Default
+            if (av.tipo === 'AVANCE') icon = '📈';
+            if (av.tipo === 'REUNION') icon = '👥';
+            if (av.tipo === 'OFICIO') icon = '📄';
 
-                    // Formato de fecha
-                    const fechaObj = new Date(av.fecha);
-                    const dia = fechaObj.getDate();
-                    const mes = fechaObj.toLocaleString('es-MX', { month: 'short' }).toUpperCase();
-                    const anio = fechaObj.getFullYear();
+            // Formato de fecha
+            const fechaObj = new Date(av.fecha);
+            const dia = fechaObj.getDate();
+            const mes = fechaObj.toLocaleString('es-MX', { month: 'short' }).toUpperCase();
+            const anio = fechaObj.getFullYear();
 
-                    return `
+            return `
             <div class="timeline-item" style="display: flex; gap: 20px; margin-bottom: 25px; position: relative;">
                 <!-- Línea conectora -->
                 <div style="position: absolute; left: 24px; top: 50px; bottom: -30px; width: 2px; background: #e2e8f0; z-index: 0;"></div>
@@ -421,17 +424,17 @@ const ExpedientesModule = {
                 </div>
             </div>
         `;
-                }).join('');
-            },
+        }).join('');
+    },
 
-            renderInfoTab(expediente) {
-                const container = document.getElementById('expediente-info-content');
-                if (!container) return;
+    renderInfoTab(expediente) {
+        const container = document.getElementById('expediente-info-content');
+        if (!container) return;
 
-                const usuario = window.AuthModule.getUsuario();
-                const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
+        const usuario = window.AuthModule.getUsuario();
+        const isAdminOrCapturista = usuario && (usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'CAPTURISTA');
 
-                container.innerHTML = `
+        container.innerHTML = `
             <div class="card bg-light" style="border-left: 5px solid var(--azul-institucional); background: #fdfdfd;">
                 <h4 style="color: var(--azul-institucional); margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
                     📋 Información General del Expediente
@@ -505,156 +508,156 @@ const ExpedientesModule = {
                  </span>
             </div>
         `;
-            },
+    },
 
     async handleAgregarAvance(event) {
-                event.preventDefault();
-                const form = event.target;
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
 
-                if (!this.currentExpedienteId) return;
+        if (!this.currentExpedienteId) return;
 
-                try {
-                    const response = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
-                        method: 'POST',
-                        body: JSON.stringify(data)
-                    });
+        try {
+            const response = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
 
-                    if (response && !response.error) {
-                        form.reset();
-                        this.verDetalle(this.currentExpedienteId);
-                        window.AppUtils.mostrarAlerta('Avance registrado', 'success');
-                    } else {
-                        alert('Error: ' + response.error);
-                    }
-                } catch (error) {
-                    console.error(error);
-                    alert('Error al registrar avance');
-                }
-            },
+            if (response && !response.error) {
+                form.reset();
+                this.verDetalle(this.currentExpedienteId);
+                window.AppUtils.mostrarAlerta('Avance registrado', 'success');
+            } else {
+                alert('Error: ' + response.error);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error al registrar avance');
+        }
+    },
 
     async eliminarAvance(avanceId) {
-                if (!confirm('¿Seguro que desea eliminar este registro?')) return;
+        if (!confirm('¿Seguro que desea eliminar este registro?')) return;
 
-                try {
-                    const response = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances/${avanceId}`, {
-                        method: 'DELETE'
-                    });
+        try {
+            const response = await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances/${avanceId}`, {
+                method: 'DELETE'
+            });
 
-                    if (response && !response.error) {
-                        this.verDetalle(this.currentExpedienteId);
-                    } else {
-                        alert('Error al eliminar: ' + (response ? response.error : 'Desconocido'));
-                    }
-                } catch (e) {
-                    console.error(e);
-                    alert('Error de conexión');
-                }
-            },
+            if (response && !response.error) {
+                this.verDetalle(this.currentExpedienteId);
+            } else {
+                alert('Error al eliminar: ' + (response ? response.error : 'Desconocido'));
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Error de conexión');
+        }
+    },
 
     async cerrarExpediente() {
-                if (!this.currentExpedienteId) return;
+        if (!this.currentExpedienteId) return;
 
-                const motivo = prompt('Para cerrar el expediente, por favor indique una razón o conclusión final:');
-                if (motivo === null) return;
+        const motivo = prompt('Para cerrar el expediente, por favor indique una razón o conclusión final:');
+        if (motivo === null) return;
 
-                try {
-                    await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
-                        method: 'PUT',
-                        body: JSON.stringify({ estatus: 'CERRADO' })
-                    });
+        try {
+            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ estatus: 'CERRADO' })
+            });
 
-                    await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            titulo: 'Expediente Cerrado',
-                            descripcion: motivo || 'Cierre formal del expediente.',
-                            tipo: 'OTRO',
-                            fecha: new Date().toISOString().split('T')[0]
-                        })
-                    });
+            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    titulo: 'Expediente Cerrado',
+                    descripcion: motivo || 'Cierre formal del expediente.',
+                    tipo: 'OTRO',
+                    fecha: new Date().toISOString().split('T')[0]
+                })
+            });
 
-                    this.verDetalle(this.currentExpedienteId);
-                } catch (error) {
-                    console.error(error);
-                    alert('Error al cerrar expediente');
-                }
-            },
+            this.verDetalle(this.currentExpedienteId);
+        } catch (error) {
+            console.error(error);
+            alert('Error al cerrar expediente');
+        }
+    },
 
     async reabrirExpediente() {
-                if (!this.currentExpedienteId) return;
+        if (!this.currentExpedienteId) return;
 
-                const motivo = prompt('¿Por qué se reabre este expediente? (Este comentario quedará registrado):');
-                if (!motivo) return;
+        const motivo = prompt('¿Por qué se reabre este expediente? (Este comentario quedará registrado):');
+        if (!motivo) return;
 
-                try {
-                    await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
-                        method: 'PUT',
-                        body: JSON.stringify({ estatus: 'ABIERTO' })
-                    });
+        try {
+            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ estatus: 'ABIERTO' })
+            });
 
-                    await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            titulo: 'Expediente Reabierto',
-                            descripcion: motivo,
-                            tipo: 'OTRO',
-                            fecha: new Date().toISOString().split('T')[0]
-                        })
-                    });
+            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}/avances`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    titulo: 'Expediente Reabierto',
+                    descripcion: motivo,
+                    tipo: 'OTRO',
+                    fecha: new Date().toISOString().split('T')[0]
+                })
+            });
 
-                    this.verDetalle(this.currentExpedienteId);
-                } catch (error) {
-                    console.error(error);
-                    alert('Error al reabrir expediente');
-                }
-            },
+            this.verDetalle(this.currentExpedienteId);
+        } catch (error) {
+            console.error(error);
+            alert('Error al reabrir expediente');
+        }
+    },
 
     async actualizarPrioridad() {
-                if (!this.currentExpedienteId) return;
+        if (!this.currentExpedienteId) return;
 
-                const select = document.getElementById('expediente-prioridad-select');
-                if (!select) return;
+        const select = document.getElementById('expediente-prioridad-select');
+        if (!select) return;
 
-                const nuevaPrioridad = select.value;
+        const nuevaPrioridad = select.value;
 
-                try {
-                    await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
-                        method: 'PUT',
-                        body: JSON.stringify({ prioridad: nuevaPrioridad })
-                    });
+        try {
+            await window.AppUtils.fetchAPI(`/expedientes/${this.currentExpedienteId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ prioridad: nuevaPrioridad })
+            });
 
-                    window.AppUtils.mostrarAlerta('Prioridad actualizada correctamente', 'success');
+            window.AppUtils.mostrarAlerta('Prioridad actualizada correctamente', 'success');
 
-                    // Recargar detalles para reflejar el cambio
-                    this.verDetalle(this.currentExpedienteId);
-                } catch (error) {
-                    console.error(error);
-                    alert('Error al actualizar prioridad');
-                }
-            },
+            // Recargar detalles para reflejar el cambio
+            this.verDetalle(this.currentExpedienteId);
+        } catch (error) {
+            console.error(error);
+            alert('Error al actualizar prioridad');
+        }
+    },
 
     async descargarPDF() {
-                if (!this.currentExpedienteId) return;
-                window.open(`${window.AppUtils.API_URL}/expedientes/${this.currentExpedienteId}/pdf`);
-            },
+        if (!this.currentExpedienteId) return;
+        window.open(`${window.AppUtils.API_URL}/expedientes/${this.currentExpedienteId}/pdf`);
+    },
 
     async mostrarReportePrioridades() {
-                try {
-                    const data = await window.AppUtils.fetchAPI('/expedientes');
-                    const expedientes = data.expedientes || [];
+        try {
+            const data = await window.AppUtils.fetchAPI('/expedientes');
+            const expedientes = data.expedientes || [];
 
-                    // Agrupar por prioridad
-                    const porPrioridad = {
-                        ALTA: expedientes.filter(e => e.prioridad === 'ALTA'),
-                        MEDIA: expedientes.filter(e => e.prioridad === 'MEDIA'),
-                        BAJA: expedientes.filter(e => e.prioridad === 'BAJA')
-                    };
+            // Agrupar por prioridad
+            const porPrioridad = {
+                ALTA: expedientes.filter(e => e.prioridad === 'ALTA'),
+                MEDIA: expedientes.filter(e => e.prioridad === 'MEDIA'),
+                BAJA: expedientes.filter(e => e.prioridad === 'BAJA')
+            };
 
-                    const container = document.getElementById('reporte-prioridades-content');
+            const container = document.getElementById('reporte-prioridades-content');
 
-                    container.innerHTML = `
+            container.innerHTML = `
                 <div style="display: grid; gap: 20px;">
                     <!-- Alta Prioridad -->
                     <div class="card" style="border-left: 4px solid #EF4444;">
@@ -709,21 +712,21 @@ const ExpedientesModule = {
                 </div>
             `;
 
-                    window.mostrarModal('modal-reporte-prioridades');
-                } catch (error) {
-                    console.error(error);
-                    alert('Error al cargar reporte de prioridades');
-                }
-            },
+            window.mostrarModal('modal-reporte-prioridades');
+        } catch (error) {
+            console.error(error);
+            alert('Error al cargar reporte de prioridades');
+        }
+    },
 
     async navegarAExpedienteDesdeReporte(expId, orgId) {
-                // 1. Cerrar el reporte de prioridades
-                cerrarModal('modal-reporte-prioridades');
+        // 1. Cerrar el reporte de prioridades
+        cerrarModal('modal-reporte-prioridades');
 
-                // 2. Abrir directamente el modal de detalle del expediente con su bitácora
-                await this.verDetalle(expId);
-            }
-        };
+        // 2. Abrir directamente el modal de detalle del expediente con su bitácora
+        await this.verDetalle(expId);
+    }
+};
 
-        window.ExpedientesModule = ExpedientesModule;
-        window.cargarExpedientes = () => ExpedientesModule.cargarExpedientes();
+window.ExpedientesModule = ExpedientesModule;
+window.cargarExpedientes = () => ExpedientesModule.cargarExpedientes();
