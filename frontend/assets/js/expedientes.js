@@ -493,11 +493,11 @@ const ExpedientesModule = {
                 <div class="row mt-20" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
                     <div class="col">
                         <small class="text-muted">Fecha de Creación</small>
-                        <div>${new Date(expediente.fecha_creacion).toLocaleDateString()}</div>
+                        <div>${expediente.fecha_creacion ? new Date(expediente.fecha_creacion).toLocaleDateString() : 'No registrada'}</div>
                     </div>
                     <div class="col">
                         <small class="text-muted">Última Actualización</small>
-                        <div>${new Date(expediente.ultima_actualizacion).toLocaleDateString()}</div>
+                        <div>${expediente.ultima_actualizacion ? new Date(expediente.ultima_actualizacion).toLocaleDateString() : 'No registrada'}</div>
                     </div>
                 </div>
             </div>
