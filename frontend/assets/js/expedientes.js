@@ -471,7 +471,7 @@ const ExpedientesModule = {
                                     <option value="URGENTE" ${expediente.prioridad === 'URGENTE' ? 'selected' : ''}>Urgente</option>
                                 </select>
                                 ${isAdminOrCapturista ? `
-                                <button class="btn btn-primary btn-sm" onclick="window.ExpedientesModule.guardarPrioridad()">
+                                <button class="btn btn-outline-primary" onclick="window.ExpedientesModule.guardarPrioridad()" style="padding: 4px 10px; font-size: 0.75rem;">
                                     💾 Guardar
                                 </button>` : ''}
                             </div>
@@ -631,11 +631,23 @@ const ExpedientesModule = {
             const data = await window.AppUtils.fetchAPI('/expedientes');
             const expedientes = data.expedientes || [];
 
-            // Agrupar por prioridad
+            // Filtrar para mostrar solo el ÚLTIMO expediente por dependencia
+            const ultimosExpedientes = [];
+            const idsVistos = new Set();
+
+            // Los expedientes suelen venir ordenados por ID desc o podemos asegurar orden
+            expedientes.sort((a, b) => b.id - a.id).forEach(exp => {
+                if (!idsVistos.has(exp.organizacion_id)) {
+                    ultimosExpedientes.push(exp);
+                    idsVistos.add(exp.organizacion_id);
+                }
+            });
+
+            // Agrupar por prioridad usando solo los últimos registros
             const porPrioridad = {
-                ALTA: expedientes.filter(e => e.prioridad === 'ALTA'),
-                MEDIA: expedientes.filter(e => e.prioridad === 'MEDIA'),
-                BAJA: expedientes.filter(e => e.prioridad === 'BAJA')
+                ALTA: ultimosExpedientes.filter(e => e.prioridad === 'ALTA'),
+                MEDIA: ultimosExpedientes.filter(e => e.prioridad === 'MEDIA'),
+                BAJA: ultimosExpedientes.filter(e => e.prioridad === 'BAJA')
             };
 
             const container = document.getElementById('reporte-prioridades-content');
