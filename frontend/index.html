@@ -801,22 +801,24 @@
     <!-- Modal Detalle Expediente -->
     <div id="modal-detalle-expediente" class="modal">
         <div class="modal-content modal-fullscreen">
-            <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding: 20px 40px;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div>
-                        <h3 class="card-title" id="detalle-exp-titulo"
-                            style="font-size: 1.8rem; color: var(--azul-institucional);">Detalle del Expediente</h3>
-                        <small id="detalle-exp-subtitulo" class="text-muted"
-                            style="font-size: 1.1rem;">Cargando...</small>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <button class="btn-info-toggle" onclick="window.ExpedientesModule.toggleInfoPanel()"
-                        title="Ver Información General">
-                        ℹ️
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 20px; width: 100%;">
+                    <button class="btn-back" onclick="cerrarModal('modal-detalle-expediente')">
+                        ⬅ Regresar a Herramientas
                     </button>
-                    <button class="modal-close" onclick="cerrarModal('modal-detalle-expediente')"
-                        style="font-size: 2.5rem;">&times;</button>
+                    <div style="flex: 1; text-align: center;">
+                        <h3 class="card-title" id="detalle-exp-titulo"
+                            style="font-size: 1.5rem; color: var(--azul-institucional); margin: 0;">Detalle del
+                            Expediente</h3>
+                        <small id="detalle-exp-subtitulo" class="text-muted"
+                            style="font-size: 0.9rem;">Cargando...</small>
+                    </div>
+                    <div style="width: 150px; text-align: right;">
+                        <button class="btn-info-toggle" onclick="window.ExpedientesModule.toggleInfoPanel()"
+                            title="Ver Información General">
+                            ℹ️ Info
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="modal-body">
