@@ -8,198 +8,267 @@
   <link rel="stylesheet" href="../assets/css/main.css">
   <style>
     body {
-      background: radial-gradient(circle at 0% 0%, #003DA5 0%, #001f5c 50%, #000 100%);
+      background: #EBF5FF;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      flex-direction: column;
       height: 100vh;
       margin: 0;
       overflow: hidden;
+      font-family: 'Inter', sans-serif;
     }
 
-    /* Patrón de fondo geométrico */
-    body::before {
-      content: '';
+    /* Banner Superior */
+    .institutional-banner {
+      background: linear-gradient(90deg, #003DA5 0%, #6B4C9A 100%);
+      height: 120px;
+      display: flex;
+      align-items: center;
+      padding: 0 50px;
+      color: white;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .banner-logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .banner-logo-text span {
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.8;
+      font-weight: 700;
+    }
+
+    .banner-logo-text h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Fondo con Patrones */
+    .background-pattern {
       position: absolute;
-      top: 0;
+      top: 120px;
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.03"><path d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/></g></g></svg>');
       z-index: 0;
+      overflow: hidden;
     }
 
+    .background-pattern svg {
+      position: absolute;
+      width: 150%;
+      height: 150%;
+      top: -25%;
+      left: -25%;
+      opacity: 0.15;
+    }
+
+    /* Login Container */
     .login-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       position: relative;
       z-index: 1;
-      width: 100%;
-      max-width: 480px;
       padding: 20px;
     }
 
-    .login-card {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 32px;
-      padding: 50px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      color: white;
-    }
-
-    .login-header {
+    .login-wrapper {
+      width: 100%;
+      max-width: 440px;
       text-align: center;
-      margin-bottom: 40px;
     }
 
-    .sfp-badge {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 8px 16px;
-      border-radius: 100px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .welcome-text {
+      margin-bottom: 30px;
     }
 
-    .login-header h1 {
-      font-size: 2.2rem;
-      margin-bottom: 12px;
+    .welcome-text h1 {
+      font-size: 2.8rem;
+      color: #003DA5;
       font-weight: 800;
-      background: linear-gradient(to right, #fff, #cbd5e1);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
     }
 
-    .login-header p {
-      color: #94a3b8;
-      font-size: 1rem;
-      line-height: 1.5;
+    .welcome-text p {
+      color: #003DA5;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px rgba(0, 50, 150, 0.1);
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
     }
 
     .form-group label {
-      color: #e2e8f0;
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 10px;
+      display: block;
+      color: #475569;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 8px;
     }
 
     .form-input {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 14px 20px;
-      border-radius: 14px;
+      width: 100%;
+      background: white;
+      border: 1px solid #E2E8F0;
+      color: #1E293B;
+      padding: 12px 16px;
+      border-radius: 10px;
       font-size: 1rem;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
 
     .form-input:focus {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: #4A90E2;
-      box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+      outline: none;
+      border-color: #003DA5;
+      box-shadow: 0 0 0 4px rgba(0, 61, 165, 0.1);
     }
 
     .btn-login {
-      background: white;
-      color: #003DA5;
+      background: #003DA5;
+      color: white;
       font-weight: 700;
       width: 100%;
-      padding: 16px;
-      border-radius: 14px;
-      font-size: 1.1rem;
-      margin-top: 30px;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1rem;
+      margin-top: 20px;
       border: none;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 61, 165, 0.2);
     }
 
     .btn-login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      background: #f1f5f9;
+      background: #002D7A;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 61, 165, 0.3);
     }
 
-    .institutional-footer {
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 0.8rem;
+    .help-links {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #64748B;
+    }
+
+    .help-links a {
+      color: #6B4C9A;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .help-links a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 
 <body>
-  <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <div class="sfp-badge">SFP | Chihuahua</div>
-        <h1>Inicio de Sesión</h1>
-        <p>Sistema de Herramientas Organizacionales</p>
-      </div>
-
-      <div id="alert-container"></div>
-
-      <form id="login-form">
-        <div class="form-group">
-          <label for="email">Correo Electrónico</label>
-          <input type="email" id="email" class="form-input" placeholder="usuario@chihuahua.gob.mx" required>
-        </div>
-
-        <div class="form-group" style="margin-top: 20px;">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" class="form-input" placeholder="••••••••" required>
-        </div>
-
-        <button type="submit" class="btn-login">
-          Entrar al Sistema
-        </button>
-      </form>
-
-      <div id="spinner" class="hidden">
-        <div class="spinner" style="border-left-color: white;"></div>
-      </div>
+  <!-- Banner Institucional -->
+  <div class="institutional-banner">
+    <div class="banner-logo-text">
+      <span>CHIHUAHUA</span>
+      <h2>SECRETARÍA DE LA FUNCIÓN PÚBLICA</h2>
     </div>
   </div>
 
-  <div class="institutional-footer">
-    Secretaría de la Función Pública del Estado de Chihuahua &copy; 2026
+  <!-- Patrón de Fondo -->
+  <div class="background-pattern">
+    <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="grad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+          <stop offset="0%" style="stop-color: #003DA5; stop-opacity: 0.05" />
+          <stop offset="100%" style="stop-color: #EBF5FF; stop-opacity: 0" />
+        </radialGradient>
+      </defs>
+      <circle cx="500" cy="500" r="100" fill="none" stroke="url(#grad)" stroke-width="2" />
+      <circle cx="500" cy="500" r="200" fill="none" stroke="url(#grad)" stroke-width="2" />
+      <circle cx="500" cy="500" r="300" fill="none" stroke="url(#grad)" stroke-width="2" />
+      <circle cx="500" cy="500" r="400" fill="none" stroke="url(#grad)" stroke-width="2" />
+      <circle cx="500" cy="500" r="500" fill="none" stroke="url(#grad)" stroke-width="2" />
+      <circle cx="500" cy="500" r="600" fill="none" stroke="url(#grad)" stroke-width="2" />
+    </svg>
+  </div>
+
+  <div class="login-container">
+    <div class="login-wrapper">
+      <div class="welcome-text">
+        <h1>Bienvenido a</h1>
+        <p>Sistema Organizacional</p>
+      </div>
+
+      <div class="login-card">
+        <div id="alert-container"></div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" class="form-input" placeholder="USUARIO" required>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" class="form-input" placeholder="CONTRASEÑA" required>
+          </div>
+
+          <button type="submit" class="btn-login">
+            Iniciar Sesión
+          </button>
+        </form>
+
+        <div class="help-links">
+          Si no tienes correo Institucional, puedes solicitarlo dando <a href="#">clic aquí</a>
+          <br><br>
+          Si no te has registrado en la plataforma, puedes hacerlo dando <a href="#">clic aquí</a>
+        </div>
+
+        <div id="spinner" class="hidden">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/auth.js"></script>
   <script>
-    // Verificar si ya está autenticado
     if (window.AppUtils.AppState.token) {
       window.location.href = '/';
     }
 
-    // Manejar submit del formulario
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-
       window.AppUtils.mostrarSpinner(true);
-
       const resultado = await window.AuthModule.login(email, password);
-
       window.AppUtils.mostrarSpinner(false);
-
       if (resultado.success) {
-        window.AppUtils.mostrarAlerta('¡Inicio de sesión exitoso!', 'success');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1000);
+        window.AppUtils.mostrarAlerta('¡Bienvenido al sistema!', 'success');
+        setTimeout(() => { window.location.href = '/'; }, 1000);
       } else {
         window.AppUtils.mostrarAlerta(resultado.error, 'error');
       }

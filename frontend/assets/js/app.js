@@ -273,7 +273,7 @@
       html += `
         <div class="org-row-compact" onclick="verDetalleOrganizacion(${org.id})" style="cursor: pointer;">
           <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div class="org-name-compact" title="${org.nombre}">${org.nombre}</div>
+            <div class="org-name-compact dependency-name" title="${org.nombre}">${org.nombre}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="dot-container">
                 ${dotsHTML}
@@ -391,7 +391,7 @@
       resultado.data.forEach(org => {
         html += `
           <tr>
-            <td><strong>${org.nombre}</strong></td>
+            <td><span class="dependency-name" style="font-size: 1.1rem;">${org.nombre}</span></td>
             <td>${window.AppUtils.getNombreTipoOrganizacion(org.tipo)}</td>
             <td>${org.titular || '-'}</td>
             <td>${window.AppUtils.getBadgeSemaforo(org.semaforo)}</td>
@@ -454,8 +454,8 @@
       html += `
         <div class="list-group-item ${activeClass}" onclick="verHerramientasPorDependencia(${org.id})">
           <div style="flex: 1;">
-            <div style="font-weight: 600;">${org.nombre}</div>
-            <div style="font-size: 0.8rem; opacity: 0.8;">${org.siglas || AppUtils.getNombreTipoOrganizacion(org.tipo)}</div>
+            <div class="dependency-name" style="font-size: 1.05rem; margin-bottom: 2px;">${org.nombre}</div>
+            <div style="font-size: 0.85rem; opacity: 0.7; font-weight: 600; color: var(--sfp-morado);">${org.siglas || AppUtils.getNombreTipoOrganizacion(org.tipo)}</div>
           </div>
           ${AppUtils.getBadgeSemaforo(org.semaforo)}
         </div>

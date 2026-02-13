@@ -2,39 +2,39 @@
   /* Colores Institucionales - SFP / Gobierno de Chihuahua */
   --sfp-azul: #003DA5;
   --sfp-morado: #6B4C9A;
-  /* Toque institucional del logo */
   --sfp-azul-oscuro: #002D7A;
   --sfp-azul-claro: #4A90E2;
+  --sfp-bg-soft: #F1F5F9;
+  /* Fondo para barra lateral/nav */
+  --sfp-bg-main: #FFFFFF;
+  /* Fondo para contenido principal */
 
-  /* Gradientes Premium */
+  /* Gradientes */
   --gradiente-premium: linear-gradient(135deg, var(--sfp-azul) 0%, var(--sfp-morado) 100%);
-  --gradiente-soft: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 
-  /* Semáforo (Refinado) */
+  /* Semáforo */
   --verde-cumplimiento: #10B981;
   --amarillo-advertencia: #F59E0B;
   --rojo-incumplimiento: #EF4444;
-  --naranja-claro: #fb923c;
-  --naranja-fuerte: #ea580c;
 
   /* Neutrales */
-  --gris-oscuro: #334155;
-  --gris-medio: #64748b;
-  --gris-claro: #f1f5f9;
+  --gris-oscuro: #1E293B;
+  --gris-medio: #64748B;
+  --gris-claro: #E2E8F0;
   --blanco: #FFFFFF;
 
-  /* Glassmorphism Defaults */
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(255, 255, 255, 0.4);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
 
-  /* Sombras Modernas */
+  /* Sombras */
   --sombra-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --sombra-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --sombra-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  --sombra-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
 
 * {
   margin: 0;
@@ -158,18 +158,59 @@ h4,
 /* Tarjetas */
 .card {
   background: var(--blanco);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 30px;
   box-shadow: var(--sombra-md);
   margin-bottom: 24px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid var(--gris-claro);
+  position: relative;
+  overflow: hidden;
 }
 
 .card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   box-shadow: var(--sombra-lg);
   border-color: var(--sfp-azul-claro);
+}
+
+/* Acento Institucional en Tarjetas */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--sfp-azul);
+  opacity: 0.8;
+}
+
+/* Nombres de Dependencia Notables */
+.dependency-name {
+  color: var(--sfp-azul) !important;
+  font-weight: 800 !important;
+  font-family: 'Outfit', sans-serif !important;
+  letter-spacing: -0.01em;
+  display: block;
+  line-height: 1.2;
+}
+
+/* Nombres de Dependencia Notables */
+.card-header h3 {
+  color: var(--sfp-azul);
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+#dashboard-main-title {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  background: linear-gradient(90deg, var(--sfp-azul) 0%, var(--sfp-morado) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .card-header {
@@ -1004,6 +1045,26 @@ h4,
   .table-container {
     font-size: 0.9rem;
   }
+}
+
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--sfp-bg-soft);
+}
+
+.content-area {
+  background-color: var(--sfp-bg-main);
+  flex: 1;
+  padding: 40px;
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+  box-shadow: 0 -10px 40px rgba(0, 30, 80, 0.05);
+  margin-top: -30px;
+  position: relative;
+  z-index: 10;
+  border: 1px solid var(--gris-claro);
 }
 
 /* SEARCH RESULTS STYLING========================================*/

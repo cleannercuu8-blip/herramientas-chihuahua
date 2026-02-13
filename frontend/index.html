@@ -13,22 +13,25 @@
             flex-grow: 1;
             max-width: 500px;
         }
+
+        body {
+            background-color: var(--sfp-bg-soft);
+        }
     </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class="main-layout">
         <!-- Header -->
         <div class="header">
             <div class="header-container">
                 <div class="header-titles">
-                    <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8;">SFP |
-                        Chihuahua</span>
-                    <h1 style="font-weight: 800; margin-top: 5px;">Sistema de Herramientas Organizacionales</h1>
-                    <p style="font-weight: 500; opacity: 0.9;">Secretaría de la Función Pública</p>
+                    <span
+                        style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 3px; opacity: 0.8; font-weight: 700;">CHIUHUAHUA
+                        | SFP</span>
+                    <h1 style="font-weight: 800; margin-top: 10px; font-size: 2.2rem;">Sistema Organizacional</h1>
+                    <p style="font-weight: 500; opacity: 0.9; font-size: 1.1rem;">Secretaría de la Función Pública</p>
                 </div>
-
-
 
                 <!-- Menú de Usuario -->
                 <div class="user-menu-container">
@@ -46,9 +49,8 @@
         <!-- Navegación -->
         <div class="nav">
             <button class="nav-btn active" onclick="mostrarVista('dashboard', event)">📊 Reporte General</button>
-            <button class="nav-btn" onclick="mostrarVista('organizaciones', event)">🏢 Dependencia/Entidad</button>
+            <button class="nav-btn" onclick="mostrarVista('organizaciones', event)">🏢 Dependencias</button>
             <button class="nav-btn" onclick="mostrarVista('herramientas', event)">💼 Herramientas</button>
-            <!-- <button class="nav-btn" onclick="mostrarVista('expedientes', event)">📁 Expedientes</button> -->
             <button class="nav-btn" id="nav-btn-cargas" style="display: none;"
                 onclick="mostrarVista('cargas', event)">📈 Cargas de Trabajo</button>
             <button class="nav-btn" onclick="mostrarVista('reportes', event)">📥 Exportar</button>
@@ -57,164 +59,290 @@
             <button class="nav-btn logout" onclick="window.AppUtils.cerrarSesion()">🚪 Cerrar Sesión</button>
         </div>
 
-        <!-- Contenedor de alertas -->
-        <div id="alert-container"></div>
+        <!-- Área de Contenido -->
+        <div class="content-area">
+            <!-- Contenedor de alertas -->
+            <div id="alert-container"></div>
 
-        <!-- VISTAS -->
+            <!-- VISTAS -->
 
-        <!-- Vista Reporte General -->
-        <div id="vista-dashboard">
-            <div id="dashboard-drilldown-header" class="hidden mb-20"
-                style="display: flex; align-items: center; gap: 20px;">
-                <button class="btn-back" onclick="regresarTableroGlobal()"
-                    style="background: linear-gradient(135deg, #4A90E2 0%, #003DA5 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
-                    ⬅️ Regresar al Resumen
-                </button>
-                <h2 id="dashboard-drilldown-title" class="card-title" style="margin: 0; flex-grow: 1;">Resumen por
-                    Sector</h2>
-                <button id="btn-exportar-sector-pdf" class="btn btn-secondary" onclick="window.descargarPDFSector()"
-                    style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">
-                    📥 Exportar Sector a PDF
-                </button>
-            </div>
+            <!-- Vista Reporte General -->
+            <div id="vista-dashboard">
+                <div id="dashboard-drilldown-header" class="hidden mb-20"
+                    style="display: flex; align-items: center; gap: 20px;">
+                    <button class="btn-back" onclick="regresarTableroGlobal()"
+                        style="background: linear-gradient(135deg, #4A90E2 0%, #003DA5 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+                        ⬅️ Regresar al Resumen
+                    </button>
+                    <h2 id="dashboard-drilldown-title" class="card-title" style="margin: 0; flex-grow: 1;">Resumen por
+                        Sector</h2>
+                    <button id="btn-exportar-sector-pdf" class="btn btn-secondary" onclick="window.descargarPDFSector()"
+                        style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">
+                        📥 Exportar Sector a PDF
+                    </button>
+                </div>
 
-            <h2 id="dashboard-main-title" class="card-title mb-20 text-center"
-                style="font-weight: 800; color: var(--sfp-azul);">
-                Tablero de Control Organizacional
-            </h2>
+                <h2 id="dashboard-main-title" class="card-title mb-20 text-center"
+                    style="font-weight: 800; color: var(--sfp-azul);">
+                    Tablero de Control Organizacional
+                </h2>
 
-            <!-- Bloques Principales (Trapecios) -->
-            <div class="dashboard-trapecios-grid" id="trapecios-grid">
-                <div class="trapecio-wrapper" onclick="interactuarDashboard('centralizado')">
-                    <div class="trapecio-card trapecio-azul">
-                        <div class="trapecio-content">
-                            <i class="icon-org">🏢</i>
-                            <h3>Centralizado</h3>
-                            <p>Sector Centralizado del Gobierno</p>
-                            <div class="trapecio-count" id="count-centralizado">0 dependencias</div>
+                <!-- Bloques Principales (Trapecios) -->
+                <div class="dashboard-trapecios-grid" id="trapecios-grid">
+                    <div class="trapecio-wrapper" onclick="interactuarDashboard('centralizado')">
+                        <div class="trapecio-card trapecio-azul">
+                            <div class="trapecio-content">
+                                <i class="icon-org">🏢</i>
+                                <h3>Centralizado</h3>
+                                <p>Sector Centralizado del Gobierno</p>
+                                <div class="trapecio-count" id="count-centralizado">0 dependencias</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trapecio-wrapper" onclick="interactuarDashboard('paraestatal')">
+                        <div class="trapecio-card trapecio-morado">
+                            <div class="trapecio-content">
+                                <i class="icon-org">🏭</i>
+                                <h3>Paraestatal</h3>
+                                <p>Sector Paraestatal</p>
+                                <div class="trapecio-count" id="count-paraestatal">0 entidades</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trapecio-wrapper" onclick="interactuarDashboard('autonomo')">
+                        <div class="trapecio-card trapecio-oscuro">
+                            <div class="trapecio-content">
+                                <i class="icon-org">🏛️</i>
+                                <h3>Autónomos</h3>
+                                <p>Organismos Autónomos</p>
+                                <div class="trapecio-count" id="count-autonomo">0 dependencias</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="trapecio-wrapper" onclick="interactuarDashboard('paraestatal')">
-                    <div class="trapecio-card trapecio-morado">
-                        <div class="trapecio-content">
-                            <i class="icon-org">🏭</i>
-                            <h3>Paraestatal</h3>
-                            <p>Sector Paraestatal</p>
-                            <div class="trapecio-count" id="count-paraestatal">0 entidades</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="trapecio-wrapper" onclick="interactuarDashboard('autonomo')">
-                    <div class="trapecio-card trapecio-oscuro">
-                        <div class="trapecio-content">
-                            <i class="icon-org">🏛️</i>
-                            <h3>Autónomos</h3>
-                            <p>Organismos Autónomos</p>
-                            <div class="trapecio-count" id="count-autonomo">0 dependencias</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Estado General (Barras de Progreso) -->
-            <div class="card mt-30" id="estado-general-card">
-                <div class="card-header">
-                    <h3 class="card-title">📈 Estado General de Herramientas Organizacionales</h3>
-                </div>
-                <div class="p-20" id="estado-general-bars">
-                    <!-- Dinámico: Sección Centralizada, Paraestatal, etc. con sus 4 barras -->
-                    <div class="spinner"></div>
-                </div>
-            </div>
-
-            <div class="dashboard-sections" id="dashboard-sections">
-                <!-- Section: Centralizado -->
-                <div class="dashboard-section-card" id="list-centralizado-section">
-                    <div class="section-header-custom header-centralizado">Dependencias (Centralizado)</div>
-                    <div class="section-body-custom" id="list-centralizado">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-                <!-- Section: Paraestatal -->
-                <div class="dashboard-section-card" id="list-paraestatal-section">
-                    <div class="section-header-custom header-paraestatal">Entidades (Paraestatal)</div>
-                    <div class="section-body-custom" id="list-paraestatal">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-                <!-- Section: Autónomos -->
-                <div class="dashboard-section-card" id="list-autonomo-section">
-                    <div class="section-header-custom header-autonomo">Organismos Autónomos</div>
-                    <div class="section-body-custom" id="list-autonomo">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            </div>
-            <!-- Tarjetas de Resumen (Grid 2 columnas) -->
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 30px;">
-
-                <!-- Resumen de Expedientes -->
-                <div class="card" id="resumen-expedientes-card">
+                <!-- Estado General (Barras de Progreso) -->
+                <div class="card mt-30" id="estado-general-card">
                     <div class="card-header">
-                        <h3 class="card-title">📊 Resumen de Expedientes</h3>
+                        <h3 class="card-title">📈 Estado General de Herramientas Organizacionales</h3>
                     </div>
-                    <div class="card-body">
-                        <div id="resumen-expedientes-content">
+                    <div class="p-20" id="estado-general-bars">
+                        <!-- Dinámico: Sección Centralizada, Paraestatal, etc. con sus 4 barras -->
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-sections" id="dashboard-sections">
+                    <!-- Section: Centralizado -->
+                    <div class="dashboard-section-card" id="list-centralizado-section">
+                        <div class="section-header-custom header-centralizado">Dependencias (Centralizado)</div>
+                        <div class="section-body-custom" id="list-centralizado">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                    <!-- Section: Paraestatal -->
+                    <div class="dashboard-section-card" id="list-paraestatal-section">
+                        <div class="section-header-custom header-paraestatal">Entidades (Paraestatal)</div>
+                        <div class="section-body-custom" id="list-paraestatal">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                    <!-- Section: Autónomos -->
+                    <div class="dashboard-section-card" id="list-autonomo-section">
+                        <div class="section-header-custom header-autonomo">Organismos Autónomos</div>
+                        <div class="section-body-custom" id="list-autonomo">
                             <div class="spinner"></div>
                         </div>
                     </div>
                 </div>
+                <!-- Tarjetas de Resumen (Grid 2 columnas) -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 30px;">
 
-                <!-- Indicadores Clave (KPIs) -->
-                <div class="card" id="kpis-card">
-                    <div class="card-header">
-                        <h3 class="card-title">🎯 Indicadores Clave</h3>
+                    <!-- Resumen de Expedientes -->
+                    <div class="card" id="resumen-expedientes-card">
+                        <div class="card-header">
+                            <h3 class="card-title">📊 Resumen de Expedientes</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="resumen-expedientes-content">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div id="kpis-content">
+
+                    <!-- Indicadores Clave (KPIs) -->
+                    <div class="card" id="kpis-card">
+                        <div class="card-header">
+                            <h3 class="card-title">🎯 Indicadores Clave</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="kpis-content">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Vista Dependencias/Entidades -->
+            <div id="vista-organizaciones" class="hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Dependencias y Entidades</h3>
+                        <div id="admin-actions-organizaciones" style="display: none;">
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-primary" onclick="mostrarModal('modal-nueva-organizacion')">➕
+                                    Nueva
+                                    Dependencia/Entidad</button>
+                                <button class="btn btn-secondary"
+                                    onclick="window.abrirModalImportar('organizaciones')">📥
+                                    Importar Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="padding: 10px 20px;">
+                        <select class="form-select" id="filtro-tipo-org" onchange="cargarOrganizaciones()">
+                            <option value="">Todas</option>
+                            <option value="DEPENDENCIA">Dependencias</option>
+                            <option value="ENTIDAD_PARAESTATAL">Entidades Paraestatales</option>
+                        </select>
+                    </div>
+                    <div id="tabla-organizaciones">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Titular</th>
+                                        <th>Semáforo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="organizaciones-tabla-body">
+                                    <tr>
+                                        <td colspan="5" class="text-center">
+                                            <div class="spinner"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista Herramientas -->
+            <div id="vista-herramientas" class="hidden">
+                <div class="layout-herramientas">
+                    <!-- Izquierda: Lista -->
+                    <div class="card" style="flex: 1; min-width: 300px;">
+                        <div class="card-header">
+                            <h3 class="card-title">Seleccionar Dependencia</h3>
+                        </div>
+                        <div class="p-10">
+                            <input type="text" class="form-input mb-10" id="buscar-org-herramientas"
+                                placeholder="Buscar dependencia..." oninput="filtrarOrganizacionesHerramientas()">
+                            <div id="lista-organizaciones-herramientas" class="list-group">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Derecha: Detalle -->
+                    <div class="card" style="flex: 4; min-width: 400px; display: flex; flex-direction: column;">
+                        <div class="card-header" style="justify-content: space-between;">
+                            <h3 class="card-title" id="titulo-dependencia-seleccionada">Herramientas</h3>
+                            <div id="admin-actions-herramientas" style="display: none;">
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="btn btn-primary" onclick="mostrarModalNuevaHerramienta()">➕ Nueva
+                                        Herramienta</button>
+                                    <button class="btn btn-secondary"
+                                        onclick="window.abrirModalImportar('herramientas')">📥
+                                        Importar Excel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="detalle-herramientas-dependencia" class="p-20" style="flex: 1; overflow-y: auto;">
+                            <div class="empty-state">
+                                <p>Seleccione una dependencia de la lista para ver su información y herramientas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista Exportar -->
+            <div id="vista-reportes" class="hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Reportes y Exportaciones</h3>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card" style="cursor: pointer;"
+                            onclick="window.ReportesModule.exportarInventario()">
+                            <div class="stat-number" style="color: var(--azul-institucional);">📋</div>
+                            <div class="stat-label">Inventario Completo</div>
+                            <button class="btn btn-primary mt-20">Exportar Excel</button>
+                        </div>
+                        <div class="stat-card" style="cursor: pointer;"
+                            onclick="window.ReportesModule.exportarSemaforo()">
+                            <div class="stat-number" style="color: var(--morado-institucional);">🚦</div>
+                            <div class="stat-label">Reporte de Semáforo</div>
+                            <button class="btn btn-secondary mt-20">Exportar Excel</button>
+                        </div>
+                        <div class="stat-card" style="cursor: pointer;"
+                            onclick="window.ReportesModule.exportarProximasVencer()">
+                            <div class="stat-number" style="color: var(--amarillo-advertencia);">⏰</div>
+                            <div class="stat-label">Próximas a Vencer</div>
+                            <button class="btn btn-secondary mt-20">Exportar Excel</button>
+                        </div>
+                    </div>
+                    <div class="card mt-20">
+                        <div class="card-header">
+                            <h3 class="card-title">Historial de Cambios</h3>
+                        </div>
+                        <div id="tabla-historial">
                             <div class="spinner"></div>
                         </div>
                     </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Vista Dependencias/Entidades -->
-        <div id="vista-organizaciones" class="hidden">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Dependencias y Entidades</h3>
-                    <div id="admin-actions-organizaciones" style="display: none;">
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn btn-primary" onclick="mostrarModal('modal-nueva-organizacion')">➕ Nueva
-                                Dependencia/Entidad</button>
-                            <button class="btn btn-secondary" onclick="window.abrirModalImportar('organizaciones')">📥
-                                Importar Excel</button>
+                    <div id="admin-maintenance-section" class="card mt-20"
+                        style="display: none; border: 1px solid #ffccd5; background: #fff5f5;">
+                        <div class="card-header">
+                            <h3 class="card-title" style="color: #d32f2f;">⚙️ Mantenimiento del Sistema</h3>
+                        </div>
+                        <div class="p-20">
+                            <p class="mb-20"><strong>Zona de Peligro:</strong> Esta acción eliminará permanentemente
+                                todas
+                                las dependencias, herramientas e historial. El usuario administrador no será eliminado.
+                            </p>
+                            <button class="btn" style="background-color: #d32f2f; color: white;"
+                                onclick="window.resetearBaseDeDatos()">Eliminar Todo y Empezar de Cero</button>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" style="padding: 10px 20px;">
-                    <select class="form-select" id="filtro-tipo-org" onchange="cargarOrganizaciones()">
-                        <option value="">Todas</option>
-                        <option value="DEPENDENCIA">Dependencias</option>
-                        <option value="ENTIDAD_PARAESTATAL">Entidades Paraestatales</option>
-                    </select>
-                </div>
-                <div id="tabla-organizaciones">
+            </div>
+
+            <!-- Vista Usuarios (Admin Only) -->
+            <div id="vista-usuarios" class="hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Administración de Usuarios</h3>
+                        <button class="btn btn-primary" onclick="window.mostrarModalNuevoUsuario()">➕ Nuevo
+                            Usuario</button>
+                    </div>
                     <div class="table-container">
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
-                                    <th>Tipo</th>
-                                    <th>Titular</th>
-                                    <th>Semáforo</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="organizaciones-tabla-body">
+                            <tbody id="usuarios-tabla-body">
                                 <tr>
                                     <td colspan="5" class="text-center">
                                         <div class="spinner"></div>
@@ -225,171 +353,55 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Vista Herramientas -->
-        <div id="vista-herramientas" class="hidden">
-            <div class="layout-herramientas">
-                <!-- Izquierda: Lista -->
-                <div class="card" style="flex: 1; min-width: 300px;">
+            <!-- Vista Expedientes -->
+            <div id="vista-expedientes" class="hidden">
+                <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Seleccionar Dependencia</h3>
+                        <h3 class="card-title">📁 Gestión de Expedientes y Avances</h3>
+                        <button id="btn-nuevo-expediente" class="btn btn-primary" style="display: none;"
+                            onclick="mostrarModalNuevoExpediente()">➕ Nuevo Expediente</button>
                     </div>
-                    <div class="p-10">
-                        <input type="text" class="form-input mb-10" id="buscar-org-herramientas"
-                            placeholder="Buscar dependencia..." oninput="filtrarOrganizacionesHerramientas()">
-                        <div id="lista-organizaciones-herramientas" class="list-group">
+                    <div class="p-20">
+                        <div id="expedientes-lista" class="expedientes-grid">
                             <div class="spinner"></div>
                         </div>
                     </div>
                 </div>
-                <!-- Derecha: Detalle -->
-                <div class="card" style="flex: 4; min-width: 400px; display: flex; flex-direction: column;">
-                    <div class="card-header" style="justify-content: space-between;">
-                        <h3 class="card-title" id="titulo-dependencia-seleccionada">Herramientas</h3>
-                        <div id="admin-actions-herramientas" style="display: none;">
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-primary" onclick="mostrarModalNuevaHerramienta()">➕ Nueva
-                                    Herramienta</button>
-                                <button class="btn btn-secondary" onclick="window.abrirModalImportar('herramientas')">📥
-                                    Importar Excel</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="detalle-herramientas-dependencia" class="p-20" style="flex: 1; overflow-y: auto;">
-                        <div class="empty-state">
-                            <p>Seleccione una dependencia de la lista para ver su información y herramientas.</p>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </div>
 
-        <!-- Vista Exportar -->
-        <div id="vista-reportes" class="hidden">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Reportes y Exportaciones</h3>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card" style="cursor: pointer;"
-                        onclick="window.ReportesModule.exportarInventario()">
-                        <div class="stat-number" style="color: var(--azul-institucional);">📋</div>
-                        <div class="stat-label">Inventario Completo</div>
-                        <button class="btn btn-primary mt-20">Exportar Excel</button>
-                    </div>
-                    <div class="stat-card" style="cursor: pointer;" onclick="window.ReportesModule.exportarSemaforo()">
-                        <div class="stat-number" style="color: var(--morado-institucional);">🚦</div>
-                        <div class="stat-label">Reporte de Semáforo</div>
-                        <button class="btn btn-secondary mt-20">Exportar Excel</button>
-                    </div>
-                    <div class="stat-card" style="cursor: pointer;"
-                        onclick="window.ReportesModule.exportarProximasVencer()">
-                        <div class="stat-number" style="color: var(--amarillo-advertencia);">⏰</div>
-                        <div class="stat-label">Próximas a Vencer</div>
-                        <button class="btn btn-secondary mt-20">Exportar Excel</button>
-                    </div>
-                </div>
-                <div class="card mt-20">
+            <!-- Vista Cargas de Trabajo -->
+            <div id="vista-cargas" class="hidden">
+                <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Historial de Cambios</h3>
-                    </div>
-                    <div id="tabla-historial">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-                <div id="admin-maintenance-section" class="card mt-20"
-                    style="display: none; border: 1px solid #ffccd5; background: #fff5f5;">
-                    <div class="card-header">
-                        <h3 class="card-title" style="color: #d32f2f;">⚙️ Mantenimiento del Sistema</h3>
+                        <h3 class="card-title">📈 Cargas de Trabajo y Productividad</h3>
                     </div>
                     <div class="p-20">
-                        <p class="mb-20"><strong>Zona de Peligro:</strong> Esta acción eliminará permanentemente todas
-                            las dependencias, herramientas e historial. El usuario administrador no será eliminado.</p>
-                        <button class="btn" style="background-color: #d32f2f; color: white;"
-                            onclick="window.resetearBaseDeDatos()">Eliminar Todo y Empezar de Cero</button>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Herramientas</th>
+                                        <th>Expedientes</th>
+                                        <th>Última Actividad</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cargas-tabla-body">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <div class="spinner"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Vista Usuarios (Admin Only) -->
-        <div id="vista-usuarios" class="hidden">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Administración de Usuarios</h3>
-                    <button class="btn btn-primary" onclick="window.mostrarModalNuevoUsuario()">➕ Nuevo Usuario</button>
-                </div>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usuarios-tabla-body">
-                            <tr>
-                                <td colspan="5" class="text-center">
-                                    <div class="spinner"></div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Vista Expedientes -->
-        <div id="vista-expedientes" class="hidden">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">📁 Gestión de Expedientes y Avances</h3>
-                    <button id="btn-nuevo-expediente" class="btn btn-primary" style="display: none;"
-                        onclick="mostrarModalNuevoExpediente()">➕ Nuevo Expediente</button>
-                </div>
-                <div class="p-20">
-                    <div id="expedientes-lista" class="expedientes-grid">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Vista Cargas de Trabajo -->
-        <div id="vista-cargas" class="hidden">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">📈 Cargas de Trabajo y Productividad</h3>
-                </div>
-                <div class="p-20">
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Herramientas</th>
-                                    <th>Expedientes</th>
-                                    <th>Última Actividad</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cargas-tabla-body">
-                                <tr>
-                                    <td colspan="4" class="text-center">
-                                        <div class="spinner"></div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div> <!-- FIN CONTAINER -->
+        </div> <!-- FIN CONTENT AREA -->
+    </div> <!-- FIN MAIN LAYOUT -->
 
     <!-- MODALES (Top Level) -->
 
@@ -482,7 +494,8 @@
                 <button class="modal-close" onclick="cerrarModal('modal-detalle-organizacion')">&times;</button>
             </div>
             <div class="modal-body">
-                <h2 id="detalle-org-nombre" style="color: var(--azul-institucional); margin-bottom: 20px;">Nombre</h2>
+                <h2 id="detalle-org-nombre" style="color: var(--azul-institucional); margin-bottom: 20px;">Nombre
+                </h2>
                 <div class="stats-grid mb-20">
                     <div class="stat-card">
                         <div class="stat-label">Tipo</div>
@@ -814,7 +827,8 @@
                 </div>
                 <div style="flex: 1; text-align: center;">
                     <h2 class="card-title" id="detalle-exp-titulo"
-                        style="font-size: 1.8rem; color: var(--azul-institucional); margin: 0;">Detalle del Expediente
+                        style="font-size: 1.8rem; color: var(--azul-institucional); margin: 0;">Detalle del
+                        Expediente
                     </h2>
                     <p id="detalle-exp-subtitulo" class="text-muted" style="font-size: 1.1rem; margin: 5px 0 0 0;">
                         Cargando...</p>
@@ -928,7 +942,8 @@
 
                     <div class="form-group">
                         <label class="form-label">Columnas Requeridas</label>
-                        <ul id="import-columns-list" style="font-size: 0.85rem; color: #666; padding-left: 20px;"></ul>
+                        <ul id="import-columns-list" style="font-size: 0.85rem; color: #666; padding-left: 20px;">
+                        </ul>
                     </div>
 
                     <div class="form-group">

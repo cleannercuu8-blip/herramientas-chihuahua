@@ -77,8 +77,8 @@ const ExpedientesModule = {
                         <div class="exp-progreso-fill" style="width: ${progress}%"></div>
                     </div>
                 </div>
-                <div class="exp-footer">
-                    <span class="exp-org">🏢 ${exp.organizacion_nombre}</span>
+                <div class="exp-footer" style="padding-top: 15px; border-top: 1px solid #f1f5f9;">
+                    <span class="exp-org dependency-name" style="font-size: 0.95rem;">🏛️ ${exp.organizacion_nombre}</span>
                     <small>${new Date(exp.ultima_actualizacion).toLocaleDateString()}</small>
                 </div>
             </div>
@@ -285,7 +285,13 @@ const ExpedientesModule = {
             const subEl = document.getElementById('detalle-exp-subtitulo');
 
             if (tituloEl) tituloEl.textContent = data.expediente.titulo;
-            if (subEl) subEl.textContent = `${data.expediente.numero_expediente} | ${data.expediente.organizacion_nombre}`;
+            if (subEl) {
+                subEl.innerHTML = `
+                    <span style="color: var(--gris-medio); font-weight: 500;">${data.expediente.numero_expediente}</span>
+                    <span style="margin: 0 10px; color: var(--gris-claro);">|</span>
+                    <span class="dependency-name" style="font-size: 1.2rem;">${data.expediente.organizacion_nombre}</span>
+                `;
+            }
 
             // 2. Renderizar Contenido Tabs
             this.renderTimeline(this.avances);
