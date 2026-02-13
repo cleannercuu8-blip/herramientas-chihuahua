@@ -532,7 +532,7 @@
       }
 
       tiposMostrar.forEach(tipo => {
-        // Buscar herramientas: si es REGLAMENTO_ESTATUTO, buscar variantes
+        // Buscar herramientas
         let herramientasFiltradas = [];
         if (tipo === 'REGLAMENTO_ESTATUTO') {
           herramientasFiltradas = org.herramientas.filter(h =>
@@ -544,11 +544,46 @@
           herramientasFiltradas = org.herramientas.filter(h => h.tipo_herramienta === tipo);
         }
 
+        // Determinar si es un tipo que se agrupa (Manuales)
+        const esManual = ['MANUAL_ORGANIZACION', 'MANUAL_PROCEDIMIENTOS', 'MANUAL_SERVICIOS'].includes(tipo);
+
         if (herramientasFiltradas.length > 0) {
-          // Ordenar por fecha_emision desc para que la más reciente esté primera
+          // Ordenar por fecha_emision desc
           herramientasFiltradas.sort((a, b) => new Date(b.fecha_emision) - new Date(a.fecha_emision));
 
-          herramientasFiltradas.forEach(herramienta => {
+          if (esManual) {
+            // DISEÑO AGRUPADO PARA MANUALES
+            html += `
+              <div class="tool-item-card tool-group-card" style="grid-column: span 2; display: flex; flex-direction: column;">
+                <div class="tool-card-header" style="background: var(--azul-institucional); color: white; margin: -15px -15px 15px -15px; padding: 10px 15px; border-radius: 8px 8px 0 0;">
+                  <div class="tool-card-title" style="color: white; font-weight: 600;">${AppUtils.getNombreTipoHerramienta(tipo)}</div>
+                  <span class="badge badge-verde" style="font-size: 0.7rem;">${herramientasFiltradas.length} Registrado(s)</span>
+                </div>
+                <div class="tool-group-list" style="flex: 1; overflow-y: auto; max-height: 250px;">
+                  ${herramientasFiltradas.map((herramienta, idx) => `
+                    <div class="tool-sub-item" style="padding: 10px 0; border-bottom: ${idx === herramientasFiltradas.length - 1 ? 'none' : '1px solid #eee'};">
+                      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
+                        <span style="font-weight: 600; font-size: 0.95rem; color: var(--azul-institucional);">
+                          ${herramienta.nombre_personalizado || 'Documento sin nombre específico'}
+                        </span>
+                        <span style="font-size: 0.75rem; color: #666; font-weight: 600;">${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</span>
+                      </div>
+                      ${herramienta.comentarios ? `<div style="font-size: 0.75rem; color: #777; margin-bottom: 8px; font-style: italic;">${herramienta.comentarios}</div>` : ''}
+                      <div style="display: flex; gap: 8px;">
+                        <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-xs" style="padding: 4px 10px; font-size: 0.75rem;" target="_blank">Ver 🔗</a>
+                        ${isAdminOrCapturista ? `<button class="btn btn-primary btn-xs" style="padding: 4px 10px; font-size: 0.75rem;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; text-align: right;">
+                  <button class="btn btn-outline-primary btn-xs" style="font-weight: 600;" onclick="window.hacerNuevaHerramientaConOrg()">+ Agregar otro documento</button>
+                </div>
+              </div>
+            `;
+          } else {
+            // DISEÑO SIMPLE PARA SINGLETONS (Organigrama, Reglamento)
+            const herramienta = herramientasFiltradas[0]; // El más vigente
             html += `
               <div class="tool-item-card">
                 <div class="tool-card-header">
@@ -556,17 +591,19 @@
                 </div>
                 <div><strong>Estado:</strong> <span class="badge badge-verde">✓ Registrado</span></div>
                 <div><strong>Fecha:</strong> ${AppUtils.formatearFechaCorta(herramienta.fecha_emision)}</div>
+                ${herramienta.nombre_personalizado ? `<div style="font-weight: 600; margin-top: 5px; font-size: 0.85rem;">${herramienta.nombre_personalizado}</div>` : ''}
                 <div style="font-size: 0.8rem; color: #666; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${herramienta.comentarios || ''}">
                   ${herramienta.comentarios || ''}
                 </div>
                 <div style="display: flex; gap: 5px; margin-top: 10px;">
                   <a href="${window.HerramientasModule.getUrlDescarga(herramienta.id)}" class="btn btn-success btn-sm" style="flex: 2; text-align: center;" target="_blank">Ver 🔗</a>
-                  ${(isAdminOrCapturista && herramienta.id) ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
+                  ${isAdminOrCapturista ? `<button class="btn btn-primary btn-sm" style="flex: 1;" onclick="mostrarModalEditarHerramienta(${herramienta.id})">Editar</button>` : ''}
                 </div>
               </div>
             `;
-          });
+          }
         } else {
+          // PENDIENTE
           html += `
             <div class="tool-item-card" style="opacity: 0.6; background: #f9f9f9;">
               <div class="tool-card-header">
@@ -574,6 +611,9 @@
               </div>
               <div><strong>Estado:</strong> <span class="badge" style="background: #ccc; color: white;">✗ Pendiente</span></div>
               <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">No se ha cargado documento para esta categoría.</div>
+              <div style="margin-top: 10px; text-align: right;">
+                <button class="btn btn-primary btn-xs" onclick="window.hacerNuevaHerramientaConOrg()">Registrar</button>
+              </div>
             </div>
           `;
         }
@@ -642,6 +682,7 @@
 
         document.getElementById('edit-herramienta-estatus').value = h.estatus_poe || '';
         document.getElementById('edit-herramienta-comentarios').value = h.comentarios || '';
+        document.getElementById('edit-herramienta-nombre-personalizado').value = h.nombre_personalizado || '';
         document.getElementById('edit-herramienta-version').value = h.version || '1.0';
 
         // Mostrar/Ocultar botón de eliminar herramienta segun rol
@@ -735,7 +776,7 @@
       }
     } catch (error) {
       console.error(error);
-      window.AppUtils.mostrarAlerta('Error al eliminar herramienta', 'error');
+      // Solo mostramos error si HerramientasModule no lo manejó (aunque aquí suele venir de success: false)
     } finally {
       window.AppUtils.mostrarSpinner(false);
     }

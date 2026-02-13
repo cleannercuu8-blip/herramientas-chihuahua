@@ -112,7 +112,8 @@ class ImportController {
                     fecha: row.getCell(4).text?.trim(),
                     estatusPoe: row.getCell(5).text?.trim(),
                     linkPoe: row.getCell(6).text?.trim(),
-                    comentarios: row.getCell(7).text?.trim()
+                    comentarios: row.getCell(7).text?.trim(),
+                    nombrePersonalizado: row.getCell(8).text?.trim()
                 });
             });
 
@@ -182,6 +183,7 @@ class ImportController {
                         link_publicacion_poe: item.linkPoe || item.link || null,
                         estatus_poe: item.estatusPoe || 'SIN REGISTRO',
                         comentarios: item.comentarios || 'Cargado vía importación masiva',
+                        nombre_personalizado: item.nombrePersonalizado || null,
                         version: '1.0',
                         usuario_registro_id: adminId
                     };

@@ -84,7 +84,8 @@ class HerramientasController {
                 link_publicacion_poe,
                 version,
                 estatus_poe,
-                comentarios
+                comentarios,
+                nombre_personalizado
             } = req.body;
 
             // Validaciones
@@ -161,6 +162,7 @@ class HerramientasController {
                 link_publicacion_poe: finalLink !== 'NO_APLICA' ? finalLink : null,
                 estatus_poe: estatus_poe || 'VIGENTE',
                 comentarios: comentarios || null,
+                nombre_personalizado: nombre_personalizado || null,
                 version: version || '1.0',
                 usuario_registro_id: req.usuario.id
             });
@@ -206,7 +208,8 @@ class HerramientasController {
                 link_publicacion_poe,
                 version,
                 estatus_poe,
-                comentarios
+                comentarios,
+                nombre_personalizado
             } = req.body;
 
             const herramienta = await Herramienta.obtenerPorId(id);
@@ -242,6 +245,7 @@ class HerramientasController {
                 link_publicacion_poe: pick(link_publicacion_poe, herramienta.link_publicacion_poe),
                 estatus_poe: pick(estatus_poe, herramienta.estatus_poe),
                 comentarios: pick(comentarios, herramienta.comentarios),
+                nombre_personalizado: pick(nombre_personalizado, herramienta.nombre_personalizado),
                 version: pick(version, herramienta.version)
             });
 

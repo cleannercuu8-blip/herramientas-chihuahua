@@ -20,6 +20,7 @@ class Herramienta {
         link_publicacion_poe TEXT,
         estatus_poe TEXT,
         comentarios TEXT,
+        nombre_personalizado TEXT,
         version TEXT,
         vigente INTEGER DEFAULT 1,
         fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -37,8 +38,8 @@ class Herramienta {
       INSERT INTO herramientas (
         organizacion_id, tipo_herramienta, nombre_archivo, ruta_archivo,
         fecha_emision, fecha_publicacion_poe, link_publicacion_poe,
-        estatus_poe, comentarios, version, usuario_registro_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        estatus_poe, comentarios, nombre_personalizado, version, usuario_registro_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `;
     const values = [
@@ -51,6 +52,7 @@ class Herramienta {
       herramienta.link_publicacion_poe || null,
       herramienta.estatus_poe || null,
       herramienta.comentarios || null,
+      herramienta.nombre_personalizado || null,
       herramienta.version || '1.0',
       herramienta.usuario_registro_id
     ];
@@ -103,8 +105,9 @@ class Herramienta {
       UPDATE herramientas 
       SET tipo_herramienta = $1, nombre_archivo = $2, ruta_archivo = $3,
           fecha_emision = $4, fecha_publicacion_poe = $5, link_publicacion_poe = $6,
-          estatus_poe = $7, comentarios = $8, version = $9, fecha_actualizacion = CURRENT_TIMESTAMP
-      WHERE id = $10
+          estatus_poe = $7, comentarios = $8, nombre_personalizado = $9, 
+          version = $10, fecha_actualizacion = CURRENT_TIMESTAMP
+      WHERE id = $11
     `;
     const values = [
       datos.tipo_herramienta,
@@ -115,6 +118,7 @@ class Herramienta {
       datos.link_publicacion_poe,
       datos.estatus_poe,
       datos.comentarios,
+      datos.nombre_personalizado,
       datos.version,
       id
     ];

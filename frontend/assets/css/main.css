@@ -1385,3 +1385,48 @@ body {
   font-weight: 600;
   margin-bottom: 5px;
 }
+
+/* Tool Grouping Styles */
+.tool-group-card {
+  min-height: 300px;
+  background: #ffffff;
+}
+
+.tool-group-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--azul-institucional) #f0f0f0;
+}
+
+.tool-group-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tool-group-list::-webkit-scrollbar-thumb {
+  background-color: var(--azul-institucional);
+  border-radius: 10px;
+}
+
+.tool-sub-item {
+  transition: background 0.2s ease;
+}
+
+.tool-sub-item:hover {
+  background: #fcfcfc;
+}
+
+.btn-xs {
+  padding: 4px 10px !important;
+  font-size: 0.75rem !important;
+  border-radius: 4px;
+}
+
+.btn-outline-primary {
+  background: transparent;
+  border: 1px solid var(--azul-institucional);
+  color: var(--azul-institucional);
+}
+
+.btn-outline-primary:hover {
+  background: var(--azul-institucional);
+  color: #fff;
+}
