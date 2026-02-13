@@ -379,6 +379,7 @@ const ExpedientesModule = {
                     <!-- Barra lateral de color según tipo -->
                     <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px;" class="bg-${av.tipo.toLowerCase()}"></div>
                     
+                <div style="padding: 15px 20px;">
                     ${isAdminOrCapturista && this.currentExpediente?.estatus !== 'CERRADO' ? `
                     <button class="btn btn-sm btn-action" 
                             style="position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ef4444; transition: background 0.2s;" 
