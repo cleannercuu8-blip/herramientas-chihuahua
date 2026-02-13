@@ -218,13 +218,18 @@ const ExpedientesModule = {
             const siglas = orgData.organizacion.siglas || 'SN';
             const anio = new Date().getFullYear();
 
+            let tipoTexto = 'Organización';
+            if (orgData.organizacion.tipo === 'DEPENDENCIA') tipoTexto = 'Dependencia';
+            if (orgData.organizacion.tipo === 'ENTIDAD_PARAESTATAL') tipoTexto = 'Entidad';
+            if (orgData.organizacion.tipo === 'ORGANISMO_AUTONOMO') tipoTexto = 'Organismo';
+
             const datos = {
                 organizacion_id: organizacionId,
                 titulo: `Expediente de Seguimiento ${anio}`,
                 numero_expediente: `DSIJ-${siglas}-${anio}`,
                 prioridad: 'MEDIA',
                 estatus: 'ABIERTO',
-                descripcion: 'Expediente generado automáticamente para seguimiento.'
+                descripcion: `Expediente de la ${tipoTexto} ${orgData.organizacion.nombre}`
             };
 
             const response = await window.AppUtils.fetchAPI('/expedientes', {
@@ -375,13 +380,7 @@ const ExpedientesModule = {
                     <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px;" class="bg-${av.tipo.toLowerCase()}"></div>
                     
                     <div style="padding: 15px 20px;">
-                        ${isAdminOrCapturista ? `
-                        <button class="btn btn-sm btn-action" 
-                                style="position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #ef4444; transition: background 0.2s;" 
-                                onclick="ExpedientesModule.eliminarAvance(${av.id})" 
-                                title="Eliminar registro">
-                            🗑️
-                        </button>` : ''}
+                        /* Botón de eliminar removido para asegurar integridad de la bitácora */
                         
                         <div style="margin-bottom: 8px;">
                             <span class="badge badge-${av.tipo.toLowerCase()}" style="font-size: 0.7rem; letter-spacing: 0.5px;">${av.tipo}</span>
@@ -440,6 +439,7 @@ const ExpedientesModule = {
                             <div style="font-weight: 500;">${expediente.organizacion_nombre}</div>
                         </div>
                     </div>
+                    ${expediente.estatus === 'ABIERTO' ? `
                     <div class="col">
                         <div class="form-group">
                             <label class="form-label text-muted" style="font-size: 0.85rem;">Prioridad</label>
@@ -456,7 +456,7 @@ const ExpedientesModule = {
                                 </button>` : ''}
                             </div>
                         </div>
-                    </div>
+                    </div>` : ''}
                 </div>
 
                 <div class="mt-20">
