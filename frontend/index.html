@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Herramientas Organizacionales - SFP</title>
-    <link rel="stylesheet" href="assets/css/main.css?v=3.1">
-    <link rel="stylesheet" href="assets/css/custom_modal.css?v=3.1">
+    <link rel="stylesheet" href="assets/css/main.css?v=4.1">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=4.1">
+    <link rel="stylesheet" href="assets/css/components.css?v=4.1">
+    <link rel="stylesheet" href="assets/css/custom_modal.css?v=4.1">
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         .search-wrapper {
@@ -54,7 +56,7 @@
             <button class="nav-btn" onclick="mostrarVista('herramientas', event)">💼 Herramientas</button>
             <button class="nav-btn" id="nav-btn-cargas" style="display: none;"
                 onclick="mostrarVista('cargas', event)">📈 Cargas de Trabajo</button>
-            <button class="nav-btn" onclick="mostrarVista('reportes', event)">📥 Exportar</button>
+            <button class="nav-btn" onclick="mostrarVista('reportes', event)">🛠️ Utilidades</button>
             <button class="nav-btn" id="nav-btn-usuarios" style="display: none;"
                 onclick="mostrarVista('usuarios', event)">👥 Usuarios</button>
             <button class="nav-btn logout" onclick="window.AppUtils.cerrarSesion()">🚪 Cerrar Sesión</button>
@@ -278,35 +280,56 @@
                 </div>
             </div>
 
-            <!-- Vista Exportar -->
+            <!-- Vista Utilidades (Anterior Exportar) -->
             <div id="vista-reportes" class="hidden">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Reportes y Exportaciones</h3>
+                        <h3 class="card-title">🛠️ Utilidades y Auditoría</h3>
                     </div>
-                    <div class="stats-grid">
-                        <div class="stat-card" style="cursor: pointer;"
-                            onclick="window.ReportesModule.exportarInventario()">
-                            <div class="stat-number" style="color: var(--azul-institucional);">📋</div>
-                            <div class="stat-label">Inventario Completo</div>
-                            <button class="btn btn-primary mt-20">Exportar Excel</button>
+
+                    <!-- Grid de Herramientas de Auditoría -->
+                    <div class="dashboard-trapecios-grid"
+                        style="grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 20px;">
+                        <!-- Tarjeta: Reporte de Cumplimiento -->
+                        <div class="trapecio-card trapecio-azul" style="height: 160px; cursor: pointer;"
+                            onclick="window.ReportesModule.verReporteCumplimiento()">
+                            <div class="trapecio-content">
+                                <i class="icon-org">📊</i>
+                                <h3 style="font-size: 1.1rem;">Reporte de Cumplimiento</h3>
+                                <p style="font-size: 0.8rem;">Ver faltantes por dependencia</p>
+                            </div>
                         </div>
-                        <div class="stat-card" style="cursor: pointer;"
-                            onclick="window.ReportesModule.exportarSemaforo()">
-                            <div class="stat-number" style="color: var(--morado-institucional);">🚦</div>
-                            <div class="stat-label">Reporte de Semáforo</div>
-                            <button class="btn btn-secondary mt-20">Exportar Excel</button>
+
+                        <!-- Tarjeta: Directorio Institucional -->
+                        <div class="trapecio-card trapecio-morado" style="height: 160px; cursor: pointer;"
+                            onclick="window.ReportesModule.verDirectorioInstitucional()">
+                            <div class="trapecio-content">
+                                <i class="icon-org">📂</i>
+                                <h3 style="font-size: 1.1rem;">Directorio Institucional</h3>
+                                <p style="font-size: 0.8rem;">Titulares y siglas consolidadas</p>
+                            </div>
                         </div>
-                        <div class="stat-card" style="cursor: pointer;"
-                            onclick="window.ReportesModule.exportarProximasVencer()">
-                            <div class="stat-number" style="color: var(--amarillo-advertencia);">⏰</div>
-                            <div class="stat-label">Próximas a Vencer</div>
-                            <button class="btn btn-secondary mt-20">Exportar Excel</button>
+
+                        <!-- Tarjeta: Buscador de Herramientas -->
+                        <div class="trapecio-card trapecio-oscuro" style="height: 160px; cursor: pointer;"
+                            onclick="window.ReportesModule.abrirBuscadorGlobal()">
+                            <div class="trapecio-content">
+                                <i class="icon-org">🔍</i>
+                                <h3 style="font-size: 1.1rem;">Buscador Global</h3>
+                                <p style="font-size: 0.8rem;">Localizar archivos por nombre</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="card mt-20">
-                        <div class="card-header">
-                            <h3 class="card-title">Historial de Cambios</h3>
+
+                    <!-- Contenedor para Vistas Dinámicas de Utilidades -->
+                    <div id="utility-dynamic-content" class="p-20 hidden"
+                        style="border-top: 2px solid var(--sfp-bg-soft); background: #fdfdfd;">
+                        <div id="utility-render-area"></div>
+                    </div>
+
+                    <div class="card mt-20" style="margin: 20px; border: 1px solid rgba(0, 61, 165, 0.1);">
+                        <div class="card-header" style="background: rgba(0, 61, 165, 0.03);">
+                            <h3 class="card-title">🕒 Historial de Cambios</h3>
                         </div>
                         <div id="tabla-historial">
                             <div class="spinner"></div>
@@ -1021,17 +1044,17 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="assets/js/utils.js?v=3.1"></script>
-    <script src="assets/js/auth.js?v=3.1"></script>
-    <script src="assets/js/organizaciones.js?v=3.1"></script>
-    <script src="assets/js/herramientas.js?v=3.1"></script>
-    <script src="assets/js/reportes.js?v=3.1"></script>
-    <script src="assets/js/usuarios.js?v=3.1"></script>
-    <script src="assets/js/import.js?v=3.1"></script>
-    <script src="assets/js/expedientes.js?v=3.1"></script>
-    <script src="assets/js/search.js?v=3.1"></script>
-    <script src="assets/js/dashboard-kpis.js?v=3.1"></script>
-    <script src="assets/js/app.js?v=3.1"></script>
+    <script src="assets/js/utils.js?v=4.1"></script>
+    <script src="assets/js/auth.js?v=4.1"></script>
+    <script src="assets/js/organizaciones.js?v=4.1"></script>
+    <script src="assets/js/herramientas.js?v=4.1"></script>
+    <script src="assets/js/reportes.js?v=4.1"></script>
+    <script src="assets/js/usuarios.js?v=4.1"></script>
+    <script src="assets/js/import.js?v=4.1"></script>
+    <script src="assets/js/expedientes.js?v=4.1"></script>
+    <script src="assets/js/search.js?v=4.1"></script>
+    <script src="assets/js/dashboard-kpis.js?v=4.1"></script>
+    <script src="assets/js/app.js?v=4.1"></script>
 </body>
 
 </html>
