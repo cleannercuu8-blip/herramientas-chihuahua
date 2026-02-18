@@ -33,13 +33,20 @@ const ReportesModule = {
     // Mostrar Reporte de Cumplimiento
     async verReporteCumplimiento() {
         const dynamicContent = document.getElementById('utility-dynamic-content');
-        const renderArea = document.getElementById('utility-renderArea' || 'utility-render-area');
+        const renderArea = document.getElementById('utility-render-area');
 
         dynamicContent.classList.remove('hidden');
         renderArea.innerHTML = '<div class="spinner"></div>';
 
         try {
-            const orgs = await window.OrganizacionesModule.obtenerTodas();
+            const resultado = await window.OrganizacionesModule.obtenerTodas();
+
+            if (!resultado.success) {
+                renderArea.innerHTML = `<p style="color: red;">Error al obtener organizaciones: ${resultado.error}</p>`;
+                return;
+            }
+
+            const orgs = resultado.data || [];
 
             let html = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -65,10 +72,10 @@ const ReportesModule = {
                 // Simplificamos lógica: si no tiene herramientas de ese tipo, marcar como faltante
                 // Nota: Esta lógica asume que las herramientas están vinculadas a la organización
                 const h = org.herramientas || [];
-                const tieneReg = h.some(i => i.tipo === 'REGLAMENTO_INTERIOR');
-                const tieneOrg = h.some(i => i.tipo === 'MANUAL_ORGANIZACION');
-                const tieneProc = h.some(i => i.tipo === 'MANUAL_PROCEDIMIENTOS');
-                const tieneServ = h.some(i => i.tipo === 'MANUAL_SERVICIOS');
+                const tieneReg = h.some(i => i.tipo_herramienta === 'REGLAMENTO_INTERIOR' || i.tipo_herramienta === 'REGLAMENTO_ESTATUTO' || i.tipo_herramienta === 'ESTATUTO_ORGANICO');
+                const tieneOrg = h.some(i => i.tipo_herramienta === 'MANUAL_ORGANIZACION');
+                const tieneProc = h.some(i => i.tipo_herramienta === 'MANUAL_PROCEDIMIENTOS');
+                const tieneServ = h.some(i => i.tipo_herramienta === 'MANUAL_SERVICIOS');
 
                 html += `
                     <tr>
@@ -98,7 +105,14 @@ const ReportesModule = {
         renderArea.innerHTML = '<div class="spinner"></div>';
 
         try {
-            const orgs = await window.OrganizacionesModule.obtenerTodas();
+            const resultado = await window.OrganizacionesModule.obtenerTodas();
+
+            if (!resultado.success) {
+                renderArea.innerHTML = `<p style="color: red;">Error al obtener organizaciones: ${resultado.error}</p>`;
+                return;
+            }
+
+            const orgs = resultado.data || [];
 
             let html = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">

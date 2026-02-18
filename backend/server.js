@@ -293,8 +293,12 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Servir el frontend para cualquier otra ruta
+// Servir el frontend para cualquier otra ruta (SPA fallback)
 app.get('*', (req, res) => {
+    // Si la ruta empieza con /api, no servir el frontend (debería haber sido manejada antes)
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'Endpoint de API no encontrado' });
+    }
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
