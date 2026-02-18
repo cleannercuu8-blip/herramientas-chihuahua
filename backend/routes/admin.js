@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const { verificarToken, verificarRol } = require('../middleware/auth');
 const Usuario = require('../models/Usuario');
 const Organizacion = require('../models/Organizacion');
 const Herramienta = require('../models/Herramienta');
@@ -121,6 +122,19 @@ router.post('/clear-database', async (req, res) => {
             error: 'Error al limpiar la base de datos',
             details: error.message
         });
+    }
+});
+
+/**
+ * Obtener todos los usuarios del sistema (Para asignación de tareas)
+ * Solo accesible por Administradores
+ */
+router.get('/usuarios', verificarToken, verificarRol('ADMINISTRADOR'), async (req, res) => {
+    try {
+        const usuarios = await Usuario.obtenerTodos();
+        res.json({ success: true, usuarios });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

@@ -39,7 +39,7 @@ const ReportesModule = {
         renderArea.innerHTML = '<div class="spinner"></div>';
 
         try {
-            const resultado = await window.OrganizacionesModule.obtenerTodas();
+            const resultado = await window.AppUtils.fetchAPI('/organizaciones?includeTools=true');
 
             if (!resultado.success) {
                 renderArea.innerHTML = `<p style="color: red;">Error al obtener organizaciones: ${resultado.error}</p>`;
