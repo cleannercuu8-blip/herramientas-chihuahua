@@ -295,766 +295,853 @@
                             onclick="window.ReportesModule.verReporteCumplimiento()">
                             <div class="trapecio-content">
                                 <i class="icon-org">📊</i>
-                                <h3 style="font-size: 1.1rem;">Reporte de Cumplimiento</h3>
-                                <p style="font-size: 0.8rem;">Ver faltantes por dependencia</p>
+
+                                <!-- Tarjeta: Centro de Encomiendas (Nueva) -->
+                                <div class="trapecio-card trapecio-morado" style="height: 160px; cursor: pointer;"
+                                    onclick="window.ReportesModule.abrirGestionTareas()">
+                                    <div class="trapecio-content">
+                                        <i class="icon-org">🚀</i>
+                                        <h3 style="font-size: 1.1rem;">Centro de Encomiendas</h3>
+                                        <p style="font-size: 0.8rem;">Asignación y seguimiento de instrucciones</p>
+                                    </div>
+                                </div>
+
+                                <!-- Tarjeta: Buscador de Herramientas -->
+                                <div class="trapecio-card trapecio-oscuro" style="height: 160px; cursor: pointer;"
+                                    onclick="window.ReportesModule.abrirBuscadorGlobal()">
+                                    <div class="trapecio-content">
+                                        <i class="icon-org">🔍</i>
+                                        <h3 style="font-size: 1.1rem;">Buscador Global</h3>
+                                        <p style="font-size: 0.8rem;">Localizar archivos por nombre</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contenedor para Vistas Dinámicas de Utilidades -->
+                            <div id="utility-dynamic-content" class="p-20 hidden"
+                                style="border-top: 2px solid var(--sfp-bg-soft); background: #fdfdfd;">
+                                <div id="utility-render-area"></div>
+                            </div>
+
+                            <div class="card mt-20" style="margin: 20px; border: 1px solid rgba(0, 61, 165, 0.1);">
+                                <div class="card-header" style="background: rgba(0, 61, 165, 0.03);">
+                                    <h3 class="card-title">🕒 Historial de Cambios</h3>
+                                </div>
+                                <div id="tabla-historial">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                            <div id="admin-maintenance-section" class="card mt-20"
+                                style="display: none; border: 1px solid #ffccd5; background: #fff5f5;">
+                                <div class="card-header">
+                                    <h3 class="card-title" style="color: #d32f2f;">⚙️ Mantenimiento del Sistema</h3>
+                                </div>
+                                <div class="p-20">
+                                    <p class="mb-20"><strong>Zona de Peligro:</strong> Esta acción eliminará
+                                        permanentemente
+                                        todas
+                                        las dependencias, herramientas e historial. El usuario administrador no será
+                                        eliminado.
+                                    </p>
+                                    <button class="btn" style="background-color: #d32f2f; color: white;"
+                                        onclick="window.resetearBaseDeDatos()">Eliminar Todo y Empezar de Cero</button>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Tarjeta: Directorio Institucional -->
-                        <div class="trapecio-card trapecio-morado" style="height: 160px; cursor: pointer;"
-                            onclick="window.ReportesModule.verDirectorioInstitucional()">
-                            <div class="trapecio-content">
-                                <i class="icon-org">📂</i>
-                                <h3 style="font-size: 1.1rem;">Directorio Institucional</h3>
-                                <p style="font-size: 0.8rem;">Titulares y siglas consolidadas</p>
+                    <!-- Vista Usuarios (Admin Only) -->
+                    <div id="vista-usuarios" class="hidden">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Administración de Usuarios</h3>
+                                <button class="btn btn-primary" onclick="window.mostrarModalNuevoUsuario()">➕ Nuevo
+                                    Usuario</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Email</th>
+                                            <th>Rol</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usuarios-tabla-body">
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                <div class="spinner"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Tarjeta: Buscador de Herramientas -->
-                        <div class="trapecio-card trapecio-oscuro" style="height: 160px; cursor: pointer;"
-                            onclick="window.ReportesModule.abrirBuscadorGlobal()">
-                            <div class="trapecio-content">
-                                <i class="icon-org">🔍</i>
-                                <h3 style="font-size: 1.1rem;">Buscador Global</h3>
-                                <p style="font-size: 0.8rem;">Localizar archivos por nombre</p>
+                    <!-- Vista Expedientes -->
+                    <div id="vista-expedientes" class="hidden">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">📁 Gestión de Expedientes y Avances</h3>
+                                <button id="btn-nuevo-expediente" class="btn btn-primary" style="display: none;"
+                                    onclick="mostrarModalNuevoExpediente()">➕ Nuevo Expediente</button>
+                            </div>
+                            <div class="p-20">
+                                <div id="expedientes-lista" class="expedientes-grid">
+                                    <div class="spinner"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Contenedor para Vistas Dinámicas de Utilidades -->
-                    <div id="utility-dynamic-content" class="p-20 hidden"
-                        style="border-top: 2px solid var(--sfp-bg-soft); background: #fdfdfd;">
-                        <div id="utility-render-area"></div>
-                    </div>
-
-                    <div class="card mt-20" style="margin: 20px; border: 1px solid rgba(0, 61, 165, 0.1);">
-                        <div class="card-header" style="background: rgba(0, 61, 165, 0.03);">
-                            <h3 class="card-title">🕒 Historial de Cambios</h3>
-                        </div>
-                        <div id="tabla-historial">
-                            <div class="spinner"></div>
-                        </div>
-                    </div>
-                    <div id="admin-maintenance-section" class="card mt-20"
-                        style="display: none; border: 1px solid #ffccd5; background: #fff5f5;">
-                        <div class="card-header">
-                            <h3 class="card-title" style="color: #d32f2f;">⚙️ Mantenimiento del Sistema</h3>
-                        </div>
-                        <div class="p-20">
-                            <p class="mb-20"><strong>Zona de Peligro:</strong> Esta acción eliminará permanentemente
-                                todas
-                                las dependencias, herramientas e historial. El usuario administrador no será eliminado.
-                            </p>
-                            <button class="btn" style="background-color: #d32f2f; color: white;"
-                                onclick="window.resetearBaseDeDatos()">Eliminar Todo y Empezar de Cero</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Vista Usuarios (Admin Only) -->
-            <div id="vista-usuarios" class="hidden">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Administración de Usuarios</h3>
-                        <button class="btn btn-primary" onclick="window.mostrarModalNuevoUsuario()">➕ Nuevo
-                            Usuario</button>
-                    </div>
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Rol</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usuarios-tabla-body">
-                                <tr>
-                                    <td colspan="5" class="text-center">
-                                        <div class="spinner"></div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Vista Expedientes -->
-            <div id="vista-expedientes" class="hidden">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">📁 Gestión de Expedientes y Avances</h3>
-                        <button id="btn-nuevo-expediente" class="btn btn-primary" style="display: none;"
-                            onclick="mostrarModalNuevoExpediente()">➕ Nuevo Expediente</button>
-                    </div>
-                    <div class="p-20">
-                        <div id="expedientes-lista" class="expedientes-grid">
-                            <div class="spinner"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Vista Cargas de Trabajo -->
-            <div id="vista-cargas" class="hidden">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">📈 Cargas de Trabajo y Productividad</h3>
-                    </div>
-                    <div class="p-20">
-                        <div class="table-container">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Usuario</th>
-                                        <th>Herramientas</th>
-                                        <th>Expedientes</th>
-                                        <th>Última Actividad</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="cargas-tabla-body">
-                                    <tr>
-                                        <td colspan="4" class="text-center">
-                                            <div class="spinner"></div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div> <!-- FIN CONTENT AREA -->
-    </div> <!-- FIN MAIN LAYOUT -->
-
-    <!-- MODALES (Top Level) -->
-
-    <!-- Modal Perfil -->
-    <div id="modal-perfil" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="card-title">Mi Perfil</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-perfil')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="card mb-20" style="background: var(--gris-claro);">
-                    <div class="p-20 text-center">
-                        <div class="profile-avatar"
-                            style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 15px;">👤</div>
-                        <h4 id="perfil-nombre" class="mb-5">Cargando...</h4>
-                        <p id="perfil-email" class="text-muted mb-10">...</p>
-                        <span id="perfil-rol-badge" class="badge">...</span>
-                    </div>
-                </div>
-                <h4 class="mb-15">Cambiar Contraseña</h4>
-                <form onsubmit="window.handleCambioPassword(event)">
-                    <div class="form-group">
-                        <label class="form-label">Contraseña Actual</label>
-                        <input type="password" class="form-input" id="pwd-actual" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nueva Contraseña</label>
-                        <input type="password" class="form-input" id="pwd-nuevo" required minlength="6">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Actualizar Contraseña</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Admin Usuarios (Nuevo/Editar) -->
-    <div id="modal-usuario-admin" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="card-title" id="usuario-modal-title">Registrar Usuario</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-usuario-admin')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-usuario-admin" onsubmit="window.handleGuardarUsuario(event)">
-                    <input type="hidden" id="admin-user-id">
-                    <div class="form-group">
-                        <label class="form-label">Nombre Completo</label>
-                        <input type="text" class="form-input" name="nombre_completo" id="admin-user-nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-input" name="email" id="admin-user-email" required>
-                    </div>
-                    <div class="form-group" id="container-pwd-admin">
-                        <label class="form-label">Contraseña</label>
-                        <input type="password" class="form-input" name="password" id="admin-user-pwd" minlength="4">
-                        <small class="text-muted">Si estás editando, deja en blanco para no cambiar.</small>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Rol</label>
-                        <select class="form-select" name="rol" id="admin-user-rol" required>
-                            <option value="CAPTURISTA">Capturista (Registro y Edición)</option>
-                            <option value="CONSULTOR">Consultor (Solo Lectura)</option>
-                            <option value="ADMINISTRADOR">Administrador (Control Total)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select" name="activo" id="admin-user-activo">
-                            <option value="1">Activo</option>
-                            <option value="0">Inactivo</option>
-                        </select>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar Usuario</button>
-                        <button type="button" class="btn btn-secondary" style="flex: 1;"
-                            onclick="cerrarModal('modal-usuario-admin')">Cancelar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Detalle Organización -->
-    <div id="modal-detalle-organizacion" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h3 class="card-title" id="detalle-org-nombre-title">Detalle de la Dependencia</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-detalle-organizacion')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <h2 id="detalle-org-nombre" style="color: var(--azul-institucional); margin-bottom: 20px;">Nombre
-                </h2>
-                <div class="stats-grid mb-20">
-                    <div class="stat-card">
-                        <div class="stat-label">Tipo</div>
-                        <div id="detalle-org-tipo" class="stat-number"
-                            style="font-size: 1.2rem; color: var(--azul-institucional);"></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Semáforo</div>
-                        <div id="detalle-org-semaforo" class="stat-number" style="font-size: 1.2rem;"></div>
-                    </div>
-                </div>
-                <div class="card mb-20">
-                    <div class="card-header">
-                        <h4 class="card-title">Información General</h4>
-                    </div>
-                    <div class="p-20">
-                        <p><strong>Titular:</strong> <span id="detalle-org-titular"></span></p>
-                        <p><strong>Siglas:</strong> <span id="detalle-org-siglas"></span></p>
-                        <p id="container-decreto"><strong>Decreto:</strong> <a id="detalle-org-decreto" href="#"
-                                target="_blank" class="btn btn-secondary btn-sm">Ver Documento 🔗</a></p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Herramientas Registradas</h4>
-                    </div>
-                    <div id="detalle-org-herramientas-lista">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-
-                <!-- Sección de Expediente de Seguimiento -->
-                <div class="card mt-20" id="detalle-org-expediente-section">
-                    <div class="card-header">
-                        <h4 class="card-title">📁 Expediente de Seguimiento</h4>
-                    </div>
-                    <div class="p-20" id="detalle-org-expediente-content">
-                        <!-- Aquí se renderizará el expediente activo o el botón para crear uno -->
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Editar Organización -->
-    <div id="modal-editar-organizacion" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="card-title">Editar Dependencia/Entidad</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-editar-organizacion')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-editar-organizacion">
-                    <input type="hidden" name="id" id="edit-org-id">
-                    <div class="form-group">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" class="form-input" name="nombre" id="edit-org-nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tipo</label>
-                        <select class="form-select" name="tipo" id="edit-org-tipo" required>
-                            <option value="DEPENDENCIA">Dependencia</option>
-                            <option value="ENTIDAD_PARAESTATAL">Entidad Paraestatal</option>
-                            <option value="ORGANISMO_AUTONOMO">Organismo Autónomo</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label class="form-label">Siglas</label><input type="text"
-                            class="form-input" name="siglas" id="edit-org-siglas"></div>
-                    <div class="form-group"><label class="form-label">Titular</label><input type="text"
-                            class="form-input" name="titular" id="edit-org-titular"></div>
-                    <div class="form-group"><label class="form-label">Decreto (URL)</label><input type="url"
-                            class="form-input" name="decreto_creacion" id="edit-org-decreto"></div>
-                    <div class="form-group">
-                        <label class="form-label">¿Requiere Manual de Servicios?</label>
-                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="requiere_manual_servicios" id="edit-org-manual-si"
-                                    value="true" checked> Sí
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="requiere_manual_servicios" id="edit-org-manual-no"
-                                    value="false"> No
-                            </label>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar Cambios</button>
-                        <button type="button" class="btn btn-secondary" style="flex: 1;"
-                            onclick="cerrarModal('modal-editar-organizacion')">Cancelar</button>
-                        <button type="button" id="btn-eliminar-organizacion" class="btn btn-danger"
-                            style="flex: 1; display: none; background-color: var(--rojo-semaforo);"
-                            onclick="borrarOrganizacionDefinitivamente()">Eliminar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Nueva Organización -->
-    <div id="modal-nueva-organizacion" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="card-title">Nueva Dependencia</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-nueva-organizacion')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-nueva-organizacion">
-                    <div class="form-group"><label class="form-label">Nombre</label><input type="text"
-                            class="form-input" name="nombre" required></div>
-                    <div class="form-group">
-                        <label class="form-label">Tipo</label>
-                        <select class="form-select" name="tipo" required>
-                            <option value="DEPENDENCIA">Dependencia</option>
-                            <option value="ENTIDAD_PARAESTATAL">Entidad Paraestatal</option>
-                            <option value="ORGANISMO_AUTONOMO">Organismo Autónomo</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label class="form-label">Siglas</label><input type="text"
-                            class="form-input" name="siglas"></div>
-                    <div class="form-group"><label class="form-label">Titular</label><input type="text"
-                            class="form-input" name="titular"></div>
-                    <div class="form-group"><label class="form-label">Decreto (URL)</label><input type="url"
-                            class="form-input" name="decreto_creacion"></div>
-                    <div class="form-group">
-                        <label class="form-label">¿Requiere Manual de Servicios?</label>
-                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="requiere_manual_servicios" value="true" checked> Sí
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="requiere_manual_servicios" value="false"> No
-                            </label>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Guardar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Nueva Herramienta -->
-    <div id="modal-nueva-herramienta" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="card-title">Nueva Herramienta</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-nueva-herramienta')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-nueva-herramienta">
-                    <div class="form-group">
-                        <label class="form-label">Dependencia/Entidad</label>
-                        <select class="form-select" name="organizacion_id" id="select-organizacion" required>
-                            <option value="">Cargando...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tipo de Herramienta</label>
-                        <select class="form-select" name="tipo_herramienta" id="select-tipo-herramienta" required
-                            onchange="window.handleTipoHerramientaChange(this.value)">
-                            <option value="">Seleccione...</option>
-                            <option value="ORGANIGRAMA">Organigrama</option>
-                            <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
-                            <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
-                            <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
-                            <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group hidden" id="group-nombre-personalizado">
-                        <label class="form-label">Nombre específico (Obligatorio para Manuales)</label>
-                        <input type="text" class="form-input" name="nombre_personalizado"
-                            id="input-nombre-personalizado" placeholder="Ej: Buen Gobierno, Fiscalización...">
-                    </div>
-
-                    <!-- Pregunta condicional para Manual de Servicios -->
-                    <div class="form-group hidden" id="pregunta-manual-servicios">
-                        <label class="form-label">¿Requiere Manual de Servicios?</label>
-                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="req_manual" value="SI"
-                                    onchange="window.toggleInputsManual(true)"> Sí
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="req_manual" value="NO"
-                                    onchange="window.toggleInputsManual(false)"> No
-                            </label>
+                    <!-- Vista Cargas de Trabajo -->
+                    <div id="vista-cargas" class="hidden">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">📈 Cargas de Trabajo y Productividad</h3>
+                            </div>
+                            <div class="p-20">
+                                <div class="table-container">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Usuario</th>
+                                                <th>Herramientas</th>
+                                                <th>Expedientes</th>
+                                                <th>Última Actividad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cargas-tabla-body">
+                                            <tr>
+                                                <td colspan="4" class="text-center">
+                                                    <div class="spinner"></div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="campos-herramienta-archivo">
-                        <div class="form-group"><label class="form-label">Link</label><input type="url"
-                                class="form-input" name="link_publicacion_poe" id="input-link-herramienta"
-                                placeholder="https://..."></div>
-                        <div class="form-group"><label class="form-label">Archivo (Opcional)</label><input type="file"
-                                class="form-input" name="archivo" id="input-archivo-herramienta"></div>
-                        <div class="form-group"><label class="form-label">Fecha</label><input type="date"
-                                class="form-input" name="fecha_emision" id="input-fecha-herramienta" required></div>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Guardar</button>
-                </form>
-            </div>
-        </div>
-    </div>
+                </div> <!-- FIN CONTENT AREA -->
+            </div> <!-- FIN MAIN LAYOUT -->
 
-    <!-- Modal Editar Herramienta -->
-    <div id="modal-editar-herramienta" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="card-title">Editar Herramienta</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-editar-herramienta')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-editar-herramienta" onsubmit="window.guardarCambiosHerramienta(event)">
-                    <input type="hidden" name="id" id="edit-herramienta-id">
-                    <div class="form-group">
-                        <label class="form-label">Dependencia/Entidad</label>
-                        <select class="form-select" name="organizacion_id" id="edit-herramienta-org-id">
-                            <!-- Inyectado por JS -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tipo de Herramienta</label>
-                        <select class="form-select" name="tipo_herramienta" id="edit-herramienta-tipo" required
-                            onchange="window.handleTipoHerramientaChangeEdit(this.value)">
-                            <option value="ORGANIGRAMA">Organigrama</option>
-                            <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
-                            <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
-                            <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
-                            <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
-                        </select>
-                    </div>
+            <!-- MODALES (Top Level) -->
 
-                    <div class="form-group" id="edit-group-nombre-personalizado">
-                        <label class="form-label">Nombre específico</label>
-                        <input type="text" class="form-input" name="nombre_personalizado"
-                            id="edit-herramienta-nombre-personalizado"
-                            placeholder="Ej: Buen Gobierno, Fiscalización...">
+            <!-- Modal Perfil -->
+            <div id="modal-perfil" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="card-title">Mi Perfil</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-perfil')">&times;</button>
                     </div>
-                    <div class="form-group"><label class="form-label">Link</label><input type="url" class="form-input"
-                            name="link_publicacion_poe" id="edit-herramienta-link" placeholder="https://..."></div>
-                    <div class="form-group"><label class="form-label">Archivo</label><input type="file"
-                            class="form-input" name="archivo" id="edit-herramienta-archivo"></div>
-                    <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input"
-                            name="fecha_emision" id="edit-herramienta-fecha" required></div>
-
-                    <div class="form-group">
-                        <label class="form-label">Estatus POE</label>
-                        <input type="text" class="form-input" name="estatus_poe" id="edit-herramienta-estatus"
-                            placeholder="Ej. Publicado, En trámite">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Versión</label>
-                        <input type="text" class="form-input" name="version" id="edit-herramienta-version"
-                            placeholder="1.0">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Comentarios</label>
-                        <textarea class="form-input" name="comentarios" id="edit-herramienta-comentarios"
-                            rows="3"></textarea>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">Actualizar</button>
-                        <button type="button" class="btn btn-secondary" style="flex: 1;"
-                            onclick="cerrarModal('modal-editar-herramienta')">Cancelar</button>
-                        <button type="button" class="btn btn-danger" style="flex: 1;"
-                            onclick="borrarHerramientaDefinitivamente()">Eliminar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Nuevo Expediente -->
-    <div id="modal-nuevo-expediente" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="card-title">Nuevo Expediente</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-nuevo-expediente')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-nuevo-expediente" onsubmit="window.handleCrearExpediente(event)">
-                    <div class="form-group">
-                        <label class="form-label">Título del Proyecto</label>
-                        <input type="text" class="form-input" name="titulo" required
-                            placeholder="Ej: Reestructuración 2024">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Número de Expediente</label>
-                        <input type="text" class="form-input" name="numero_expediente" required
-                            placeholder="EXP-2024-001">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Dependencia/Entidad</label>
-                        <select class="form-select" name="organizacion_id" id="select-organizacion-expediente" required>
-                            <option value="">Cargando...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Prioridad</label>
-                        <select class="form-select" name="prioridad">
-                            <option value="BAJA">Baja</option>
-                            <option value="MEDIA">Media</option>
-                            <option value="ALTA">Alta</option>
-                            <option value="URGENTE">Urgente</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-input" name="descripcion" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Crear Expediente</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Vista Detalle de Expediente (SPA View) -->
-    <div id="vista-expediente" class="hidden">
-        <div class="view-header"
-            style="border-bottom: 2px solid var(--azul-institucional); padding: 20px 40px; background: white; position: sticky; top: 0; z-index: 100;">
-            <div style="display: flex; align-items: center; max-width: 1200px; margin: 0 auto; width: 100%;">
-                <div style="width: 250px;">
-                    <button class="btn-back" onclick="window.ExpedientesModule.regresarAVistaAnterior()">
-                        ⬅️ Regresar a Herramientas
-                    </button>
-                </div>
-                <div style="flex: 1; text-align: center;">
-                    <h2 class="card-title" id="detalle-exp-titulo"
-                        style="font-size: 1.8rem; color: var(--azul-institucional); margin: 0;">Detalle del
-                        Expediente
-                    </h2>
-                    <p id="detalle-exp-subtitulo" class="text-muted" style="font-size: 1.1rem; margin: 5px 0 0 0;">
-                        Cargando...</p>
-                </div>
-                <div style="width: 250px;"></div>
-            </div>
-        </div>
-
-        <div class="view-content" style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
-            <!-- Tab Bitácora -->
-            <div id="tab-bitacora" class="tab-content active">
-                <!-- Formulario Nuevo Avance -->
-                <div id="form-avance-container" class="card shadow-sm mb-30"
-                    style="display: none; border-left: 5px solid var(--azul-institucional);">
-                    <div class="card-header" style="background: rgba(0, 61, 165, 0.05);">
-                        <h4 style="margin: 0;">➕ Registrar Nuevo Avance / Actividad</h4>
-                    </div>
-                    <div class="p-20">
-                        <form id="form-nuevo-avance" onsubmit="window.ExpedientesModule.handleAgregarAvance(event)">
+                    <div class="modal-body">
+                        <div class="card mb-20" style="background: var(--gris-claro);">
+                            <div class="p-20 text-center">
+                                <div class="profile-avatar"
+                                    style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 15px;">👤</div>
+                                <h4 id="perfil-nombre" class="mb-5">Cargando...</h4>
+                                <p id="perfil-email" class="text-muted mb-10">...</p>
+                                <span id="perfil-rol-badge" class="badge">...</span>
+                            </div>
+                        </div>
+                        <h4 class="mb-15">Cambiar Contraseña</h4>
+                        <form onsubmit="window.handleCambioPassword(event)">
                             <div class="form-group">
-                                <label class="form-label">Título del Movimiento</label>
-                                <input type="text" class="form-input" name="titulo"
-                                    placeholder="Ej: Entrega de documentación v1.0" required>
+                                <label class="form-label">Contraseña Actual</label>
+                                <input type="password" class="form-input" id="pwd-actual" required>
                             </div>
-                            <div class="row">
-                                <div class="col" style="flex: 1;">
-                                    <label class="form-label">Tipo de Actividad</label>
-                                    <select class="form-select" name="tipo">
-                                        <option value="AVANCE">Avance General</option>
-                                        <option value="REUNION">Reunión de Trabajo</option>
-                                        <option value="OFICIO">Oficio / Documento Oficial</option>
-                                        <option value="OTRO">Otro</option>
-                                    </select>
-                                </div>
-                                <div class="col" style="flex: 1;">
-                                    <label class="form-label">Fecha del Movimiento</label>
-                                    <input type="date" class="form-input" name="fecha" required>
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label">Nueva Contraseña</label>
+                                <input type="password" class="form-input" id="pwd-nuevo" required minlength="6">
                             </div>
-                            <div class="form-group mt-15">
-                                <label class="form-label">Descripción Detallada</label>
-                                <textarea class="form-input" name="descripcion" rows="3"
-                                    placeholder="Describa brevemente lo que se realizó o el estado actual..."></textarea>
+                            <button type="submit" class="btn btn-primary w-100">Actualizar Contraseña</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Admin Usuarios (Nuevo/Editar) -->
+            <div id="modal-usuario-admin" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="card-title" id="usuario-modal-title">Registrar Usuario</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-usuario-admin')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-usuario-admin" onsubmit="window.handleGuardarUsuario(event)">
+                            <input type="hidden" id="admin-user-id">
+                            <div class="form-group">
+                                <label class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-input" name="nombre_completo" id="admin-user-nombre"
+                                    required>
                             </div>
-                            <div style="display: flex; gap: 10px; justify-content: flex-end;" class="mt-20">
-                                <button type="button" class="btn btn-outline-secondary"
-                                    onclick="document.getElementById('form-avance-container').style.display='none'; document.getElementById('btn-mostrar-form-avance-wrapper').style.display='block';">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Guardar Avance</button>
+                            <div class="form-group">
+                                <label class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-input" name="email" id="admin-user-email" required>
+                            </div>
+                            <div class="form-group" id="container-pwd-admin">
+                                <label class="form-label">Contraseña</label>
+                                <input type="password" class="form-input" name="password" id="admin-user-pwd"
+                                    minlength="4">
+                                <small class="text-muted">Si estás editando, deja en blanco para no cambiar.</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Rol</label>
+                                <select class="form-select" name="rol" id="admin-user-rol" required>
+                                    <option value="CAPTURISTA">Capturista (Registro y Edición)</option>
+                                    <option value="CONSULTOR">Consultor (Solo Lectura)</option>
+                                    <option value="ADMINISTRADOR">Administrador (Control Total)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" name="activo" id="admin-user-activo">
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar Usuario</button>
+                                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                                    onclick="cerrarModal('modal-usuario-admin')">Cancelar</button>
                             </div>
                         </form>
                     </div>
                 </div>
+            </div>
 
-                <!-- Timeline -->
-                <div class="timeline" id="expediente-timeline">
-                    <!-- Items inyectados por JS -->
-                    <div class="spinner"></div>
+            <!-- Modal Detalle Organización -->
+            <div id="modal-detalle-organizacion" class="modal">
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3 class="card-title" id="detalle-org-nombre-title">Detalle de la Dependencia</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-detalle-organizacion')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <h2 id="detalle-org-nombre" style="color: var(--azul-institucional); margin-bottom: 20px;">
+                            Nombre
+                        </h2>
+                        <div class="stats-grid mb-20">
+                            <div class="stat-card">
+                                <div class="stat-label">Tipo</div>
+                                <div id="detalle-org-tipo" class="stat-number"
+                                    style="font-size: 1.2rem; color: var(--azul-institucional);"></div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Semáforo</div>
+                                <div id="detalle-org-semaforo" class="stat-number" style="font-size: 1.2rem;"></div>
+                            </div>
+                        </div>
+                        <div class="card mb-20">
+                            <div class="card-header">
+                                <h4 class="card-title">Información General</h4>
+                            </div>
+                            <div class="p-20">
+                                <p><strong>Titular:</strong> <span id="detalle-org-titular"></span></p>
+                                <p><strong>Siglas:</strong> <span id="detalle-org-siglas"></span></p>
+                                <p id="container-decreto"><strong>Decreto:</strong> <a id="detalle-org-decreto" href="#"
+                                        target="_blank" class="btn btn-secondary btn-sm">Ver Documento 🔗</a></p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Herramientas Registradas</h4>
+                            </div>
+                            <div id="detalle-org-herramientas-lista">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Expediente de Seguimiento -->
+                        <div class="card mt-20" id="detalle-org-expediente-section">
+                            <div class="card-header">
+                                <h4 class="card-title">📁 Expediente de Seguimiento</h4>
+                            </div>
+                            <div class="p-20" id="detalle-org-expediente-content">
+                                <!-- Aquí se renderizará el expediente activo o el botón para crear uno -->
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tab Info -->
-            <div id="tab-info" class="tab-content">
-                <div id="expediente-info-content"></div>
-            </div>
-
-            <div class="view-footer mt-30 text-center" style="border-top: 1px solid #eee; padding-top: 20px;">
-                <div id="expediente-admin-actions" class="mt-10"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Reporte de Prioridades -->
-    <div id="modal-reporte-prioridades" class="modal">
-        <div class="modal-content modal-lg">
-            <div class="modal-header">
-                <h3 class="card-title">📊 Reporte de Expedientes por Prioridad</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-reporte-prioridades')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="reporte-prioridades-content">
-                    <p class="text-center text-muted">Cargando...</p>
+            <!-- Modal Editar Organización -->
+            <div id="modal-editar-organizacion" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="card-title">Editar Dependencia/Entidad</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-editar-organizacion')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-editar-organizacion">
+                            <input type="hidden" name="id" id="edit-org-id">
+                            <div class="form-group">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" class="form-input" name="nombre" id="edit-org-nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" name="tipo" id="edit-org-tipo" required>
+                                    <option value="DEPENDENCIA">Dependencia</option>
+                                    <option value="ENTIDAD_PARAESTATAL">Entidad Paraestatal</option>
+                                    <option value="ORGANISMO_AUTONOMO">Organismo Autónomo</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label class="form-label">Siglas</label><input type="text"
+                                    class="form-input" name="siglas" id="edit-org-siglas"></div>
+                            <div class="form-group"><label class="form-label">Titular</label><input type="text"
+                                    class="form-input" name="titular" id="edit-org-titular"></div>
+                            <div class="form-group"><label class="form-label">Decreto (URL)</label><input type="url"
+                                    class="form-input" name="decreto_creacion" id="edit-org-decreto"></div>
+                            <div class="form-group">
+                                <label class="form-label">¿Requiere Manual de Servicios?</label>
+                                <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                        <input type="radio" name="requiere_manual_servicios" id="edit-org-manual-si"
+                                            value="true" checked> Sí
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                        <input type="radio" name="requiere_manual_servicios" id="edit-org-manual-no"
+                                            value="false"> No
+                                    </label>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                                <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar Cambios</button>
+                                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                                    onclick="cerrarModal('modal-editar-organizacion')">Cancelar</button>
+                                <button type="button" id="btn-eliminar-organizacion" class="btn btn-danger"
+                                    style="flex: 1; display: none; background-color: var(--rojo-semaforo);"
+                                    onclick="borrarOrganizacionDefinitivamente()">Eliminar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="cerrarModal('modal-reporte-prioridades')">Cerrar</button>
+
+            <!-- Modal Nueva Organización -->
+            <div id="modal-nueva-organizacion" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="card-title">Nueva Dependencia</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-nueva-organizacion')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-nueva-organizacion">
+                            <div class="form-group"><label class="form-label">Nombre</label><input type="text"
+                                    class="form-input" name="nombre" required></div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" name="tipo" required>
+                                    <option value="DEPENDENCIA">Dependencia</option>
+                                    <option value="ENTIDAD_PARAESTATAL">Entidad Paraestatal</option>
+                                    <option value="ORGANISMO_AUTONOMO">Organismo Autónomo</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label class="form-label">Siglas</label><input type="text"
+                                    class="form-input" name="siglas"></div>
+                            <div class="form-group"><label class="form-label">Titular</label><input type="text"
+                                    class="form-input" name="titular"></div>
+                            <div class="form-group"><label class="form-label">Decreto (URL)</label><input type="url"
+                                    class="form-input" name="decreto_creacion"></div>
+                            <div class="form-group">
+                                <label class="form-label">¿Requiere Manual de Servicios?</label>
+                                <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                        <input type="radio" name="requiere_manual_servicios" value="true" checked> Sí
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                        <input type="radio" name="requiere_manual_servicios" value="false"> No
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
+            <!-- Modal Nueva Herramienta -->
+            <div id="modal-nueva-herramienta" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="card-title">Nueva Herramienta</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-nueva-herramienta')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-nueva-herramienta">
+                            <div class="form-group">
+                                <label class="form-label">Dependencia/Entidad</label>
+                                <select class="form-select" name="organizacion_id" id="select-organizacion" required>
+                                    <option value="">Cargando...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Herramienta</label>
+                                <select class="form-select" name="tipo_herramienta" id="select-tipo-herramienta"
+                                    required onchange="window.handleTipoHerramientaChange(this.value)">
+                                    <option value="">Seleccione...</option>
+                                    <option value="ORGANIGRAMA">Organigrama</option>
+                                    <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
+                                    <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
+                                    <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
+                                    <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
+                                </select>
+                            </div>
 
-    <!-- Modal Importar Excel -->
-    <div id="modal-importar-excel" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="card-title" id="import-modal-title">Importar Excel</h3>
-                <button class="modal-close" onclick="cerrarModal('modal-importar-excel')">&times;</button>
+                            <div class="form-group hidden" id="group-nombre-personalizado">
+                                <label class="form-label">Nombre específico (Obligatorio para Manuales)</label>
+                                <input type="text" class="form-input" name="nombre_personalizado"
+                                    id="input-nombre-personalizado" placeholder="Ej: Buen Gobierno, Fiscalización...">
+                            </div>
+
+                            <!-- Pregunta condicional para Manual de Servicios -->
+                            <div class="form-group hidden" id="pregunta-manual-servicios">
+                                <label class="form-label">¿Requiere Manual de Servicios?</label>
+                                <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                        <input type="radio" name="req_manual" value="SI"
+                                            onchange="window.toggleInputsManual(true)"> Sí
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                        <input type="radio" name="req_manual" value="NO"
+                                            onchange="window.toggleInputsManual(false)"> No
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="campos-herramienta-archivo">
+                                <div class="form-group"><label class="form-label">Link</label><input type="url"
+                                        class="form-input" name="link_publicacion_poe" id="input-link-herramienta"
+                                        placeholder="https://..."></div>
+                                <div class="form-group"><label class="form-label">Archivo (Opcional)</label><input
+                                        type="file" class="form-input" name="archivo" id="input-archivo-herramienta">
+                                </div>
+                                <div class="form-group"><label class="form-label">Fecha</label><input type="date"
+                                        class="form-input" name="fecha_emision" id="input-fecha-herramienta" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <form id="form-importar-excel" onsubmit="window.handleImportarExcel(event)">
-                    <input type="hidden" id="import-type" name="tipo">
 
-                    <p class="mb-10" id="import-instructions">Instrucciones...</p>
+            <!-- Modal Editar Herramienta -->
+            <div id="modal-editar-herramienta" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="card-title">Editar Herramienta</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-editar-herramienta')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-editar-herramienta" onsubmit="window.guardarCambiosHerramienta(event)">
+                            <input type="hidden" name="id" id="edit-herramienta-id">
+                            <div class="form-group">
+                                <label class="form-label">Dependencia/Entidad</label>
+                                <select class="form-select" name="organizacion_id" id="edit-herramienta-org-id">
+                                    <!-- Inyectado por JS -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Herramienta</label>
+                                <select class="form-select" name="tipo_herramienta" id="edit-herramienta-tipo" required
+                                    onchange="window.handleTipoHerramientaChangeEdit(this.value)">
+                                    <option value="ORGANIGRAMA">Organigrama</option>
+                                    <option value="REGLAMENTO_ESTATUTO">Reglamento Interior / Estatuto Orgánico</option>
+                                    <option value="MANUAL_ORGANIZACION">Manual de Organización</option>
+                                    <option value="MANUAL_PROCEDIMIENTOS">Manual de Procedimientos</option>
+                                    <option value="MANUAL_SERVICIOS">Manual de Servicios</option>
+                                </select>
+                            </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Plantilla</label>
-                        <a href="#" id="btn-descargar-plantilla" class="btn btn-secondary btn-sm"
-                            style="text-decoration: none;">
-                            ⬇️ Descargar Plantilla
-                        </a>
+                            <div class="form-group" id="edit-group-nombre-personalizado">
+                                <label class="form-label">Nombre específico</label>
+                                <input type="text" class="form-input" name="nombre_personalizado"
+                                    id="edit-herramienta-nombre-personalizado"
+                                    placeholder="Ej: Buen Gobierno, Fiscalización...">
+                            </div>
+                            <div class="form-group"><label class="form-label">Link</label><input type="url"
+                                    class="form-input" name="link_publicacion_poe" id="edit-herramienta-link"
+                                    placeholder="https://..."></div>
+                            <div class="form-group"><label class="form-label">Archivo</label><input type="file"
+                                    class="form-input" name="archivo" id="edit-herramienta-archivo"></div>
+                            <div class="form-group"><label class="form-label">Fecha</label><input type="date"
+                                    class="form-input" name="fecha_emision" id="edit-herramienta-fecha" required></div>
+
+                            <div class="form-group">
+                                <label class="form-label">Estatus POE</label>
+                                <input type="text" class="form-input" name="estatus_poe" id="edit-herramienta-estatus"
+                                    placeholder="Ej. Publicado, En trámite">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Versión</label>
+                                <input type="text" class="form-input" name="version" id="edit-herramienta-version"
+                                    placeholder="1.0">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Comentarios</label>
+                                <textarea class="form-input" name="comentarios" id="edit-herramienta-comentarios"
+                                    rows="3"></textarea>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button type="submit" class="btn btn-primary" style="flex: 1;">Actualizar</button>
+                                <button type="button" class="btn btn-secondary" style="flex: 1;"
+                                    onclick="cerrarModal('modal-editar-herramienta')">Cancelar</button>
+                                <button type="button" class="btn btn-danger" style="flex: 1;"
+                                    onclick="borrarHerramientaDefinitivamente()">Eliminar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Nuevo Expediente -->
+            <div id="modal-nuevo-expediente" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="card-title">Nuevo Expediente</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-nuevo-expediente')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-nuevo-expediente" onsubmit="window.handleCrearExpediente(event)">
+                            <div class="form-group">
+                                <label class="form-label">Título del Proyecto</label>
+                                <input type="text" class="form-input" name="titulo" required
+                                    placeholder="Ej: Reestructuración 2024">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Número de Expediente</label>
+                                <input type="text" class="form-input" name="numero_expediente" required
+                                    placeholder="EXP-2024-001">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dependencia/Entidad</label>
+                                <select class="form-select" name="organizacion_id" id="select-organizacion-expediente"
+                                    required>
+                                    <option value="">Cargando...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Prioridad</label>
+                                <select class="form-select" name="prioridad">
+                                    <option value="BAJA">Baja</option>
+                                    <option value="MEDIA">Media</option>
+                                    <option value="ALTA">Alta</option>
+                                    <option value="URGENTE">Urgente</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-input" name="descripcion" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Crear Expediente</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista Detalle de Expediente (SPA View) -->
+            <div id="vista-expediente" class="hidden">
+                <div class="view-header"
+                    style="border-bottom: 2px solid var(--azul-institucional); padding: 20px 40px; background: white; position: sticky; top: 0; z-index: 100;">
+                    <div style="display: flex; align-items: center; max-width: 1200px; margin: 0 auto; width: 100%;">
+                        <div style="width: 250px;">
+                            <button class="btn-back" onclick="window.ExpedientesModule.regresarAVistaAnterior()">
+                                ⬅️ Regresar a Herramientas
+                            </button>
+                        </div>
+                        <div style="flex: 1; text-align: center;">
+                            <h2 class="card-title" id="detalle-exp-titulo"
+                                style="font-size: 1.8rem; color: var(--azul-institucional); margin: 0;">Detalle del
+                                Expediente
+                            </h2>
+                            <p id="detalle-exp-subtitulo" class="text-muted"
+                                style="font-size: 1.1rem; margin: 5px 0 0 0;">
+                                Cargando...</p>
+                        </div>
+                        <div style="width: 250px;"></div>
+                    </div>
+                </div>
+
+                <div class="view-content" style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+                    <!-- Tab Bitácora -->
+                    <div id="tab-bitacora" class="tab-content active">
+                        <!-- Formulario Nuevo Avance -->
+                        <div id="form-avance-container" class="card shadow-sm mb-30"
+                            style="display: none; border-left: 5px solid var(--azul-institucional);">
+                            <div class="card-header" style="background: rgba(0, 61, 165, 0.05);">
+                                <h4 style="margin: 0;">➕ Registrar Nuevo Avance / Actividad</h4>
+                            </div>
+                            <div class="p-20">
+                                <form id="form-nuevo-avance"
+                                    onsubmit="window.ExpedientesModule.handleAgregarAvance(event)">
+                                    <div class="form-group">
+                                        <label class="form-label">Título del Movimiento</label>
+                                        <input type="text" class="form-input" name="titulo"
+                                            placeholder="Ej: Entrega de documentación v1.0" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" style="flex: 1;">
+                                            <label class="form-label">Tipo de Actividad</label>
+                                            <select class="form-select" name="tipo">
+                                                <option value="AVANCE">Avance General</option>
+                                                <option value="REUNION">Reunión de Trabajo</option>
+                                                <option value="OFICIO">Oficio / Documento Oficial</option>
+                                                <option value="OTRO">Otro</option>
+                                            </select>
+                                        </div>
+                                        <div class="col" style="flex: 1;">
+                                            <label class="form-label">Fecha del Movimiento</label>
+                                            <input type="date" class="form-input" name="fecha" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-15">
+                                        <label class="form-label">Descripción Detallada</label>
+                                        <textarea class="form-input" name="descripcion" rows="3"
+                                            placeholder="Describa brevemente lo que se realizó o el estado actual..."></textarea>
+                                    </div>
+                                    <div style="display: flex; gap: 10px; justify-content: flex-end;" class="mt-20">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            onclick="document.getElementById('form-avance-container').style.display='none'; document.getElementById('btn-mostrar-form-avance-wrapper').style.display='block';">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar Avance</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Timeline -->
+                        <div class="timeline" id="expediente-timeline">
+                            <!-- Items inyectados por JS -->
+                            <div class="spinner"></div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Columnas Requeridas</label>
-                        <ul id="import-columns-list" style="font-size: 0.85rem; color: #666; padding-left: 20px;">
-                        </ul>
+                    <!-- Tab Info -->
+                    <div id="tab-info" class="tab-content">
+                        <div id="expediente-info-content"></div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Archivo Excel (.xlsx)</label>
-                        <input type="file" class="form-input" id="import-file" accept=".xlsx, .xls" required>
+                    <div class="view-footer mt-30 text-center" style="border-top: 1px solid #eee; padding-top: 20px;">
+                        <div id="expediente-admin-actions" class="mt-10"></div>
                     </div>
+                </div>
+            </div>
 
-                    <div id="import-status" style="display: none; margin-bottom: 10px;">
-                        <div class="spinner"></div> Procesando...
+            <!-- Modal Reporte de Prioridades -->
+            <div id="modal-reporte-prioridades" class="modal">
+                <div class="modal-content modal-lg">
+                    <div class="modal-header">
+                        <h3 class="card-title">📊 Reporte de Expedientes por Prioridad</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-reporte-prioridades')">&times;</button>
                     </div>
+                    <div class="modal-body">
+                        <div id="reporte-prioridades-content">
+                            <p class="text-center text-muted">Cargando...</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary"
+                            onclick="cerrarModal('modal-reporte-prioridades')">Cerrar</button>
+                    </div>
+                </div>
+            </div>
 
-                    <div id="import-results" class="mb-10"></div>
 
+            <!-- Modal Importar Excel -->
+            <div id="modal-importar-excel" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="card-title" id="import-modal-title">Importar Excel</h3>
+                        <button class="modal-close" onclick="cerrarModal('modal-importar-excel')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-importar-excel" onsubmit="window.handleImportarExcel(event)">
+                            <input type="hidden" id="import-type" name="tipo">
+
+                            <p class="mb-10" id="import-instructions">Instrucciones...</p>
+
+                            <div class="form-group">
+                                <label class="form-label">Plantilla</label>
+                                <a href="#" id="btn-descargar-plantilla" class="btn btn-secondary btn-sm"
+                                    style="text-decoration: none;">
+                                    ⬇️ Descargar Plantilla
+                                </a>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Columnas Requeridas</label>
+                                <ul id="import-columns-list"
+                                    style="font-size: 0.85rem; color: #666; padding-left: 20px;">
+                                </ul>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Archivo Excel (.xlsx)</label>
+                                <input type="file" class="form-input" id="import-file" accept=".xlsx, .xls" required>
+                            </div>
+
+                            <div id="import-status" style="display: none; margin-bottom: 10px;">
+                                <div class="spinner"></div> Procesando...
+                            </div>
+
+                            <div id="import-results" class="mb-10"></div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="cerrarModal('modal-importar-excel')">Cancelar</button>
+                                <button type="submit" class="btn btn-primary" id="btn-import-submit">📤
+                                    Importar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Reporte de Prioridades de Expedientes -->
+            <div id="modal-reporte-prioridades" class="modal">
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">📊 Reporte de Prioridades de Expedientes</h3>
+                        <button type="button" class="btn-close"
+                            onclick="cerrarModal('modal-reporte-prioridades')">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="reporte-prioridades-content">
+                            <!-- Contenido dinámico -->
+                        </div>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"
-                            onclick="cerrarModal('modal-importar-excel')">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="btn-import-submit">📤 Importar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Reporte de Prioridades de Expedientes -->
-    <div id="modal-reporte-prioridades" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h3 class="modal-title">📊 Reporte de Prioridades de Expedientes</h3>
-                <button type="button" class="btn-close" onclick="cerrarModal('modal-reporte-prioridades')">×</button>
-            </div>
-            <div class="modal-body">
-                <div id="reporte-prioridades-content">
-                    <!-- Contenido dinámico -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
-                    onclick="cerrarModal('modal-reporte-prioridades')">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-
-
-
-    <!-- Modal Smart Search (Spotlight) -->
-    <div id="modal-search-spotlight" class="modal-search-overlay" style="display: none;">
-        <div class="modal-search-container">
-            <div class="search-header">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="spotlight-input" placeholder="Buscar dependencia, herramienta, expediente..."
-                    autocomplete="off">
-                <span class="esc-hint">ESC para cerrar</span>
-            </div>
-            <div class="search-body">
-                <div id="spotlight-results" class="search-results-list">
-                    <!-- Resultados dinámicos -->
-                    <div class="search-empty-state">
-                        <p>Escribe para buscar en todo el sistema...</p>
-                        <small>Prueba: "Secretaría", "Organigrama", "Expediente 001"</small>
+                            onclick="cerrarModal('modal-reporte-prioridades')">Cerrar</button>
                     </div>
                 </div>
             </div>
-            <div class="search-footer">
-                <span>Use las flechas ⬆⬇ para navegar</span>
-                <span>ENTER para seleccionar</span>
-            </div>
-        </div>
-    </div>
 
-    <!-- SCRIPTS -->
-    <script src="assets/js/utils.js?v=4.2"></script>
-    <script src="assets/js/auth.js?v=4.2"></script>
-    <script src="assets/js/organizaciones.js?v=4.2"></script>
-    <script src="assets/js/herramientas.js?v=4.2"></script>
-    <script src="assets/js/reportes.js?v=4.2"></script>
-    <script src="assets/js/usuarios.js?v=4.2"></script>
-    <script src="assets/js/import.js?v=4.2"></script>
-    <script src="assets/js/expedientes.js?v=4.2"></script>
-    <script src="assets/js/search.js?v=4.2"></script>
-    <script src="assets/js/dashboard-kpis.js?v=4.2"></script>
-    <script src="assets/js/app.js?v=4.2"></script>
+
+
+
+            <!-- Modal Smart Search (Spotlight) -->
+            <div id="modal-search-spotlight" class="modal-search-overlay" style="display: none;">
+                <div class="modal-search-container">
+                    <div class="search-header">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="spotlight-input"
+                            placeholder="Buscar dependencia, herramienta, expediente..." autocomplete="off">
+                        <span class="esc-hint">ESC para cerrar</span>
+                    </div>
+                    <div class="search-body">
+                        <div id="spotlight-results" class="search-results-list">
+                            <!-- Resultados dinámicos -->
+                            <div class="search-empty-state">
+                                <p>Escribe para buscar en todo el sistema...</p>
+                                <small>Prueba: "Secretaría", "Organigrama", "Expediente 001"</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-footer">
+                        <span>Use las flechas ⬆⬇ para navegar</span>
+                        <span>ENTER para seleccionar</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL: GESTIÓN DE TAREAS -->
+            <div id="modal-gestion-tareas" class="modal hidden">
+                <div class="modal-content" style="max-width: 900px;">
+                    <div class="modal-header">
+                        <h2 style="display: flex; align-items: center; gap: 10px;">🚀 Centro de Encomiendas</h2>
+                        <button class="close-btn"
+                            onclick="document.getElementById('modal-gestion-tareas').classList.add('hidden')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="admin-task-controls" class="hidden"
+                            style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #ccc; display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="window.ReportesModule.mostrarFormNuevaTarea()">+
+                                Nueva Instrucción</button>
+                            <button class="btn btn-secondary"
+                                onclick="window.ReportesModule.verTodasLasTareas()">Supervisar Todas (Admin)</button>
+                        </div>
+                        <div id="placeholder-tareas" class="text-center p-4">
+                            <div class="spinner"></div>
+                            <p>Cargando tus encomiendas...</p>
+                        </div>
+                        <div id="contenedor-lista-tareas" class="task-grid"
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                            <!-- Tareas se cargan aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL: NUEVA TAREA -->
+            <div id="modal-nueva-tarea" class="modal hidden">
+                <div class="modal-content" style="max-width: 500px;">
+                    <div class="modal-header">
+                        <h2>Asignar Nueva Tarea</h2>
+                        <button class="close-btn"
+                            onclick="document.getElementById('modal-nueva-tarea').classList.add('hidden')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-nueva-tarea" onsubmit="window.ReportesModule.guardarTarea(event)">
+                            <div class="form-group">
+                                <label>Título de la Tarea</label>
+                                <input type="text" id="tarea-titulo" className="form-control" required
+                                    placeholder="Ej: Actualizar Manual de SFP">
+                            </div>
+                            <div class="form-group">
+                                <label>Descripción / Instrucciones</label>
+                                <textarea id="tarea-descripcion" className="form-control" rows="3"
+                                    placeholder="Detalla qué debe hacer el capturista..."></textarea>
+                            </div>
+                            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                                <div style="flex: 1;">
+                                    <label>Asignar a:</label>
+                                    <select id="tarea-asignado" className="form-control" required></select>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label>Prioridad:</label>
+                                    <select id="tarea-prioridad" className="form-control">
+                                        <option value="BAJA">Baja</option>
+                                        <option value="MEDIA" selected>Media</option>
+                                        <option value="ALTA">Alta</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Fecha Límite</label>
+                                <input type="date" id="tarea-fecha-limite" className="form-control">
+                            </div>
+                            <div class="modal-footer"
+                                style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; text-align: right;">
+                                <button type="submit" class="btn btn-primary" style="padding: 10px 25px;">Asignar
+                                    Tarea</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCRIPTS -->
+            <script src="assets/js/utils.js?v=4.2"></script>
+            <script src="assets/js/auth.js?v=4.2"></script>
+            <script src="assets/js/organizaciones.js?v=4.2"></script>
+            <script src="assets/js/herramientas.js?v=4.2"></script>
+            <script src="assets/js/reportes.js?v=4.2"></script>
+            <script src="assets/js/usuarios.js?v=4.2"></script>
+            <script src="assets/js/import.js?v=4.2"></script>
+            <script src="assets/js/expedientes.js?v=4.2"></script>
+            <script src="assets/js/search.js?v=4.2"></script>
+            <script src="assets/js/dashboard-kpis.js?v=4.2"></script>
+            <script src="assets/js/app.js?v=4.2"></script>
 </body>
 
 </html>

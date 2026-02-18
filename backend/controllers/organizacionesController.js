@@ -12,10 +12,12 @@ class OrganizacionesController {
      */
     static async obtenerTodas(req, res) {
         try {
-            const { tipo } = req.query;
+            const { tipo, includeTools } = req.query;
 
             let organizaciones;
-            if (tipo) {
+            if (includeTools === 'true') {
+                organizaciones = await Organizacion.obtenerTodasConHerramientas();
+            } else if (tipo) {
                 organizaciones = await Organizacion.obtenerPorTipo(tipo);
             } else {
                 organizaciones = await Organizacion.obtenerTodas();

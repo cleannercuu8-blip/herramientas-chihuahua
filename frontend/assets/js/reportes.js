@@ -181,24 +181,26 @@ const ReportesModule = {
         resultsArea.innerHTML = '<div class="spinner"></div>';
 
         try {
-            // Reutilizamos el buscador global existente del backend si es posible
-            const data = await window.AppUtils.fetchAPI(`/search?q=${encodeURIComponent(query)}`);
+            // Corregido: Usar la ruta inteligente y manejar el formato de respuesta real
+            const data = await window.AppUtils.fetchAPI(`/search/smart?q=${encodeURIComponent(query)}`);
 
-            if (!data.herramientas || data.herramientas.length === 0) {
+            const herramientas = (data.results || []).filter(r => r.type === 'HERRAMIENTA');
+
+            if (herramientas.length === 0) {
                 resultsArea.innerHTML = '<p class="p-20 text-center color-gray">No se encontraron archivos con ese nombre.</p>';
                 return;
             }
 
             let html = '<div class="table-container mt-10"><table class="table"><tbody>';
-            data.herramientas.forEach(h => {
+            herramientas.forEach(h => {
                 html += `
                     <tr>
                         <td>
-                            <div style="font-weight: bold;">${h.nombre}</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">${h.organizacion_nombre}</div>
+                            <div style="font-weight: bold; color: var(--sfp-azul);">${h.title}</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">Dependencia: ${h.subtitle}</div>
                         </td>
                         <td style="text-align: right;">
-                            <a href="${h.url_archivo}" target="_blank" class="btn btn-secondary btn-sm">Ver Archivo</a>
+                            <button onclick="window.HerramientasModule.verDetalles(${h.id})" class="btn btn-secondary btn-sm">Ir a Herramienta</button>
                         </td>
                     </tr>
                 `;
@@ -206,7 +208,135 @@ const ReportesModule = {
             html += '</tbody></table></div>';
             resultsArea.innerHTML = html;
         } catch (error) {
-            resultsArea.innerHTML = `<p style="color: red;">Error en búsqueda: ${error.message}</p>`;
+            console.error(error);
+            resultsArea.innerHTML = '<p class="text-danger">Error al conectar con el buscador.</p>';
+        }
+    },
+
+    // --- CENTRO DE ENCOMIENDAS (GESTIÓN DE TAREAS) ---
+
+    async abrirGestionTareas() {
+        const modal = document.getElementById('modal-gestion-tareas');
+        const lista = document.getElementById('contenedor-lista-tareas');
+        const placeholder = document.getElementById('placeholder-tareas');
+        const adminControls = document.getElementById('admin-task-controls');
+
+        modal.classList.remove('hidden');
+        lista.innerHTML = '';
+        placeholder.classList.remove('hidden');
+
+        // Mostrar controles si es ADMIN
+        if (window.AppUtils.AppState.usuario.rol === 'ADMINISTRADOR') {
+            adminControls.classList.remove('hidden');
+        } else {
+            adminControls.classList.add('hidden');
+        }
+
+        try {
+            const endpoint = window.AppUtils.AppState.usuario.rol === 'ADMINISTRADOR' ? '/tareas/todas' : '/tareas/mis-tareas';
+            const res = await window.AppUtils.fetchAPI(endpoint);
+
+            placeholder.classList.add('hidden');
+
+            if (!res.tareas || res.tareas.length === 0) {
+                lista.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8;">No tienes tareas pendientes por ahora. ☕</div>';
+                return;
+            }
+
+            res.tareas.forEach(t => {
+                const card = document.createElement('div');
+                card.className = `task-card priority-${t.prioridad.toLowerCase()}`;
+                card.style = `
+                    background: white; border-left: 5px solid ${this.getColorPrioridad(t.prioridad)}; 
+                    padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+                    display: flex; flex-direction: column; gap: 8px;
+                `;
+
+                const badgeEstatus = t.estatus === 'FINALIZADA' ? '✅' : t.estatus === 'EN_PROCESO' ? '⏳' : '📥';
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span style="font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: #f1f5f9;">${t.prioridad}</span>
+                        <span>${badgeEstatus}</span>
+                    </div>
+                    <h4 style="margin: 0; color: #1e293b;">${t.titulo}</h4>
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 0;">${t.descripcion || 'Sin descripción'}</p>
+                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 5px;">
+                        Asignada por: ${t.creado_por_nombre}<br>
+                        Límite: ${t.fecha_limite ? new Date(t.fecha_limite).toLocaleDateString() : 'Sin fecha'}
+                    </div>
+                    <div style="margin-top: 10px; display: flex; gap: 5px;">
+                        ${t.estatus !== 'FINALIZADA' ? `
+                            <button onclick="window.ReportesModule.cambiarEstatusTarea(${t.id}, 'EN_PROCESO')" class="btn btn-sm" style="background: #f8fafc; flex: 1; font-size: 0.7rem;">En Proceso</button>
+                            <button onclick="window.ReportesModule.cambiarEstatusTarea(${t.id}, 'FINALIZADA')" class="btn btn-sm btn-primary" style="flex: 1; font-size: 0.7rem;">Finalizar</button>
+                        ` : '<span style="color: #10b981; font-weight: bold; font-size: 0.8rem; text-align: center; width: 100%;">Tarea Completada</span>'}
+                    </div>
+                `;
+                lista.appendChild(card);
+            });
+        } catch (error) {
+            placeholder.innerHTML = '<p class="text-danger">Error al cargar tareas.</p>';
+        }
+    },
+
+    getColorPrioridad(p) {
+        if (p === 'ALTA') return '#ef4444';
+        if (p === 'MEDIA') return '#f59e0b';
+        return '#3b82f6';
+    },
+
+    async mostrarFormNuevaTarea() {
+        const modal = document.getElementById('modal-nueva-tarea');
+        const select = document.getElementById('tarea-asignado');
+        modal.classList.remove('hidden');
+
+        // Cargar usuarios para el select (Simplificado: cargar desde el endpoint de usuarios existente)
+        try {
+            const res = await window.AppUtils.fetchAPI('/admin/usuarios'); // Asumiendo que esta ruta existe o ajustando
+            select.innerHTML = res.usuarios.map(u => `<option value="${u.id}">${u.nombre_completo} (${u.rol})</option>`).join('');
+        } catch (e) {
+            select.innerHTML = '<option value="">Error al cargar usuarios</option>';
+        }
+    },
+
+    async guardarTarea(e) {
+        e.preventDefault();
+        const datos = {
+            titulo: document.getElementById('tarea-titulo').value,
+            descripcion: document.getElementById('tarea-descripcion').value,
+            asignado_a_id: document.getElementById('tarea-asignado').value,
+            prioridad: document.getElementById('tarea-prioridad').value,
+            fecha_limite: document.getElementById('tarea-fecha-limite').value
+        };
+
+        try {
+            const res = await window.AppUtils.fetchAPI('/tareas', {
+                method: 'POST',
+                body: JSON.stringify(datos)
+            });
+
+            if (res.success) {
+                window.AppUtils.mostrarAlerta('Tarea asignada correctamente');
+                document.getElementById('modal-nueva-tarea').classList.add('hidden');
+                this.abrirGestionTareas(); // Recargar lista
+            }
+        } catch (error) {
+            window.AppUtils.mostrarAlerta('Error al crear tarea', 'error');
+        }
+    },
+
+    async cambiarEstatusTarea(id, nuevoEstatus) {
+        try {
+            const res = await window.AppUtils.fetchAPI(`/tareas/${id}/estatus`, {
+                method: 'PATCH',
+                body: JSON.stringify({ estatus: nuevoEstatus })
+            });
+
+            if (res.success) {
+                this.abrirGestionTareas();
+            }
+        } catch (error) {
+            window.AppUtils.mostrarAlerta('Error al actualizar tarea', 'error');
         }
     }
 };

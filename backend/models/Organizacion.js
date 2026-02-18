@@ -70,22 +70,37 @@ class Organizacion {
     }
 
     static async actualizar(id, datos) {
+        const { nombre, tipo, siglas, titular, decreto_creacion, activo, requiere_manual_servicios } = datos;
         const sql = `
-      UPDATE organizaciones 
-      SET nombre = $1, tipo = $2, siglas = $3, titular = $4, decreto_creacion = $5, activo = $6, requiere_manual_servicios = $7
-      WHERE id = $8
-    `;
-        const result = await db.query(sql, [
-            datos.nombre,
-            datos.tipo,
-            datos.siglas,
-            datos.titular,
-            datos.decreto_creacion,
-            datos.activo,
-            datos.requiere_manual_servicios !== undefined ? datos.requiere_manual_servicios : true,
-            id
-        ]);
-        return { changes: result.rowCount };
+            UPDATE organizaciones 
+            SET nombre = $1, tipo = $2, siglas = $3, titular = $4, decreto_creacion = $5, activo = $6, requiere_manual_servicios = $7
+            WHERE id = $8
+            RETURNING *
+        `;
+        const { rows } = await db.query(sql, [nombre, tipo, siglas, titular, decreto_creacion, activo, requiere_manual_servicios, id]);
+        return rows[0];
+    }
+
+    static async obtenerTodasConHerramientas() {
+        // Query complejo para traer organizaciones con sus herramientas vigentes agrupadas en JSON
+        const sql = `
+            SELECT o.*, 
+                   COALESCE(
+                       json_agg(
+                           json_build_object(
+                               'id', h.id, 
+                               'tipo_herramienta', h.tipo_herramienta
+                           )
+                       ) FILTER (WHERE h.id IS NOT NULL AND h.vigente = 1), '[]'
+                   ) as herramientas
+            FROM organizaciones o
+            LEFT JOIN herramientas h ON o.id = h.organizacion_id
+            WHERE o.activo = 1
+            GROUP BY o.id
+            ORDER BY o.nombre
+        `;
+        const { rows } = await db.query(sql);
+        return rows;
     }
 
     static async actualizarSemaforoCache(id, semaforo, detalles) {

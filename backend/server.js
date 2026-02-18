@@ -32,6 +32,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/import', require('./routes/import'));
 app.use('/api/expedientes', require('./routes/expedientes'));
 app.use('/api/search', require('./routes/search'));
+app.use('/api/tareas', require('./routes/tareas'));
 
 // Ruta administrativa para inicializar la base de datos
 app.post('/api/admin/init-database', async (req, res) => {
@@ -334,6 +335,7 @@ app.listen(PORT, async () => {
         const Expediente = require('./models/Expediente');
         const EtapaExpediente = require('./models/EtapaExpediente');
         const ExpedienteAvance = require('./models/ExpedienteAvance');
+        const Tarea = require('./models/Tarea');
 
         await Usuario.crearTabla();
         await Organizacion.crearTabla();
@@ -342,6 +344,7 @@ app.listen(PORT, async () => {
         await Expediente.crearTabla();
         await EtapaExpediente.crearTabla();
         await ExpedienteAvance.crearTabla();
+        await Tarea.crearTabla();
         console.log('✅ Esquema de base de datos verificado/creado exitosamente.');
     } catch (error) {
         console.error('❌ Error al verificar esquema de base de datos:', error);
