@@ -3,19 +3,19 @@ const ReportesModule = {
     // Exportar inventario completo
     exportarInventario() {
         const token = window.AppUtils.AppState.token || localStorage.getItem('token');
-        window.open(url + `?token=${token}`, '_blank');
+        window.open(`${window.AppUtils.API_URL}/reportes/inventario?token=${token}`, '_blank');
     },
 
     // Exportar reporte de semáforo
     exportarSemaforo() {
         const token = window.AppUtils.AppState.token || localStorage.getItem('token');
-        window.open(url + `?token=${token}`, '_blank');
+        window.open(`${window.AppUtils.API_URL}/reportes/semaforo?token=${token}`, '_blank');
     },
 
     // Exportar herramientas próximas a vencer
     exportarProximasVencer(meses = 12) {
         const token = window.AppUtils.AppState.token || localStorage.getItem('token');
-        window.open(url + `&token=${token}`, '_blank');
+        window.open(`${window.AppUtils.API_URL}/reportes/proximas-vencer?meses=${meses}&token=${token}`, '_blank');
     },
 
     // Obtener historial

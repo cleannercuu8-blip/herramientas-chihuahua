@@ -5,11 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Herramientas Organizacionales - SFP</title>
-    <link rel="stylesheet" href="assets/css/main.css?v=4.5">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=4.5">
-    <link rel="stylesheet" href="assets/css/components.css?v=4.5">
-    <link rel="stylesheet" href="assets/css/custom_modal.css?v=4.5">
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css?v=4.6">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=4.6">
+    <link rel="stylesheet" href="assets/css/components.css?v=4.6">
+    <link rel="stylesheet" href="assets/css/custom_modal.css?v=4.6">
     <style>
         .search-wrapper {
             position: relative;
@@ -457,12 +456,14 @@
                 <h4 class="mb-15">Cambiar Contraseña</h4>
                 <form onsubmit="window.handleCambioPassword(event)">
                     <div class="form-group">
-                        <label class="form-label">Contraseña Actual</label>
-                        <input type="password" class="form-input" id="pwd-actual" required>
+                        <label for="pwd-actual" class="form-label">Contraseña Actual</label>
+                        <input type="password" class="form-input" id="pwd-actual" required
+                            autocomplete="current-password">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Nueva Contraseña</label>
-                        <input type="password" class="form-input" id="pwd-nuevo" required minlength="6">
+                        <label for="pwd-nuevo" class="form-label">Nueva Contraseña</label>
+                        <input type="password" class="form-input" id="pwd-nuevo" required minlength="6"
+                            autocomplete="new-password">
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Actualizar Contraseña</button>
                 </form>
@@ -481,20 +482,23 @@
                 <form id="form-usuario-admin" onsubmit="window.handleGuardarUsuario(event)">
                     <input type="hidden" id="admin-user-id">
                     <div class="form-group">
-                        <label class="form-label">Nombre Completo</label>
-                        <input type="text" class="form-input" name="nombre_completo" id="admin-user-nombre" required>
+                        <label for="admin-user-nombre" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-input" name="nombre_completo" id="admin-user-nombre" required
+                            autocomplete="name">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-input" name="email" id="admin-user-email" required>
+                        <label for="admin-user-email" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-input" name="email" id="admin-user-email" required
+                            autocomplete="email">
                     </div>
                     <div class="form-group" id="container-pwd-admin">
-                        <label class="form-label">Contraseña</label>
-                        <input type="password" class="form-input" name="password" id="admin-user-pwd" minlength="4">
+                        <label for="admin-user-pwd" class="form-label">Contraseña</label>
+                        <input type="password" class="form-input" name="password" id="admin-user-pwd" minlength="4"
+                            autocomplete="new-password">
                         <small class="text-muted">Si estás editando, deja en blanco para no cambiar.</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Rol</label>
+                        <label for="admin-user-rol" class="form-label">Rol</label>
                         <select class="form-select" name="rol" id="admin-user-rol" required>
                             <option value="CAPTURISTA">Capturista (Registro y Edición)</option>
                             <option value="CONSULTOR">Consultor (Solo Lectura)</option>
@@ -502,7 +506,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Estado</label>
+                        <label for="admin-user-activo" class="form-label">Estado</label>
                         <select class="form-select" name="activo" id="admin-user-activo">
                             <option value="1">Activo</option>
                             <option value="0">Inactivo</option>
@@ -585,25 +589,28 @@
                 <form id="form-editar-organizacion">
                     <input type="hidden" name="id" id="edit-org-id">
                     <div class="form-group">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" class="form-input" name="nombre" id="edit-org-nombre" required>
+                        <label for="edit-org-nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-input" name="nombre" id="edit-org-nombre" required
+                            autocomplete="organization">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tipo</label>
+                        <label for="edit-org-tipo" class="form-label">Tipo</label>
                         <select class="form-select" name="tipo" id="edit-org-tipo" required>
                             <option value="DEPENDENCIA">Dependencia</option>
                             <option value="ENTIDAD_PARAESTATAL">Entidad Paraestatal</option>
                             <option value="ORGANISMO_AUTONOMO">Organismo Autónomo</option>
                         </select>
                     </div>
-                    <div class="form-group"><label class="form-label">Siglas</label><input type="text"
-                            class="form-input" name="siglas" id="edit-org-siglas"></div>
-                    <div class="form-group"><label class="form-label">Titular</label><input type="text"
-                            class="form-input" name="titular" id="edit-org-titular"></div>
-                    <div class="form-group"><label class="form-label">Decreto (URL)</label><input type="url"
-                            class="form-input" name="decreto_creacion" id="edit-org-decreto"></div>
+                    <div class="form-group"><label for="edit-org-siglas" class="form-label">Siglas</label><input
+                            type="text" class="form-input" name="siglas" id="edit-org-siglas" autocomplete="off"></div>
+                    <div class="form-group"><label for="edit-org-titular" class="form-label">Titular</label><input
+                            type="text" class="form-input" name="titular" id="edit-org-titular" autocomplete="name">
+                    </div>
+                    <div class="form-group"><label for="edit-org-decreto" class="form-label">Decreto (URL)</label><input
+                            type="url" class="form-input" name="decreto_creacion" id="edit-org-decreto"
+                            autocomplete="url"></div>
                     <div class="form-group">
-                        <label class="form-label">¿Requiere Manual de Servicios?</label>
+                        <label for="edit-org-manual-si" class="form-label">¿Requiere Manual de Servicios?</label>
                         <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
                             <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
                                 <input type="radio" name="requiere_manual_servicios" id="edit-org-manual-si"
@@ -637,30 +644,35 @@
             </div>
             <div class="modal-body">
                 <form id="form-nueva-organizacion">
-                    <div class="form-group"><label class="form-label">Nombre</label><input type="text"
-                            class="form-input" name="nombre" required></div>
+                    <div class="form-group"><label for="new-org-nombre" class="form-label">Nombre</label><input
+                            type="text" id="new-org-nombre" class="form-input" name="nombre" required
+                            autocomplete="organization"></div>
                     <div class="form-group">
-                        <label class="form-label">Tipo</label>
-                        <select class="form-select" name="tipo" required>
+                        <label for="new-org-tipo" class="form-label">Tipo</label>
+                        <select id="new-org-tipo" class="form-select" name="tipo" required>
                             <option value="DEPENDENCIA">Dependencia</option>
                             <option value="ENTIDAD_PARAESTATAL">Entidad Paraestatal</option>
                             <option value="ORGANISMO_AUTONOMO">Organismo Autónomo</option>
                         </select>
                     </div>
-                    <div class="form-group"><label class="form-label">Siglas</label><input type="text"
-                            class="form-input" name="siglas"></div>
-                    <div class="form-group"><label class="form-label">Titular</label><input type="text"
-                            class="form-input" name="titular"></div>
-                    <div class="form-group"><label class="form-label">Decreto (URL)</label><input type="url"
-                            class="form-input" name="decreto_creacion"></div>
+                    <div class="form-group"><label for="new-org-siglas" class="form-label">Siglas</label><input
+                            type="text" id="new-org-siglas" class="form-input" name="siglas" autocomplete="off"></div>
+                    <div class="form-group"><label for="new-org-titular" class="form-label">Titular</label><input
+                            type="text" id="new-org-titular" class="form-input" name="titular" autocomplete="name">
+                    </div>
+                    <div class="form-group"><label for="new-org-decreto" class="form-label">Decreto (URL)</label><input
+                            type="url" id="new-org-decreto" class="form-input" name="decreto_creacion"
+                            autocomplete="url"></div>
                     <div class="form-group">
-                        <label class="form-label">¿Requiere Manual de Servicios?</label>
+                        <label for="new-org-manual-si" class="form-label">¿Requiere Manual de Servicios?</label>
                         <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
                             <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="requiere_manual_servicios" value="true" checked> Sí
+                                <input type="radio" name="requiere_manual_servicios" id="new-org-manual-si" value="true"
+                                    checked> Sí
                             </label>
                             <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="requiere_manual_servicios" value="false"> No
+                                <input type="radio" name="requiere_manual_servicios" id="new-org-manual-no"
+                                    value="false"> No
                             </label>
                         </div>
                     </div>
@@ -680,13 +692,13 @@
             <div class="modal-body">
                 <form id="form-nueva-herramienta">
                     <div class="form-group">
-                        <label class="form-label">Dependencia/Entidad</label>
+                        <label for="select-organizacion" class="form-label">Dependencia/Entidad</label>
                         <select class="form-select" name="organizacion_id" id="select-organizacion" required>
                             <option value="">Cargando...</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tipo de Herramienta</label>
+                        <label for="select-tipo-herramienta" class="form-label">Tipo de Herramienta</label>
                         <select class="form-select" name="tipo_herramienta" id="select-tipo-herramienta" required
                             onchange="window.handleTipoHerramientaChange(this.value)">
                             <option value="">Seleccione...</option>
@@ -699,9 +711,11 @@
                     </div>
 
                     <div class="form-group hidden" id="group-nombre-personalizado">
-                        <label class="form-label">Nombre específico (Obligatorio para Manuales)</label>
+                        <label for="input-nombre-personalizado" class="form-label">Nombre específico (Obligatorio para
+                            Manuales)</label>
                         <input type="text" class="form-input" name="nombre_personalizado"
-                            id="input-nombre-personalizado" placeholder="Ej: Buen Gobierno, Fiscalización...">
+                            id="input-nombre-personalizado" placeholder="Ej: Buen Gobierno, Fiscalización..."
+                            autocomplete="off">
                     </div>
 
                     <!-- Pregunta condicional para Manual de Servicios -->
@@ -720,14 +734,17 @@
                     </div>
 
                     <div id="campos-herramienta-archivo">
-                        <div class="form-group"><label class="form-label">Link</label><input type="url"
-                                class="form-input" name="link_publicacion_poe" id="input-link-herramienta"
-                                placeholder="https://..."></div>
-                        <div class="form-group"><label class="form-label">Archivo (Opcional)</label><input type="file"
-                                class="form-input" name="archivo" id="input-archivo-herramienta">
+                        <div class="form-group"><label for="input-link-herramienta"
+                                class="form-label">Link</label><input type="url" class="form-input"
+                                name="link_publicacion_poe" id="input-link-herramienta" placeholder="https://..."
+                                autocomplete="url"></div>
+                        <div class="form-group"><label for="input-archivo-herramienta" class="form-label">Archivo
+                                (Opcional)</label><input type="file" class="form-input" name="archivo"
+                                id="input-archivo-herramienta">
                         </div>
-                        <div class="form-group"><label class="form-label">Fecha</label><input type="date"
-                                class="form-input" name="fecha_emision" id="input-fecha-herramienta" required>
+                        <div class="form-group"><label for="input-fecha-herramienta"
+                                class="form-label">Fecha</label><input type="date" class="form-input"
+                                name="fecha_emision" id="input-fecha-herramienta" required autocomplete="off">
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Guardar</button>
@@ -747,13 +764,13 @@
                 <form id="form-editar-herramienta" onsubmit="window.guardarCambiosHerramienta(event)">
                     <input type="hidden" name="id" id="edit-herramienta-id">
                     <div class="form-group">
-                        <label class="form-label">Dependencia/Entidad</label>
+                        <label for="edit-herramienta-org-id" class="form-label">Dependencia/Entidad</label>
                         <select class="form-select" name="organizacion_id" id="edit-herramienta-org-id">
                             <!-- Inyectado por JS -->
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tipo de Herramienta</label>
+                        <label for="edit-herramienta-tipo" class="form-label">Tipo de Herramienta</label>
                         <select class="form-select" name="tipo_herramienta" id="edit-herramienta-tipo" required
                             onchange="window.handleTipoHerramientaChangeEdit(this.value)">
                             <option value="ORGANIGRAMA">Organigrama</option>
@@ -765,34 +782,37 @@
                     </div>
 
                     <div class="form-group" id="edit-group-nombre-personalizado">
-                        <label class="form-label">Nombre específico</label>
+                        <label for="edit-herramienta-nombre-personalizado" class="form-label">Nombre específico</label>
                         <input type="text" class="form-input" name="nombre_personalizado"
-                            id="edit-herramienta-nombre-personalizado"
-                            placeholder="Ej: Buen Gobierno, Fiscalización...">
+                            id="edit-herramienta-nombre-personalizado" placeholder="Ej: Buen Gobierno, Fiscalización..."
+                            autocomplete="off">
                     </div>
-                    <div class="form-group"><label class="form-label">Link</label><input type="url" class="form-input"
-                            name="link_publicacion_poe" id="edit-herramienta-link" placeholder="https://..."></div>
-                    <div class="form-group"><label class="form-label">Archivo</label><input type="file"
-                            class="form-input" name="archivo" id="edit-herramienta-archivo"></div>
-                    <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input"
-                            name="fecha_emision" id="edit-herramienta-fecha" required></div>
+                    <div class="form-group"><label for="edit-herramienta-link" class="form-label">Link</label><input
+                            type="url" class="form-input" name="link_publicacion_poe" id="edit-herramienta-link"
+                            placeholder="https://..." autocomplete="url"></div>
+                    <div class="form-group"><label for="edit-herramienta-archivo"
+                            class="form-label">Archivo</label><input type="file" class="form-input" name="archivo"
+                            id="edit-herramienta-archivo"></div>
+                    <div class="form-group"><label for="edit-herramienta-fecha" class="form-label">Fecha</label><input
+                            type="date" class="form-input" name="fecha_emision" id="edit-herramienta-fecha" required
+                            autocomplete="off"></div>
 
                     <div class="form-group">
-                        <label class="form-label">Estatus POE</label>
+                        <label for="edit-herramienta-estatus" class="form-label">Estatus POE</label>
                         <input type="text" class="form-input" name="estatus_poe" id="edit-herramienta-estatus"
-                            placeholder="Ej. Publicado, En trámite">
+                            placeholder="Ej. Publicado, En trámite" autocomplete="off">
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Versión</label>
+                        <label for="edit-herramienta-version" class="form-label">Versión</label>
                         <input type="text" class="form-input" name="version" id="edit-herramienta-version"
-                            placeholder="1.0">
+                            placeholder="1.0" autocomplete="off">
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Comentarios</label>
-                        <textarea class="form-input" name="comentarios" id="edit-herramienta-comentarios"
-                            rows="3"></textarea>
+                        <label for="edit-herramienta-comentarios" class="form-label">Comentarios</label>
+                        <textarea class="form-input" name="comentarios" id="edit-herramienta-comentarios" rows="3"
+                            autocomplete="off"></textarea>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
                         <button type="submit" class="btn btn-primary" style="flex: 1;">Actualizar</button>
@@ -816,24 +836,24 @@
             <div class="modal-body">
                 <form id="form-nuevo-expediente" onsubmit="window.handleCrearExpediente(event)">
                     <div class="form-group">
-                        <label class="form-label">Título del Proyecto</label>
-                        <input type="text" class="form-input" name="titulo" required
-                            placeholder="Ej: Reestructuración 2024">
+                        <label for="new-exp-titulo" class="form-label">Título del Proyecto</label>
+                        <input type="text" id="new-exp-titulo" class="form-input" name="titulo" required
+                            placeholder="Ej: Reestructuración 2024" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Número de Expediente</label>
-                        <input type="text" class="form-input" name="numero_expediente" required
-                            placeholder="EXP-2024-001">
+                        <label for="new-exp-numero" class="form-label">Número de Expediente</label>
+                        <input type="text" id="new-exp-numero" class="form-input" name="numero_expediente" required
+                            placeholder="EXP-2024-001" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Dependencia/Entidad</label>
+                        <label for="select-organizacion-expediente" class="form-label">Dependencia/Entidad</label>
                         <select class="form-select" name="organizacion_id" id="select-organizacion-expediente" required>
                             <option value="">Cargando...</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Prioridad</label>
-                        <select class="form-select" name="prioridad">
+                        <label for="new-exp-prioridad" class="form-label">Prioridad</label>
+                        <select id="new-exp-prioridad" class="form-select" name="prioridad">
                             <option value="BAJA">Baja</option>
                             <option value="MEDIA">Media</option>
                             <option value="ALTA">Alta</option>
@@ -841,8 +861,9 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-input" name="descripcion" rows="3"></textarea>
+                        <label for="new-exp-descripcion" class="form-label">Descripción</label>
+                        <textarea id="new-exp-descripcion" class="form-input" name="descripcion" rows="3"
+                            autocomplete="off"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Crear Expediente</button>
                 </form>
@@ -884,14 +905,14 @@
                     <div class="p-20">
                         <form id="form-nuevo-avance" onsubmit="window.ExpedientesModule.handleAgregarAvance(event)">
                             <div class="form-group">
-                                <label class="form-label">Título del Movimiento</label>
-                                <input type="text" class="form-input" name="titulo"
-                                    placeholder="Ej: Entrega de documentación v1.0" required>
+                                <label for="nuevo-avance-titulo" class="form-label">Título del Movimiento</label>
+                                <input type="text" id="nuevo-avance-titulo" class="form-input" name="titulo"
+                                    placeholder="Ej: Entrega de documentación v1.0" required autocomplete="off">
                             </div>
                             <div class="row">
                                 <div class="col" style="flex: 1;">
-                                    <label class="form-label">Tipo de Actividad</label>
-                                    <select class="form-select" name="tipo">
+                                    <label for="nuevo-avance-tipo" class="form-label">Tipo de Actividad</label>
+                                    <select id="nuevo-avance-tipo" class="form-select" name="tipo">
                                         <option value="AVANCE">Avance General</option>
                                         <option value="REUNION">Reunión de Trabajo</option>
                                         <option value="OFICIO">Oficio / Documento Oficial</option>
@@ -899,14 +920,16 @@
                                     </select>
                                 </div>
                                 <div class="col" style="flex: 1;">
-                                    <label class="form-label">Fecha del Movimiento</label>
-                                    <input type="date" class="form-input" name="fecha" required>
+                                    <label for="nuevo-avance-fecha" class="form-label">Fecha del Movimiento</label>
+                                    <input type="date" id="nuevo-avance-fecha" class="form-input" name="fecha" required
+                                        autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-group mt-15">
-                                <label class="form-label">Descripción Detallada</label>
-                                <textarea class="form-input" name="descripcion" rows="3"
-                                    placeholder="Describa brevemente lo que se realizó o el estado actual..."></textarea>
+                                <label for="nuevo-avance-descripcion" class="form-label">Descripción Detallada</label>
+                                <textarea id="nuevo-avance-descripcion" class="form-input" name="descripcion" rows="3"
+                                    placeholder="Describa brevemente lo que se realizó o el estado actual..."
+                                    autocomplete="off"></textarea>
                             </div>
                             <div style="display: flex; gap: 10px; justify-content: flex-end;" class="mt-20">
                                 <button type="button" class="btn btn-outline-secondary"
@@ -1127,17 +1150,17 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="assets/js/utils.js?v=4.5"></script>
-    <script src="assets/js/auth.js?v=4.5"></script>
-    <script src="assets/js/organizaciones.js?v=4.5"></script>
-    <script src="assets/js/herramientas.js?v=4.5"></script>
-    <script src="assets/js/reportes.js?v=4.5"></script>
-    <script src="assets/js/usuarios.js?v=4.5"></script>
-    <script src="assets/js/import.js?v=4.5"></script>
-    <script src="assets/js/expedientes.js?v=4.5"></script>
-    <script src="assets/js/search.js?v=4.5"></script>
-    <script src="assets/js/dashboard-kpis.js?v=4.5"></script>
-    <script src="assets/js/app.js?v=4.5"></script>
+    <script src="assets/js/utils.js?v=4.6"></script>
+    <script src="assets/js/auth.js?v=4.6"></script>
+    <script src="assets/js/organizaciones.js?v=4.6"></script>
+    <script src="assets/js/herramientas.js?v=4.6"></script>
+    <script src="assets/js/reportes.js?v=4.6"></script>
+    <script src="assets/js/usuarios.js?v=4.6"></script>
+    <script src="assets/js/import.js?v=4.6"></script>
+    <script src="assets/js/expedientes.js?v=4.6"></script>
+    <script src="assets/js/search.js?v=4.6"></script>
+    <script src="assets/js/dashboard-kpis.js?v=4.6"></script>
+    <script src="assets/js/app.js?v=4.6"></script>
 </body>
 
 </html>
