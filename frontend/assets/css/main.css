@@ -1,4 +1,6 @@
-﻿:root {
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+
+:root {
   /* Colores Institucionales - SFP / Gobierno de Chihuahua */
   --sfp-azul: #003DA5;
   --sfp-morado: #6B4C9A;
@@ -35,8 +37,6 @@
   --sombra-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --sombra-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
 
 * {
   margin: 0;

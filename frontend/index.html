@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Herramientas Organizacionales - SFP</title>
-    <link rel="stylesheet" href="assets/css/main.css?v=4.3">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=4.3">
-    <link rel="stylesheet" href="assets/css/components.css?v=4.3">
-    <link rel="stylesheet" href="assets/css/custom_modal.css?v=4.3">
+    <link rel="stylesheet" href="assets/css/main.css?v=4.5">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=4.5">
+    <link rel="stylesheet" href="assets/css/components.css?v=4.5">
+    <link rel="stylesheet" href="assets/css/custom_modal.css?v=4.5">
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         .search-wrapper {
@@ -1089,22 +1089,22 @@
             <div class="modal-body">
                 <form id="form-nueva-tarea" onsubmit="window.ReportesModule.guardarTarea(event)">
                     <div class="form-group">
-                        <label>Título de la Tarea</label>
+                        <label for="tarea-titulo">Título de la Tarea</label>
                         <input type="text" id="tarea-titulo" class="form-control" required
                             placeholder="Ej: Actualizar Manual de SFP">
                     </div>
                     <div class="form-group">
-                        <label>Descripción / Instrucciones</label>
+                        <label for="tarea-descripcion">Descripción / Instrucciones</label>
                         <textarea id="tarea-descripcion" class="form-control" rows="3"
                             placeholder="Detalla qué debe hacer el capturista..."></textarea>
                     </div>
                     <div style="display: flex; gap: 15px; margin-bottom: 15px;">
                         <div style="flex: 1;">
-                            <label>Asignar a:</label>
+                            <label for="tarea-asignado">Asignar a:</label>
                             <select id="tarea-asignado" class="form-control" required></select>
                         </div>
                         <div style="flex: 1;">
-                            <label>Prioridad:</label>
+                            <label for="tarea-prioridad">Prioridad:</label>
                             <select id="tarea-prioridad" class="form-control">
                                 <option value="BAJA">Baja</option>
                                 <option value="MEDIA" selected>Media</option>
@@ -1113,7 +1113,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Fecha Límite</label>
+                        <label for="tarea-fecha-limite">Fecha Límite</label>
                         <input type="date" id="tarea-fecha-limite" class="form-control">
                     </div>
                     <div class="modal-footer"
@@ -1127,17 +1127,17 @@
     </div>
 
     <!-- SCRIPTS -->
-    <script src="assets/js/utils.js?v=4.4"></script>
-    <script src="assets/js/auth.js?v=4.4"></script>
-    <script src="assets/js/organizaciones.js?v=4.4"></script>
-    <script src="assets/js/herramientas.js?v=4.4"></script>
-    <script src="assets/js/reportes.js?v=4.4"></script>
-    <script src="assets/js/usuarios.js?v=4.4"></script>
-    <script src="assets/js/import.js?v=4.4"></script>
-    <script src="assets/js/expedientes.js?v=4.4"></script>
-    <script src="assets/js/search.js?v=4.4"></script>
-    <script src="assets/js/dashboard-kpis.js?v=4.4"></script>
-    <script src="assets/js/app.js?v=4.4"></script>
+    <script src="assets/js/utils.js?v=4.5"></script>
+    <script src="assets/js/auth.js?v=4.5"></script>
+    <script src="assets/js/organizaciones.js?v=4.5"></script>
+    <script src="assets/js/herramientas.js?v=4.5"></script>
+    <script src="assets/js/reportes.js?v=4.5"></script>
+    <script src="assets/js/usuarios.js?v=4.5"></script>
+    <script src="assets/js/import.js?v=4.5"></script>
+    <script src="assets/js/expedientes.js?v=4.5"></script>
+    <script src="assets/js/search.js?v=4.5"></script>
+    <script src="assets/js/dashboard-kpis.js?v=4.5"></script>
+    <script src="assets/js/app.js?v=4.5"></script>
 </body>
 
 </html>
