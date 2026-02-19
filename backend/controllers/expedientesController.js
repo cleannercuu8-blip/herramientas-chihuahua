@@ -5,7 +5,7 @@ class ExpedientesController {
     static async obtenerTodos(req, res) {
         try {
             const expedientes = await Expediente.obtenerTodos(req.query);
-            res.json({ expedientes });
+            res.json({ success: true, data: expedientes });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error al obtener expedientes' });
@@ -24,7 +24,10 @@ class ExpedientesController {
             const etapas = await EtapaExpediente.obtenerPorExpediente(id);
             const avances = await ExpedienteAvance.obtenerPorExpediente(id);
 
-            res.json({ expediente, etapas, avances });
+            res.json({
+                success: true,
+                data: { expediente, etapas, avances }
+            });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error al obtener detalle' });
@@ -35,7 +38,7 @@ class ExpedientesController {
         try {
             const data = { ...req.body, capturista_id: req.usuario.id };
             const nuevo = await Expediente.crear(data);
-            res.status(201).json(nuevo);
+            res.status(201).json({ success: true, data: nuevo });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error al crear expediente' });
@@ -46,7 +49,7 @@ class ExpedientesController {
         try {
             const { id } = req.params;
             await Expediente.actualizar(id, req.body);
-            res.json({ mensaje: 'Actualizado' });
+            res.json({ success: true, mensaje: 'Actualizado' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error al actualizar' });
@@ -57,7 +60,7 @@ class ExpedientesController {
         try {
             const { id } = req.params;
             const etapa = await EtapaExpediente.agregar({ ...req.body, expediente_id: id });
-            res.json(etapa);
+            res.json({ success: true, data: etapa });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error al agregar etapa' });
@@ -85,8 +88,9 @@ class ExpedientesController {
             });
 
             res.status(201).json({
+                success: true,
                 mensaje: 'Avance registrado exitosamente',
-                avance
+                data: avance
             });
 
         } catch (error) {
@@ -102,7 +106,7 @@ class ExpedientesController {
             // Note: route should be /:id/avances/:advanceId
 
             await ExpedienteAvance.eliminar(advanceId);
-            res.json({ mensaje: 'Avance eliminado' });
+            res.json({ success: true, mensaje: 'Avance eliminado' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error al eliminar avance' });

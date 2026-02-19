@@ -10,7 +10,7 @@ router.use(verificarToken);
 router.get('/mis-tareas', async (req, res) => {
     try {
         const tareas = await Tarea.obtenerPorAsignado(req.usuario.id);
-        res.json({ success: true, tareas });
+        res.json({ success: true, data: tareas });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -20,7 +20,7 @@ router.get('/mis-tareas', async (req, res) => {
 router.get('/todas', verificarRol('ADMINISTRADOR'), async (req, res) => {
     try {
         const tareas = await Tarea.obtenerTodas();
-        res.json({ success: true, tareas });
+        res.json({ success: true, data: tareas });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -33,7 +33,7 @@ router.post('/', verificarRol('ADMINISTRADOR'), async (req, res) => {
             ...req.body,
             creado_por_id: req.usuario.id
         });
-        res.status(201).json({ success: true, tarea: nuevaTarea });
+        res.status(201).json({ success: true, data: nuevaTarea });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -44,7 +44,7 @@ router.patch('/:id/estatus', async (req, res) => {
     try {
         const { estatus } = req.body;
         const tareaActualizada = await Tarea.actualizarEstatus(req.params.id, estatus);
-        res.json({ success: true, tarea: tareaActualizada });
+        res.json({ success: true, data: tareaActualizada });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

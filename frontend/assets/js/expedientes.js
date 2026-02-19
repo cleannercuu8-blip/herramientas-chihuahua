@@ -14,8 +14,8 @@ const ExpedientesModule = {
 
         try {
             select.innerHTML = '<option value="">Cargando...</option>';
-            const data = await window.AppUtils.fetchAPI('/organizaciones');
-            const organizaciones = data.organizaciones || [];
+            const res = await window.AppUtils.fetchAPI('/organizaciones');
+            const organizaciones = res.data || [];
 
             if (organizaciones.length > 0) {
                 select.innerHTML = '<option value="">Seleccione una dependencia...</option>' +
@@ -103,9 +103,9 @@ const ExpedientesModule = {
         container.innerHTML = '<div class="spinner"></div>';
 
         try {
-            const data = await this.obtenerTodos();
-            if (data.expedientes) {
-                this.renderizarLista(data.expedientes);
+            const res = await this.obtenerTodos();
+            if (res.success && res.data) {
+                this.renderizarLista(res.data);
             } else {
                 container.innerHTML = '<p class="text-center p-20 text-error">Error al cargar expedientes.</p>';
             }
@@ -123,8 +123,8 @@ const ExpedientesModule = {
         this.currentExpedienteId = null;
 
         try {
-            const data = await window.AppUtils.fetchAPI(`/expedientes?organizacion_id=${organizacionId}`);
-            const expedientes = data.expedientes || [];
+            const res = await window.AppUtils.fetchAPI(`/expedientes?organizacion_id=${organizacionId}`);
+            const expedientes = res.data || [];
 
             // Ordenar por ID descendente (más recientes primero)
             expedientes.sort((a, b) => b.id - a.id);
@@ -211,19 +211,19 @@ const ExpedientesModule = {
 
         try {
             // Obtener datos de la organización para las siglas
-            const orgData = await window.AppUtils.fetchAPI(`/organizaciones/${organizacionId}`);
-            if (!orgData || !orgData.organizacion) {
+            const res = await window.AppUtils.fetchAPI(`/organizaciones/${organizacionId}`);
+            if (!res || !res.data) {
                 alert('Error al obtener datos de la organización');
                 return;
             }
 
-            const siglas = orgData.organizacion.siglas || 'SN';
+            const siglas = res.data.siglas || 'SN';
             const anio = new Date().getFullYear();
 
             let tipoTexto = 'Organización';
-            if (orgData.organizacion.tipo === 'DEPENDENCIA') tipoTexto = 'Dependencia';
-            if (orgData.organizacion.tipo === 'ENTIDAD_PARAESTATAL') tipoTexto = 'Entidad';
-            if (orgData.organizacion.tipo === 'ORGANISMO_AUTONOMO') tipoTexto = 'Organismo';
+            if (res.data.tipo === 'DEPENDENCIA') tipoTexto = 'Dependencia';
+            if (res.data.tipo === 'ENTIDAD_PARAESTATAL') tipoTexto = 'Entidad';
+            if (res.data.tipo === 'ORGANISMO_AUTONOMO') tipoTexto = 'Organismo';
 
             const datos = {
                 organizacion_id: organizacionId,
@@ -231,7 +231,7 @@ const ExpedientesModule = {
                 numero_expediente: `DSIJ-${siglas}-${anio}`,
                 prioridad: 'MEDIA',
                 estatus: 'ABIERTO',
-                descripcion: `Expediente de la ${tipoTexto} ${orgData.organizacion.nombre}`
+                descripcion: `Expediente de la ${tipoTexto} ${res.data.nombre}`
             };
 
             const response = await window.AppUtils.fetchAPI('/expedientes', {
@@ -276,11 +276,11 @@ const ExpedientesModule = {
         if (prevBtn) prevBtn.remove();
 
         try {
-            const data = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
-            if (data.error) throw new Error(data.error);
+            const res = await window.AppUtils.fetchAPI(`/expedientes/${id}`);
+            if (res.error) throw new Error(res.error);
 
-            this.currentExpediente = data.expediente;
-            this.avances = data.avances || [];
+            this.currentExpediente = res.data.expediente;
+            this.avances = res.data.avances || [];
 
             // 1. Actualizar Header
             const tituloEl = document.getElementById('detalle-exp-titulo');
@@ -289,9 +289,9 @@ const ExpedientesModule = {
             if (tituloEl) tituloEl.textContent = data.expediente.titulo;
             if (subEl) {
                 subEl.innerHTML = `
-                    <span style="color: var(--gris-medio); font-weight: 500;">${data.expediente.numero_expediente}</span>
+                    <span style="color: var(--gris-medio); font-weight: 500;">${res.data.expediente.numero_expediente}</span>
                     <span style="margin: 0 10px; color: var(--gris-claro);">|</span>
-                    <span class="dependency-name" style="font-size: 1.2rem;">${data.expediente.organizacion_nombre}</span>
+                    <span class="dependency-name" style="font-size: 1.2rem;">${res.data.expediente.organizacion_nombre}</span>
                 `;
             }
 
@@ -626,8 +626,8 @@ const ExpedientesModule = {
 
     async mostrarReportePrioridades() {
         try {
-            const data = await window.AppUtils.fetchAPI('/expedientes');
-            const expedientes = data.expedientes || [];
+            const res = await window.AppUtils.fetchAPI('/expedientes');
+            const expedientes = res.data || [];
 
             // Filtrar para mostrar solo el ÚLTIMO expediente por dependencia
             const ultimosExpedientes = [];

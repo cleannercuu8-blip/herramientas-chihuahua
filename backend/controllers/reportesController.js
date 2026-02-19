@@ -580,7 +580,7 @@ class ReportesController {
             const { limite } = req.query;
             const limiteRegistros = limite ? parseInt(limite) : 100;
             const historial = await Historial.obtenerTodos(limiteRegistros);
-            res.json({ historial });
+            res.json({ success: true, data: historial });
         } catch (error) {
             console.error('Error al obtener historial:', error);
             res.status(500).json({ error: 'Error en el servidor' });

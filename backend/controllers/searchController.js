@@ -26,12 +26,21 @@ class SearchController {
             );
             exps.forEach(e => results.push({ type: 'EXPEDIENTE', id: e.id, title: e.titulo, subtitle: e.numero_expediente, status: e.estatus, progress: e.porcentaje_progreso }));
 
-            // 3. Buscar Herramientas (Archivo)
+            // 3. Buscar Herramientas (Archivo o Nombre del Tipo)
             const { rows: tools } = await db.query(
-                "SELECT h.id, h.tipo_herramienta, o.nombre as org_nombre FROM herramientas h JOIN organizaciones o ON h.organizacion_id = o.id WHERE LOWER(h.nombre_archivo) LIKE $1 AND h.vigente = 1",
+                `SELECT h.id, h.tipo_herramienta, h.nombre_personalizado, o.nombre as org_nombre 
+                 FROM herramientas h 
+                 JOIN organizaciones o ON h.organizacion_id = o.id 
+                 WHERE (LOWER(h.nombre_archivo) LIKE $1 
+                        OR LOWER(h.tipo_herramienta) LIKE $1 
+                        OR LOWER(h.nombre_personalizado) LIKE $1) 
+                 AND h.vigente = 1`,
                 [`%${query}%`]
             );
-            tools.forEach(t => results.push({ type: 'HERRAMIENTA', id: t.id, title: t.tipo_herramienta, subtitle: t.org_nombre }));
+            tools.forEach(t => {
+                const title = t.nombre_personalizado || window.AppUtils.getNombreTipoHerramienta(t.tipo_herramienta);
+                results.push({ type: 'HERRAMIENTA', id: t.id, title: title, subtitle: t.org_nombre });
+            });
 
             // Si la búsqueda es específica (e.g. "avances consejeria")
             // Esto es una simplificación, en producción se usaría un motor de búsqueda más robusto
@@ -39,10 +48,10 @@ class SearchController {
                 // Podríamos filtrar resultados que tengan que ver con lo que sigue de la frase
             }
 
-            res.json({ results: results.slice(0, 10) });
+            res.json({ success: true, data: results.slice(0, 10) });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Error en búsqueda inteligente' });
+            res.status(500).json({ success: false, error: 'Error en búsqueda inteligente' });
         }
     }
 
@@ -61,10 +70,10 @@ class SearchController {
         ORDER BY total_herramientas DESC
       `;
             const { rows } = await db.query(sql);
-            res.json({ cargas: rows });
+            res.json({ success: true, data: rows });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Error al obtener cargas de trabajo' });
+            res.status(500).json({ success: false, error: 'Error al obtener cargas de trabajo' });
         }
     }
 }

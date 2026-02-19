@@ -29,7 +29,7 @@ class HerramientasController {
                 herramientas = herramientas.filter(h => h.tipo_herramienta === tipo_herramienta);
             }
 
-            res.json({ herramientas });
+            res.json({ success: true, data: herramientas });
 
         } catch (error) {
             console.error('Error al obtener herramientas:', error);
@@ -58,8 +58,11 @@ class HerramientasController {
             const historial = await Historial.obtenerPorHerramienta(id);
 
             res.json({
-                herramienta,
-                historial
+                success: true,
+                data: {
+                    herramienta,
+                    historial
+                }
             });
 
         } catch (error) {
@@ -180,8 +183,9 @@ class HerramientasController {
             await SemaforoService.actualizarCacheSemaforo(organizacion_id);
 
             res.status(201).json({
+                success: true,
                 mensaje: 'Herramienta creada exitosamente',
-                herramienta: nuevaHerramienta
+                data: nuevaHerramienta
             });
 
         } catch (error) {
@@ -259,8 +263,9 @@ class HerramientasController {
             await SemaforoService.actualizarCacheSemaforo(herramienta.organizacion_id);
 
             res.json({
+                success: true,
                 mensaje: 'Herramienta actualizada exitosamente',
-                cambios: resultado.changes
+                data: resultado.changes
             });
 
         } catch (error) {
@@ -293,7 +298,7 @@ class HerramientasController {
 
             await SemaforoService.actualizarCacheSemaforo(herramienta.organizacion_id);
 
-            res.json({ mensaje: 'Herramienta eliminada exitosamente' });
+            res.json({ success: true, mensaje: 'Herramienta eliminada exitosamente' });
 
         } catch (error) {
             console.error('Error al eliminar herramienta:', error);
@@ -341,7 +346,8 @@ class HerramientasController {
             const herramientas = await Herramienta.obtenerProximasAVencer(mesesVencimiento);
 
             res.json({
-                herramientas,
+                success: true,
+                data: herramientas,
                 criterio: `Herramientas con más de ${mesesVencimiento} meses sin actualizar`
             });
 

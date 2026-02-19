@@ -40,7 +40,7 @@ class OrganizacionesController {
                 };
             });
 
-            res.json({ organizaciones: organizacionesConSemaforo });
+            res.json({ success: true, data: organizacionesConSemaforo });
 
         } catch (error) {
             console.error('Error al obtener organizaciones:', error);
@@ -68,7 +68,8 @@ class OrganizacionesController {
             const semaforoActualizado = await SemaforoService.actualizarCacheSemaforo(id);
 
             res.json({
-                organizacion: {
+                success: true,
+                data: {
                     ...organizacion,
                     herramientas,
                     semaforo: semaforoActualizado ? semaforoActualizado.estatus : (organizacion.semaforo || 'ROJO'),
@@ -115,8 +116,9 @@ class OrganizacionesController {
             });
 
             res.status(201).json({
+                success: true,
                 mensaje: 'Organización creada exitosamente',
-                organizacion: nuevaOrganizacion
+                data: nuevaOrganizacion
             });
 
         } catch (error) {
@@ -150,8 +152,9 @@ class OrganizacionesController {
             });
 
             res.json({
+                success: true,
                 mensaje: 'Organización actualizada exitosamente',
-                cambios: resultado.changes
+                data: resultado.changes
             });
 
         } catch (error) {
@@ -175,7 +178,7 @@ class OrganizacionesController {
 
             await Organizacion.borrarDefinitivamente(id);
 
-            res.json({ mensaje: 'Organización y todos sus datos relacionados han sido eliminados definitivamente' });
+            res.json({ success: true, mensaje: 'Organización y todos sus datos relacionados han sido eliminados definitivamente' });
 
         } catch (error) {
             console.error('Error al eliminar organización:', error);
@@ -233,7 +236,7 @@ class OrganizacionesController {
                 }
             });
 
-            res.json({ estadisticas });
+            res.json({ success: true, data: estadisticas });
 
         } catch (error) {
             console.error('Error al obtener estadísticas:', error);

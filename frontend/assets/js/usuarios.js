@@ -68,15 +68,11 @@
         container.innerHTML = '<tr><td colspan="5" class="text-center"><div class="spinner"></div></td></tr>';
 
         try {
-            const resp = await fetch(`${window.AppUtils.API_URL}/auth/usuarios`, {
-                headers: { 'Authorization': `Bearer ${window.AppUtils.AppState.token}` }
-            });
-
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error);
+            const res = await window.AppUtils.fetchAPI('/auth/usuarios');
+            const usuariosArray = res.data || res.usuarios || [];
 
             let html = '';
-            data.usuarios.forEach(u => {
+            usuariosArray.forEach(u => {
                 const estadoClass = u.activo ? 'active-user' : 'inactive-user';
                 html += `
           <tr class="user-row-admin ${estadoClass}">
@@ -88,7 +84,7 @@
               <div style="display: flex; gap: 5px;">
                 <button class="btn btn-primary btn-sm" onclick="window.mostrarModalEditarUsuarioAdmin(${JSON.stringify(u).replace(/"/g, '&quot;')})">Editar</button>
                 <button class="btn btn-secondary btn-sm" onclick="window.resetearPasswordUsuarioAdmin(${JSON.stringify(u).replace(/"/g, '&quot;')})">Reiniciar Clave</button>
-                <button class="btn btn-danger btn-sm" onclick="window.eliminarUsuarioAdmin(${u.id}, '${u.nombre_completo}')">Eliminar</button>
+                <button class="btn btn-danger btn-sm" onclick="window.eliminarUsuarioAdmin(${id}, '${u.nombre_completo}')">Eliminar</button>
               </div>
             </td>
           </tr>

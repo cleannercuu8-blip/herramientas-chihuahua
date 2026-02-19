@@ -10,7 +10,7 @@ const OrganizacionesModule = {
         try {
             const endpoint = `/organizaciones?${params.toString()}`;
             const data = await window.AppUtils.fetchAPI(endpoint);
-            return { success: true, data: data.organizaciones };
+            return { success: true, data: data.data };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -20,7 +20,7 @@ const OrganizacionesModule = {
     async obtenerPorId(id) {
         try {
             const data = await window.AppUtils.fetchAPI(`/organizaciones/${id}`);
-            return { success: true, data: data.organizacion };
+            return { success: true, data: data.data };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -68,7 +68,7 @@ const OrganizacionesModule = {
     async obtenerEstadisticas() {
         try {
             const data = await window.AppUtils.fetchAPI('/organizaciones/estadisticas');
-            return { success: true, data: data.estadisticas };
+            return { success: true, data: data.data };
         } catch (error) {
             return { success: false, error: error.message };
         }

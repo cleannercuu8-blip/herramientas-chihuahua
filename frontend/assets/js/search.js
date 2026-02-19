@@ -83,8 +83,8 @@
 
                 if (!response.ok) throw new Error('Error en búsqueda');
 
-                const data = await response.json();
-                this.renderizarResultados(data.results);
+                const res = await response.json();
+                this.renderizarResultados(res.data);
 
             } catch (error) {
                 console.error(error);

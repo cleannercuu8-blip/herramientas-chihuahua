@@ -181,10 +181,9 @@ const ReportesModule = {
         resultsArea.innerHTML = '<div class="spinner"></div>';
 
         try {
-            // Corregido: Usar la ruta inteligente y manejar el formato de respuesta real
-            const data = await window.AppUtils.fetchAPI(`/search/smart?q=${encodeURIComponent(query)}`);
-
-            const herramientas = (data.results || []).filter(r => r.type === 'HERRAMIENTA');
+            // Corregido: Usar la ruta inteligente y la nueva estructura .data
+            const res = await window.AppUtils.fetchAPI(`/search/smart?q=${encodeURIComponent(query)}`);
+            const herramientas = (res.data || []).filter(r => r.type === 'HERRAMIENTA');
 
             if (herramientas.length === 0) {
                 resultsArea.innerHTML = '<p class="p-20 text-center color-gray">No se encontraron archivos con ese nombre.</p>';
@@ -238,12 +237,12 @@ const ReportesModule = {
 
             placeholder.classList.add('hidden');
 
-            if (!res.tareas || res.tareas.length === 0) {
+            if (!res.data || res.data.length === 0) {
                 lista.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8;">No tienes tareas pendientes por ahora. ☕</div>';
                 return;
             }
 
-            res.tareas.forEach(t => {
+            res.data.forEach(t => {
                 const card = document.createElement('div');
                 card.className = `task-card priority-${t.prioridad.toLowerCase()}`;
                 card.style = `
@@ -292,8 +291,9 @@ const ReportesModule = {
 
         // Cargar usuarios para el select (Simplificado: cargar desde el endpoint de usuarios existente)
         try {
-            const res = await window.AppUtils.fetchAPI('/admin/usuarios'); // Asumiendo que esta ruta existe o ajustando
-            select.innerHTML = res.usuarios.map(u => `<option value="${u.id}">${u.nombre_completo} (${u.rol})</option>`).join('');
+            const res = await window.AppUtils.fetchAPI('/admin/usuarios');
+            const usuarios = res.data || res.usuarios || []; // Retrocompatible durante transición
+            select.innerHTML = usuarios.map(u => `<option value="${u.id}">${u.nombre_completo} (${u.rol})</option>`).join('');
         } catch (e) {
             select.innerHTML = '<option value="">Error al cargar usuarios</option>';
         }

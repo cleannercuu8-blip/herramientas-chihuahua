@@ -77,6 +77,7 @@ class ImportController {
             }
 
             res.json({
+                success: true,
                 mensaje: `Importación completa: ${procesados} organizaciones procesadas.`,
                 alertas: errores.length > 0 ? errores : null
             });
@@ -215,6 +216,7 @@ class ImportController {
             }
 
             res.json({
+                success: true,
                 mensaje: `Importación de herramientas completa: ${procesados} registradas.`,
                 alertas: omitidos.length > 0 ? omitidos : null
             });

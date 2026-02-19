@@ -6,8 +6,8 @@ const HerramientasModule = {
             const endpoint = organizacionId
                 ? `/herramientas?organizacion_id=${organizacionId}`
                 : '/herramientas';
-            const data = await window.AppUtils.fetchAPI(endpoint);
-            return { success: true, data: data.herramientas };
+            const res = await window.AppUtils.fetchAPI(endpoint);
+            return { success: true, data: res.data };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -16,8 +16,8 @@ const HerramientasModule = {
     // Obtener herramienta por ID
     async obtenerPorId(id) {
         try {
-            const data = await window.AppUtils.fetchAPI(`/herramientas/${id}`);
-            return { success: true, data };
+            const res = await window.AppUtils.fetchAPI(`/herramientas/${id}`);
+            return { success: true, data: res.data };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -26,8 +26,8 @@ const HerramientasModule = {
     // Crear herramienta con archivo
     async crear(formData) {
         try {
-            const data = await window.AppUtils.fetchAPIWithFile('/herramientas', formData);
-            return { success: true, data };
+            const res = await window.AppUtils.fetchAPIWithFile('/herramientas', formData);
+            return { success: true, data: res.data };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -45,13 +45,13 @@ const HerramientasModule = {
                 body: formData
             });
 
-            const data = await response.json();
+            const res = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Error al actualizar');
+                throw new Error(res.error || 'Error al actualizar');
             }
 
-            return { success: true, data };
+            return { success: true, data: res.data };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -60,10 +60,10 @@ const HerramientasModule = {
     // Eliminar herramienta
     async eliminar(id) {
         try {
-            const data = await window.AppUtils.fetchAPI(`/herramientas/${id}`, {
+            const res = await window.AppUtils.fetchAPI(`/herramientas/${id}`, {
                 method: 'DELETE'
             });
-            return { success: true, data };
+            return { success: true, data: res.data };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -72,8 +72,8 @@ const HerramientasModule = {
     // Obtener herramientas próximas a vencer
     async obtenerProximasVencer(meses = 12) {
         try {
-            const data = await window.AppUtils.fetchAPI(`/herramientas/proximas-vencer?meses=${meses}`);
-            return { success: true, data: data.herramientas };
+            const res = await window.AppUtils.fetchAPI(`/herramientas/proximas-vencer?meses=${meses}`);
+            return { success: true, data: res.data };
         } catch (error) {
             return { success: false, error: error.message };
         }

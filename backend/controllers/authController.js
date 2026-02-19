@@ -58,13 +58,16 @@ class AuthController {
             );
 
             res.json({
+                success: true,
                 mensaje: 'Login exitoso',
-                token,
-                usuario: {
-                    id: usuario.id,
-                    nombre_completo: usuario.nombre_completo,
-                    email: usuario.email,
-                    rol: usuario.rol
+                data: {
+                    token,
+                    usuario: {
+                        id: usuario.id,
+                        nombre_completo: usuario.nombre_completo,
+                        email: usuario.email,
+                        rol: usuario.rol
+                    }
                 }
             });
 
@@ -116,8 +119,9 @@ class AuthController {
             });
 
             res.status(201).json({
+                success: true,
                 mensaje: 'Usuario creado exitosamente',
-                usuario: {
+                data: {
                     id: nuevoUsuario.id,
                     nombre_completo,
                     email,
@@ -142,7 +146,7 @@ class AuthController {
                 return res.status(404).json({ error: 'Usuario no encontrado' });
             }
 
-            res.json({ usuario });
+            res.json({ success: true, data: usuario });
 
         } catch (error) {
             console.error('Error al obtener perfil:', error);
@@ -156,7 +160,7 @@ class AuthController {
     static async listarUsuarios(req, res) {
         try {
             const usuarios = await Usuario.obtenerTodos();
-            res.json({ usuarios });
+            res.json({ success: true, data: usuarios });
         } catch (error) {
             console.error('Error al listar usuarios:', error);
             res.status(500).json({ error: 'Error en el servidor' });
@@ -188,7 +192,7 @@ class AuthController {
                 await Usuario.actualizar(id, datos);
             }
 
-            res.json({ mensaje: 'Usuario actualizado correctamente' });
+            res.json({ success: true, mensaje: 'Usuario actualizado correctamente' });
         } catch (error) {
             console.error('Error al actualizar usuario admin:', error);
             res.status(500).json({ error: 'Error en el servidor' });
@@ -208,7 +212,7 @@ class AuthController {
             }
 
             await Usuario.eliminar(id);
-            res.json({ mensaje: 'Usuario eliminado correctamente' });
+            res.json({ success: true, mensaje: 'Usuario eliminado correctamente' });
         } catch (error) {
             console.error('Error al eliminar usuario admin:', error);
             res.status(500).json({ error: 'Error en el servidor' });
@@ -247,7 +251,7 @@ class AuthController {
             // Actualizar en la base de datos
             await db.query('UPDATE usuarios SET password_hash = $1 WHERE id = $2', [nuevoPasswordHash, usuarioId]);
 
-            res.json({ mensaje: 'Contraseña actualizada exitosamente' });
+            res.json({ success: true, mensaje: 'Contraseña actualizada exitosamente' });
 
         } catch (error) {
             console.error('Error al cambiar contraseña:', error);
@@ -270,7 +274,7 @@ class AuthController {
 
             if (!usuario) {
                 // Por seguridad, no revelamos si el email existe
-                return res.json({ mensaje: 'Si el correo está registrado, recibirás un código' });
+                return res.json({ success: true, mensaje: 'Si el correo está registrado, recibirás un código' });
             }
 
             // Generar código de 6 dígitos
@@ -297,8 +301,8 @@ class AuthController {
             console.log(`CÓDIGO DE RECUPERACIÓN PARA ${email}: ${codigo}`);
 
             res.json({
-                mensaje: 'Si el correo está registrado, recibirás un código',
-                demo_codigo: codigo // SOLO PARA DEMO/DESARROLLO si el usuario lo pide ver
+                success: true,
+                mensaje: 'Si el correo está registrado, recibirás un código'
             });
 
         } catch (error) {
@@ -343,7 +347,7 @@ class AuthController {
             // Eliminar código usado
             await db.query('DELETE FROM recovery_codes WHERE email = $1', [email]);
 
-            res.json({ mensaje: 'Contraseña restablecida exitosamente' });
+            res.json({ success: true, mensaje: 'Contraseña restablecida exitosamente' });
 
         } catch (error) {
             console.error('Error en restablecerPassword:', error);
